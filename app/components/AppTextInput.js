@@ -1,14 +1,10 @@
 import React from 'react';
 import { View, StyleSheet, TextInput } from 'react-native';
 
-function AppTextInput({ ...otherProps }) {
+function AppTextInput({ myRef, ...otherProps }) {
   return (
     <View style={styles.container}>
-      <TextInput
-        placeholderTextColor={'grey'}
-        style={styles.input}
-        {...otherProps}
-      />
+      <TextInput ref={myRef} {...otherProps} />
     </View>
   );
 }
