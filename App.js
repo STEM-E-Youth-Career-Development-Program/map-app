@@ -1,15 +1,13 @@
-import { useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import AppTextInput from './app/components/AppTextInput';
-import Label from './app/components/Label';
+import AppForm from './app/components/AppForm';
+import AppFormField from './app/components/AppFormField';
 
 export default function App() {
-  const myRef = useRef(null);
-
   return (
     <View style={styles.container}>
-      <Label onPress={() => myRef.current.focus()} />
-      <AppTextInput placeholder="Yh" myRef={myRef} />
+      <AppForm initialValues={{ name: '' }}>
+        <AppFormField name={'name'} label={'Name'} />
+      </AppForm>
     </View>
   );
 }

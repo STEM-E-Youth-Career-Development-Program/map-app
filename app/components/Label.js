@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
 
-function Label({ onPress }) {
+function Label({ label, onPress }) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
-      <Text style={styles.label}>Please</Text>
+      <Text style={styles.label}>{label}</Text>
     </TouchableWithoutFeedback>
   );
 }
