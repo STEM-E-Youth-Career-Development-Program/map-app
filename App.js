@@ -5,8 +5,9 @@ import AppFormField from './app/components/AppFormField';
 export default function App() {
   return (
     <View style={styles.container}>
-      <AppForm initialValues={{ name: '' }}>
+      <AppForm initialValues={{ name: '', email: '' }}>
         <AppFormField name={'name'} label={'Name'} />
+        <AppFormField name={'email'} label={'Email'} />
       </AppForm>
     </View>
   );
