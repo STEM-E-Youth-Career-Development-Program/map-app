@@ -1,12 +1,12 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
 import Constants from 'expo-constants';
 
 function Screen({ children, style }) {
   return (
-    <SafeAreaView style={[styles.screen, style]}>
+    <ScrollView style={[styles.screen, style]}>
       <View style={[styles.view, style]}>{children}</View>
-    </SafeAreaView>
+    </ScrollView>
   );
 }
 
@@ -14,10 +14,12 @@ export default Screen;
 
 const styles = StyleSheet.create({
   screen: {
-    paddingTop: Constants.statusBarHeight,
     flex: 1,
+    paddingTop: Constants.statusBarHeight,
+    padding: 10,
   },
   view: {
+    paddingBottom: 40,
     flex: 1,
   },
 });
