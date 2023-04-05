@@ -11,7 +11,9 @@ function Event(props) {
         />
       </View>
       <View>
-        <Text>Medical Workshop</Text>
+        <Text style={styles.heading}>Medical Workshop</Text>
+        <Text style={styles.date}>Thurs, Mar 2023 - Sat Mar 32</Text>
+        <Text style={styles.date}>Subject: science 🗼2.5 mi $25 🍴 yes</Text>
       </View>
       <View>
         <Text>Medical Workshop</Text>
@@ -28,7 +30,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignContent: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'red',
     alignItems: 'center',
+  },
+  date: {
+    fontSize: 10,
+  },
+  heading: {
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
