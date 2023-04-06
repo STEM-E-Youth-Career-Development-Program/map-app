@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, StyleSheet, Image, Text } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 function Event(props) {
   return (
     <View style={styles.container}>
       <View>
         <Image
-          style={{ width: 100, height: 100 }}
+          style={{ width: 90, height: 90 }}
           source={require('../assets/eventIcon.png')}
         />
       </View>
@@ -16,7 +17,7 @@ function Event(props) {
         <Text style={styles.date}>Subject: science 🗼2.5 mi $25 🍴 yes</Text>
       </View>
       <View>
-        <Text>Medical Workshop</Text>
+        <MaterialCommunityIcons name="map-marker-radius" size={45} />
       </View>
     </View>
   );
@@ -28,8 +29,7 @@ const styles = StyleSheet.create({
   container: {
     display: 'flex',
     flexDirection: 'row',
-    alignContent: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'center',
   },
   date: {
