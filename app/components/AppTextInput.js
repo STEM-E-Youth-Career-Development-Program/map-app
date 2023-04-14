@@ -13,9 +13,9 @@ export default AppTextInput;
 
 const styles = StyleSheet.create({
   container: {
-    borderColor: '#6BB6FC',
-    borderWidth: 3,
-    borderRadius: 25,
+    borderColor: '#999',
+    borderWidth: 2,
+    borderRadius: 10,
     marginVertical: 10,
     padding: 15,
   },
