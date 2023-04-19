@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-function SearchBar(props) {
+function SearchBar({ onChangeText, value, ...otherProps }) {
   const searchRef = useRef(null);
 
   return (
@@ -19,7 +19,9 @@ function SearchBar(props) {
         <TextInput
           style={styles.textInput}
           ref={searchRef}
-          placeholder="Search for event"
+          onChangeText={onChangeText}
+          value={value}
+          {...otherProps}
         />
       </View>
     </View>

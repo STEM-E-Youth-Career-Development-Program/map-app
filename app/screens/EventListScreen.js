@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, FlatList } from 'react-native';
 
 import Screen from '../components/Screen';
+import SearchBar from '../components/SearchBar';
 import Event from '../components/Event';
 
 const events = [
@@ -32,11 +33,23 @@ const events = [
 ];
 
 function EventListScreen(props) {
+  const [searchQuery, setSearchQuery] = useState();
+
+  const filterData = () => {
+    return events.filter((item) =>
+      item.heading.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
   return (
     <Screen>
-      {/* <Event /> */}
+      <SearchBar
+        value={searchQuery}
+        onChangeText={(query) => setSearchQuery(query)}
+        placeholder="Search for event"
+      />
       <FlatList
-        data={events}
+        data={filterData()}
         keyExtractor={(event) => event.id.toString()}
         renderItem={({ item }) => (
           <Event

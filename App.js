@@ -7,9 +7,5 @@ import EventListScreen from './app/screens/EventListScreen';
 import SearchBar from './app/components/SearchBar';
 
 export default function App() {
-  return (
-    <Screen>
-      <SearchBar />
-    </Screen>
-  );
+  return <EventListScreen />;
 }
