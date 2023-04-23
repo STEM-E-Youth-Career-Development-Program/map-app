@@ -1,6 +1,5 @@
-// Arjun testing
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Constants from 'expo-constants';
 
 function Screen({ children, style }) {
@@ -18,6 +17,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: Constants.statusBarHeight,
     padding: 10,
+    backgroundColor: '#f3f3f3',
   },
   view: {
     paddingBottom: 40,
