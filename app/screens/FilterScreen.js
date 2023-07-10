@@ -8,12 +8,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const filterScreen = () => {
   const [selected, setArea] = useState('');
-  const [distance, setDistance] = useState(40);
-  var distanceText = distance + ' km';
-  if (distance == 160) {
-    distanceText = '160+ km'
-  } else if (cost == 0) {
-    distanceText = 'Free'
+  const [distance, setDistance] = useState(0);
+  var distanceText = 'Within ' + distance + ' miles';
+  if (distance == 100) {
+    distanceText = '100+ miles'
+  } else if (distance == 0) {
+    distanceText = 'Exact Location'
   };
   const [cost, setCost] = useState(0);
   var costText = 'Max. $' + cost;
@@ -64,17 +64,17 @@ const filterScreen = () => {
       <View style={styles.line} />
       <Slider
         style={styles.slider}
-        minimumValue={40}
-        maximumValue={160}
-        step={10}
+        minimumValue={0}
+        maximumValue={100}
+        step={5}
         onValueChange={setDistance}
         minimumTrackTintColor='#999999'
         thumbTintColor='grey'
       />
       <View style={styles.sliderLabels}>
-        <Text style={styles.sliderText}>{'≤'}40 km</Text>
-        <Text style={{color: '#5A5A5A'}}>Within {distanceText}</Text>
-        <Text style={styles.sliderText}>160+ km</Text>
+        <Text style={styles.sliderText}>Exact Location</Text>
+        <Text style={{color: '#5A5A5A'}}>{distanceText}</Text>
+        <Text style={styles.sliderText}>100+ miles</Text>
       </View>
 
       <Text style={styles.heading}>Cost</Text>
