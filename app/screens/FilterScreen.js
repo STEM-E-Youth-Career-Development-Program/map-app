@@ -73,8 +73,10 @@ const filterScreen = () => {
       />
       <View style={styles.sliderLabels}>
         <Text style={styles.sliderText}>Exact Location</Text>
-        <Text style={{color: '#5A5A5A'}}>{distanceText}</Text>
         <Text style={styles.sliderText}>100+ miles</Text>
+      </View>
+      <View style={{alignSelf: 'center'}}>
+        <Text style={[styles.sliderText, {color: '#5A5A5A', fontWeight: 'semibold', marginTop: -20}]}>{distanceText}</Text>
       </View>
 
       <Text style={styles.heading}>Cost</Text>
@@ -90,8 +92,10 @@ const filterScreen = () => {
       />
       <View style={styles.sliderLabels}>
         <Text style={styles.sliderText}>$0</Text>
-        <Text style={{color: '#5A5A5A'}}>{costText}</Text>
         <Text style={styles.sliderText}>$1000+</Text>
+      </View>
+      <View style={{alignSelf: 'center'}}>
+        <Text style={[styles.sliderText, {color: '#5A5A5A', fontWeight: 'semibold', marginTop: -20}]}>{costText}</Text>
       </View>
 
       <Text style={styles.heading}>Meal Included</Text>
