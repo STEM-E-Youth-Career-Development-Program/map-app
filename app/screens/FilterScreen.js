@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, SafeAreaView, Text, StyleSheet, Pressable, StatusBar } from 'react-native';
+import { View, SafeAreaView, Text, StyleSheet, Pressable, StatusBar, Image } from 'react-native';
 import { MultipleSelectList, SelectList } from 'react-native-dropdown-select-list'
 import Slider from '@react-native-community/slider';
 import Checkbox from 'expo-checkbox';
@@ -46,6 +46,7 @@ const filterScreen = () => {
       <View style={styles.header}>
         <Text style={styles.title}>Filter & Sort</Text>
       </View>
+      <Image source={require('./assets/backArrow.png')} style={styles.backArrow}/>
 
       <Text style={styles.heading}>Subject</Text>
       <View style={styles.line} />
@@ -105,7 +106,7 @@ const filterScreen = () => {
           style={styles.checkbox}
           value={Yes}
           onValueChange={setYes}
-          color='grey'
+          color={yestextColor}
         />
         <Text style={[styles.checkbox, {color: yestextColor}]}>Yes</Text>
       </View>
@@ -114,7 +115,7 @@ const filterScreen = () => {
           style={styles.checkbox}
           value={No}
           onValueChange={setNo}
-          color='grey'
+          color={notextColor}
         />
         <Text style={[styles.checkbox, {color: notextColor}]}>No</Text>
       </View>
@@ -142,9 +143,9 @@ const styles = StyleSheet.create({
   header: {
     height: 50,
     backgroundColor: 'white',
-    justifyContent: 'center',
     marginTop: StatusBar.currentHeight,
     flexDirection: 'row',
+    justifyContent: 'center',
   },
   heading: {
     fontWeight: 800,
@@ -156,6 +157,7 @@ const styles = StyleSheet.create({
     fontWeight: 800,
     fontSize: 15,
     alignSelf: 'center',
+    position: 'absolute',
   },
   line: {
     backgroundColor: '#999999',
@@ -199,5 +201,11 @@ const styles = StyleSheet.create({
     marginLeft: '4%',
     marginTop: 15,
     fontWeight: 800,
-  }
+  },
+  backArrow: {
+    width: 50,
+    height: 50,
+    marginTop: -50,
+    marginLeft: '2%',
+  },
 })
