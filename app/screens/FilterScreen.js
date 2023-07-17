@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { View, SafeAreaView, Text, StyleSheet, Pressable, StatusBar, Image } from 'react-native';
-import { MultipleSelectList, SelectList } from 'react-native-dropdown-select-list'
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { MultipleSelectList } from 'react-native-dropdown-select-list'
 import Slider from '@react-native-community/slider';
 import Checkbox from 'expo-checkbox';
 import { LinearGradient } from 'expo-linear-gradient';
+import PageHeader from '../components/PageHeader.js';
+import Screen from '../components/Screen.js';
 
 
-const filterScreen = () => {
+const FilterScreen = () => {
   const [selected, setArea] = useState('');
   const [distance, setDistance] = useState(0);
   var distanceText = 'Within ' + distance + ' miles';
@@ -22,7 +24,6 @@ const filterScreen = () => {
   } else if (cost == 0) {
     costText = 'Free'
   };
-  const [toggleCheckBox, setToggleCheckBox] = useState(false);
   const areas = [
     {value:'Science'},
     {value:'Technology'},
@@ -42,11 +43,9 @@ const filterScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{backgroundColor: '#EEEEEE', flex: 1}}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Filter & Sort</Text>
-      </View>
-      <Image source={require('./assets/backArrow.png')} style={styles.backArrow}/>
+    <Screen>
+      <PageHeader header={'Filter & Sort'} />
+      <Image source={require('../assets/backArrow.png')} style={styles.backArrow}/>
 
       <Text style={styles.heading}>Subject</Text>
       <View style={styles.line} />
@@ -77,7 +76,7 @@ const filterScreen = () => {
         <Text style={styles.sliderText}>100+ miles</Text>
       </View>
       <View style={{alignSelf: 'center'}}>
-        <Text style={[styles.sliderText, {color: '#5A5A5A', fontWeight: 'semibold', marginTop: -20}]}>{distanceText}</Text>
+        <Text style={styles.sliderValue}>{distanceText}</Text>
       </View>
 
       <Text style={styles.heading}>Cost</Text>
@@ -96,10 +95,10 @@ const filterScreen = () => {
         <Text style={styles.sliderText}>$1000+</Text>
       </View>
       <View style={{alignSelf: 'center'}}>
-        <Text style={[styles.sliderText, {color: '#5A5A5A', fontWeight: 'semibold', marginTop: -20}]}>{costText}</Text>
+        <Text style={styles.sliderValue}>{costText}</Text>
       </View>
 
-      <Text style={styles.heading}>Meal Included</Text>
+       <Text style={styles.heading}>Meal Included</Text>
       <View style={styles.line} />
       <View style={{flexDirection: 'row'}}>
         <Checkbox
@@ -119,7 +118,6 @@ const filterScreen = () => {
         />
         <Text style={[styles.checkbox, {color: notextColor}]}>No</Text>
       </View>
-
       <LinearGradient
         colors={['black', '#5A5A5A']}
         style={styles.button}
@@ -133,31 +131,18 @@ const filterScreen = () => {
           <Text style={styles.apply}>Apply</Text>
         </Pressable>
       </LinearGradient>
-    </SafeAreaView>
+  </Screen>
   )
 }
 
-export default filterScreen;
+export default FilterScreen;
 
 const styles = StyleSheet.create({
-  header: {
-    height: 50,
-    backgroundColor: 'white',
-    marginTop: StatusBar.currentHeight,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
   heading: {
-    fontWeight: 800,
+    fontWeight: '800',
     fontSize: 15,
     marginTop: '10%',
     marginLeft: '4%',
-  },
-  title: {
-    fontWeight: 800,
-    fontSize: 15,
-    alignSelf: 'center',
-    position: 'absolute',
   },
   line: {
     backgroundColor: '#999999',
@@ -177,7 +162,7 @@ const styles = StyleSheet.create({
   },
   apply: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontSize: 25,
   },
   slider: {
@@ -195,12 +180,19 @@ const styles = StyleSheet.create({
   sliderText: {
     fontSize: 15,
     color: '#999999',
-    fontWeight: 300,
+    fontWeight: '300',
+  },
+  sliderValue: {
+    fontSize: 15,
+    color: '#999999',
+    fontWeight: '500',
+    marginTop: -20,
+    color: '#5A5A5A',
   },
   checkbox: {
     marginLeft: '4%',
     marginTop: 15,
-    fontWeight: 800,
+    fontWeight: '800',
   },
   backArrow: {
     width: 50,
