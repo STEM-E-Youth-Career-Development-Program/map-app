@@ -1,6 +1,7 @@
 import React from 'react';
-import LandingScreen from './app/screens/LandingScreen';
+import CreateEventScreen from './app/screens/CreateEventScreen';
+import EventListScreen from './app/screens/EventListScreen';
 
 export default function App() {
-  return <LandingScreen />;
+  return <EventListScreen />;
 }

@@ -34,22 +34,29 @@ const events = [
 
 function EventListScreen(props) {
   const [searchQuery, setSearchQuery] = useState();
+  const [filteredData, setFilteredData] = useState(events);
 
-  const filterData = () => {
-    return events.filter((item) =>
-      item.heading.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+  const handleSearch = (text) => {
+    setSearchQuery(text);
+
+    const filteredList = () => {
+      return events.filter((item) =>
+        item.heading.toLowerCase().includes(text.toLowerCase())
+      );
+    };
+
+    setFilteredData(filteredList);
   };
 
   return (
     <Screen>
       <SearchBar
         value={searchQuery}
-        onChangeText={(query) => setSearchQuery(query)}
+        onChangeText={handleSearch}
         placeholder="Search for event"
       />
       <FlatList
-        data={filterData()}
+        data={filteredData}
         keyExtractor={(event) => event.id.toString()}
         renderItem={({ item }) => (
           <Event

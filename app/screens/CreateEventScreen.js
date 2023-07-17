@@ -18,7 +18,7 @@ const validationSchema = Yup.object().shape({
 
 function CreateEventScreen(props) {
   return (
-    <Screen>
+    <Screen style={styles.screen}>
       <PageHeader header={'Create an Event'} />
       <AppForm
         initialValues={{
@@ -58,4 +58,8 @@ function CreateEventScreen(props) {
 
 export default CreateEventScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  screen: {
+    paddingBottom: 70,
+  },
+});
