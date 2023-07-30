@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import * as Yup from 'yup';
 
 import AppForm from '../components/AppForm';
@@ -18,48 +18,47 @@ const validationSchema = Yup.object().shape({
 
 function CreateEventScreen(props) {
   return (
-    <Screen style={styles.screen}>
+    <Screen>
       <PageHeader header={'Create an Event'} />
-      <AppForm
-        initialValues={{
-          name: '',
-          description: '',
-          area: '',
-          location: '',
-          startTime: '',
-          endTime: '',
-          timeZone: '',
-          repeats: '',
-        }}
-        onSubmit={(values) => console.log(values)}
-        validationSchema={validationSchema}
-      >
-        <AppFormField name={'name'} label="Event Name" />
-        <AppFormField
-          name={'description'}
-          label="Event Description"
-          multiline
-          numberOfLines={3}
-        />
-        <AppFormField name={'area'} label="STEM Area" />
-        <AppFormField name={'location'} label="Location" />
-        <AppFormField name={'startTime'} label="Start Time" />
-        <AppFormField name={'endTime'} label="End Time" />
-        <AppFormField name={'timeZone'} label="Time Zone" />
-        <AppFormField
-          name={'repeat'}
-          label="repeat(weekly, monthly, yearly, etc)"
-        />
-        <SubmitButton title={'Create'} />
-      </AppForm>
+      <View style={{padding: 10}}>
+        <AppForm
+          initialValues={{
+            name: '',
+            description: '',
+            area: '',
+            location: '',
+            startTime: '',
+            endTime: '',
+            timeZone: '',
+            repeats: '',
+          }}
+          onSubmit={(values) => console.log(values)}
+          validationSchema={validationSchema}
+          
+        >
+          <AppFormField name={'name'} label="Event Name" />
+          <AppFormField
+            name={'description'}
+            label="Event Description"
+            multiline
+            numberOfLines={3}
+          />
+          <AppFormField name={'area'} label="STEM Area" />
+          <AppFormField name={'location'} label="Location" />
+          <AppFormField name={'startTime'} label="Start Time" />
+          <AppFormField name={'endTime'} label="End Time" />
+          <AppFormField name={'timeZone'} label="Time Zone" />
+          <AppFormField
+            name={'repeat'}
+            label="repeat(weekly, monthly, yearly, etc)"
+          />
+        </AppForm>
+      </View>
+      <SubmitButton title={'Create'} />
     </Screen>
   );
 }
 
 export default CreateEventScreen;
 
-const styles = StyleSheet.create({
-  screen: {
-    paddingBottom: 70,
-  },
-});
+const styles = StyleSheet.create({});

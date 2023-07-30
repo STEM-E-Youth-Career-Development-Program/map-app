@@ -16,11 +16,10 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     paddingTop: Constants.statusBarHeight,
-    padding: 10,
     backgroundColor: '#f3f3f3',
   },
   view: {
-    paddingBottom: 40,
+    paddingBottom: 70,
     flex: 1,
   },
 });

@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { MultipleSelectList } from 'react-native-dropdown-select-list'
 import Slider from '@react-native-community/slider';
 import Checkbox from 'expo-checkbox';
-import { LinearGradient } from 'expo-linear-gradient';
 import PageHeader from '../components/PageHeader.js';
 import Screen from '../components/Screen.js';
+import SubmitButton from '../components/SubmitButton.js';
 
 
 const FilterScreen = () => {
@@ -45,10 +45,8 @@ const FilterScreen = () => {
   return (
     <Screen>
       <PageHeader header={'Filter & Sort'} />
-      <Image source={require('../assets/backArrow.png')} style={styles.backArrow}/>
 
       <Text style={styles.heading}>Subject</Text>
-      <View style={styles.line} />
       <View style={{paddingHorizontal: 16, paddingTop: 15}}>
         <MultipleSelectList
           setSelected={(area) => setArea(area)}
@@ -61,7 +59,6 @@ const FilterScreen = () => {
       </View>
       
       <Text style={[styles.heading, {marginTop: '5%'}]}>Distance</Text>
-      <View style={styles.line} />
       <Slider
         style={styles.slider}
         minimumValue={0}
@@ -80,7 +77,6 @@ const FilterScreen = () => {
       </View>
 
       <Text style={styles.heading}>Cost</Text>
-      <View style={styles.line} />
       <Slider
         style={styles.slider}
         minimumValue={0}
@@ -99,7 +95,6 @@ const FilterScreen = () => {
       </View>
 
        <Text style={styles.heading}>Meal Included</Text>
-      <View style={styles.line} />
       <View style={{flexDirection: 'row'}}>
         <Checkbox
           style={styles.checkbox}
@@ -118,19 +113,8 @@ const FilterScreen = () => {
         />
         <Text style={[styles.checkbox, {color: notextColor}]}>No</Text>
       </View>
-      <LinearGradient
-        colors={['black', '#5A5A5A']}
-        style={styles.button}
-        locations={[0.1, 0.9]}
-      >
-        <Pressable
-          onPress={() => {
-            //change screen
-          }}
-        >
-          <Text style={styles.apply}>Apply</Text>
-        </Pressable>
-      </LinearGradient>
+      <SubmitButton title={'Apply'} />
+      
   </Screen>
   )
 }
@@ -142,28 +126,10 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontSize: 15,
     marginTop: '10%',
-    marginLeft: '4%',
-  },
-  line: {
-    backgroundColor: '#999999',
-    alignSelf: 'center',
-    height: '.2%',
+    borderBottomColor: '#999999',
+    borderBottomWidth: 2,
     width: '92%',
-  },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    width: '92%',
-    height: '6%',
-    alignSelf: 'center',
-    bottom: 15,
-    borderRadius: 8,
-  },
-  apply: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 25,
+    alignSelf: 'center'
   },
   slider: {
     width: '90%',
@@ -184,20 +150,13 @@ const styles = StyleSheet.create({
   },
   sliderValue: {
     fontSize: 15,
-    color: '#999999',
+    color: '#5A5A5A',
     fontWeight: '500',
     marginTop: -20,
-    color: '#5A5A5A',
   },
   checkbox: {
     marginLeft: '4%',
     marginTop: 15,
     fontWeight: '800',
-  },
-  backArrow: {
-    width: 50,
-    height: 50,
-    marginTop: -50,
-    marginLeft: '2%',
   },
 })
