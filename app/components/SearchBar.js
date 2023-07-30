@@ -16,7 +16,7 @@ function SearchBar({ onChangeText, value, ...otherProps }) {
     <View style={styles.searchRow}>
       <View style={styles.container}>
         <TouchableWithoutFeedback onPress={() => searchRef.current.focus()}>
-          <MaterialCommunityIcons name="magnify" size={33} />
+          <MaterialCommunityIcons name="magnify" size={30} />
         </TouchableWithoutFeedback>
         <View style={styles.textInputContainer}>
           <TextInput
@@ -27,7 +27,7 @@ function SearchBar({ onChangeText, value, ...otherProps }) {
             {...otherProps}
           />
         </View>
-        <MaterialCommunityIcons name="microphone" size={33} style={{marginLeft: 'auto'}}/>
+        <MaterialCommunityIcons name="microphone-outline" size={30} style={{marginLeft: 'auto'}}/>
       </View>
       
       <Pressable style={styles.container}>

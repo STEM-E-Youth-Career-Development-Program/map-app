@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, FlatList, Text, Pressable } from 'react-native';
 
-import Screen from '../components/Screen';
 import SearchBar from '../components/SearchBar';
 import Event from '../components/Event';
 import SubmitButton from '../components/SubmitButton';
 import PageHeader from '../components/PageHeader';
+import Constants from 'expo-constants';
 
-const events = [
+const allEventsList = [
   {
     id: 1,
     heading: 'Medical Workshop',
@@ -16,7 +16,8 @@ const events = [
     subject: 'Science',
     distance: '2.5',
     cost: '25',
-    meal: 'yes',
+    meal: true,
+    active: true,
   },
   {
     id: 2,
@@ -26,7 +27,8 @@ const events = [
     subject: 'Science',
     distance: '2.5',
     cost: '25',
-    meal: 'yes',
+    meal: false,
+    active: true,
   },
   {
     id: 3,
@@ -36,7 +38,8 @@ const events = [
     subject: 'Science',
     distance: '2.5',
     cost: '25',
-    meal: 'yes',
+    meal: true,
+    active: true,
   },
   {
     id: 4,
@@ -46,37 +49,164 @@ const events = [
     subject: 'Science',
     distance: '2.5',
     cost: '25',
-    meal: 'yes',
+    meal: false,
+    active: true,
+  },
+  {
+    id: 5,
+    heading: 'Medical Workshop',
+    startDate: 'Thurs, Mar 23',
+    endDate: 'Sat, Mar 25',
+    subject: 'Science',
+    distance: '2.5',
+    cost: '25',
+    meal: true,
+    active: true,
+  },
+  {
+    id: 6,
+    heading: 'Medical Workshop',
+    startDate: 'Thurs, Mar 23',
+    endDate: 'Sat, Mar 25',
+    subject: 'Science',
+    distance: '2.5',
+    cost: '25',
+    meal: false,
+    active: true,
+  },
+  {
+    id: 7,
+    heading: 'Medical Workshop',
+    startDate: 'Thurs, Mar 23',
+    endDate: 'Sat, Mar 25',
+    subject: 'Science',
+    distance: '2.5',
+    cost: '25',
+    meal: true,
+    active: true,
+  },
+  {
+    id: 8,
+    heading: 'Medical Workshop',
+    startDate: 'Thurs, Mar 23',
+    endDate: 'Sat, Mar 25',
+    subject: 'Science',
+    distance: '2.5',
+    cost: '25',
+    meal: false,
+    active: true,
+  },
+  {
+    id: 9,
+    heading: 'Medical Workshop',
+    startDate: 'Thurs, Mar 23',
+    endDate: 'Sat, Mar 25',
+    subject: 'Science',
+    distance: '2.5',
+    cost: '25',
+    meal: true,
+    active: true,
+  },
+  {
+    id: 10,
+    heading: 'Medical Workshop',
+    startDate: 'Thurs, Mar 23',
+    endDate: 'Sat, Mar 25',
+    subject: 'Science',
+    distance: '2.5',
+    cost: '25',
+    meal: false,
+    active: true,
+  },
+  {
+    id: 11,
+    heading: 'Technical Workshop',
+    startDate: 'Thurs, Mar 23',
+    endDate: 'Sat, Mar 25',
+    subject: 'Science',
+    distance: '2.5',
+    cost: '25',
+    meal: false,
+    active: false,
+  },
+  {
+    id: 12,
+    heading: 'Technical Workshop',
+    startDate: 'Thurs, Mar 23',
+    endDate: 'Sat, Mar 25',
+    subject: 'Science',
+    distance: '2.5',
+    cost: '25',
+    meal: false,
+    active: false,
+  },
+  {
+    id: 13,
+    heading: 'Technical Workshop',
+    startDate: 'Thurs, Mar 23',
+    endDate: 'Sat, Mar 25',
+    subject: 'Science',
+    distance: '2.5',
+    cost: '25',
+    meal: false,
+    active: false,
+  },
+  {
+    id: 14,
+    heading: 'Technical Workshop',
+    startDate: 'Thurs, Mar 23',
+    endDate: 'Sat, Mar 25',
+    subject: 'Science',
+    distance: '2.5',
+    cost: '25',
+    meal: false,
+    active: false,
+  },
+  {
+    id: 15,
+    heading: 'Technical Workshop',
+    startDate: 'Thurs, Mar 23',
+    endDate: 'Sat, Mar 25',
+    subject: 'Science',
+    distance: '2.5',
+    cost: '25',
+    meal: false,
+    active: false,
   },
 ];
 
 function EventListScreen(props) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredData, setFilteredData] = useState(events);
+  const [active, setActive] = useState(true);
+  const [filteredData, setFilteredData] = useState([]);
+
   const handleSearch = (text) => {
     setSearchQuery(text);
-    const filteredList = () => {
-      return events.filter((item) =>
-        item.heading.toLowerCase().includes(text.toLowerCase())
-      );
-    };
-    setFilteredData(filteredList);
-  };
-  const filterData = () => {
-    return events.filter((item) =>
-      item.heading.toLowerCase().includes(searchQuery.toLowerCase())
-    );
   };
 
+
+  useEffect(() => {
+    const filteredEvents = allEventsList.filter(event => 
+      event.heading.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      event.active == active
+    );
+    
+    setFilteredData(filteredEvents);
+  }, [searchQuery, active]);
+
   return (
-    <Screen>
+    <View style={styles.screen}>
       <PageHeader header='All Events'/>
       <View style={styles.actpenContainer}>
-        <Pressable style={styles.actpen}>
-          <Text style={styles.actpentxt}>Active</Text>
+        <Pressable style={styles.actpen} onPress={() => setActive(true)}>
+          <Text style={[styles.actpentxt, active ? styles.activeStyle : styles.inactiveStyle]}>
+            Active
+          </Text>
         </Pressable>
-        <Pressable style={styles.actpen}>
-          <Text style={styles.actpentxt}>Pending</Text>
+        <Pressable style={styles.actpen} onPress={() => setActive(false)}>
+          <Text style={[styles.actpentxt, !active ? styles.activeStyle : styles.inactiveStyle]}>
+            Pending
+          </Text>
         </Pressable>
       </View>
       <SearchBar
@@ -96,17 +226,23 @@ function EventListScreen(props) {
             distance={item.distance}
             cost={item.cost}
             meal={item.meal}
+            status={item.active ? 'Active' : 'Pending'}
           />
         )}
       />
-      
-    </Screen>
+      <SubmitButton title={'Add New Event'} />
+    </View>
   );
 }
 
 export default EventListScreen;
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    paddingTop: Constants.statusBarHeight,
+    backgroundColor: '#f3f3f3',
+  },
   actpenContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -123,4 +259,19 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700'
   },
+  actpentxt: {
+    textAlign: 'center',
+    fontSize: 15,
+    fontWeight: '700'
+  },
+  activeStyle: {
+    fontWeight: 'bold',
+    marginTop: -5,
+    fontSize: 17
+  },
+  inactiveStyle: {
+    fontWeight: 'normal',
+    marginTop: 0,
+    fontSize: 15
+  }
 });

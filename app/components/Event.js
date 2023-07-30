@@ -2,28 +2,43 @@ import React from 'react';
 import { View, StyleSheet, Image, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-function Event({ heading, startDate, endDate, subject, distance, cost, meal }) {
+function Event({ heading, startDate, endDate, subject, distance, cost, meal, active }) {
+  if (meal==true) {
+    meal='food'
+  } else if (meal==false) {
+    meal='food-off'
+  };
+  if (Array.isArray(subject) == true) {
+    subject = subject.join(', ')
+  };
+
   return (
     <View style={styles.container}>
-      <View style={{shadowColor: 'black', shadowOffset: {width: 0, height: 5}, shadowOpacity: .34, shadowRadius: 6.27, elevation: 10}}>
+      <View style={styles.shadow}>
         <Image
-          style={{ width: 85, height: 85, borderRadius: 85 }}
+          style={{ width: 70, height: 70 }}
           source={require('../assets/eventIcon.png')}
         />
       </View>
-      <View>
-        <Text style={styles.heading}>{heading}</Text>
-        <Text style={{fontSize: 10}}>{startDate} - {endDate}</Text>
-        <View style={{flexDirection: 'row'}}>
-          <Text style={{fontSize: 10}}>Subject: {subject}{'   '}</Text>
-          <Text style={{fontSize: 10}}>{distance} mi{'    '}</Text>
-          <Text style={{fontSize: 10}}>${cost}{'    '}</Text>
-          <Text style={{fontSize: 10}}>{meal}</Text>
+      <View style={styles.info}>
+        <View style={{display: 'flex', flexDirection: 'row'}}>
+          <Text style={styles.heading}>{heading}</Text>
+          <Image style={styles.duplicate} source={require('../assets/duplicate.png')} />
+        </View>
+        <Text style={{fontSize: 12}}>
+          {startDate} - {endDate}
+        </Text>
+        <View style={{ width: '65%', flexDirection: 'row', justifyContent: 'space-between'}}>
+          <Text style={{fontSize: 12}}>{subject}</Text>
+          <View style={{flexDirection: 'row'}}>
+            <MaterialCommunityIcons name={'map-marker-outline'} size={12} style={{alignSelf: 'center'}}/>
+            <Text style={{fontSize: 12}}>{distance} mi</Text>
+          </View>
+          <Text style={{fontSize: 12}}>${cost}</Text>
+          <MaterialCommunityIcons name={meal} size={12} style={{alignSelf: 'center'}}/>
         </View>
       </View>
-      <View style={{marginHorizontal: 100}}>
-        <MaterialCommunityIcons name="map-marker-radius" size={45} />
-      </View>
+      <Image style={styles.mapPin} source={require('../assets/mapPin.png')}/>
     </View>
   );
 }
@@ -39,10 +54,41 @@ const styles = StyleSheet.create({
     borderBottomColor: 'black',
     borderBottomWidth: 1,
     width: '95%',
-    alignSelf: 'center'
+    height: 90,
+    alignSelf: 'center',
   },
   heading: {
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  shadow: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    width: 75, 
+    height: 75,
+    borderRadius: 100,
+    shadowColor: 'black',
+    elevation: 5,
+    shadowOffset: {width: 0, height: 2}, 
+    shadowOpacity: .25,
+    shadowRadius: 30,
+  },
+  info: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: '65%',
+    marginLeft: 5,
+  },
+  mapPin: {
+    marginLeft: 'auto',
+    height: 40,
+    width: 50,
+  },
+  duplicate: {
+    width: 70,
+    height: 15,
+    marginLeft: 10,
+    marginTop: 'auto',
   },
 });
