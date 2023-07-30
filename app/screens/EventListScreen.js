@@ -184,13 +184,11 @@ function EventListScreen(props) {
     setSearchQuery(text);
   };
 
-
   useEffect(() => {
     const filteredEvents = allEventsList.filter(event => 
       event.heading.toLowerCase().includes(searchQuery.toLowerCase()) &&
       event.active == active
     );
-    
     setFilteredData(filteredEvents);
   }, [searchQuery, active]);
 
@@ -198,13 +196,13 @@ function EventListScreen(props) {
     <View style={styles.screen}>
       <PageHeader header='All Events'/>
       <View style={styles.actpenContainer}>
-        <Pressable style={styles.actpen} onPress={() => setActive(true)}>
-          <Text style={[styles.actpentxt, active ? styles.activeStyle : styles.inactiveStyle]}>
+        <Pressable style={[styles.actpen, active ? {borderBottomColor: 'black'} : {borderBottomColor: '#999999'}]} onPress={() => setActive(true)}>
+          <Text style={[styles.actpentxt, active ? {fontWeight: '700'} : {fontWeight: '400'}]}>
             Active
           </Text>
         </Pressable>
-        <Pressable style={styles.actpen} onPress={() => setActive(false)}>
-          <Text style={[styles.actpentxt, !active ? styles.activeStyle : styles.inactiveStyle]}>
+        <Pressable style={[styles.actpen, !active ? {borderBottomColor: 'black'} : {borderBottomColor: '#999999'}]} onPress={() => setActive(false)}>
+          <Text style={[styles.actpentxt, !active ? {fontWeight: '700'} : {fontWeight: '400'}]}>
             Pending
           </Text>
         </Pressable>
@@ -250,28 +248,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   actpen: {
-    borderBottomColor: '#999999',
     borderBottomWidth: 2,
     width: '50%',
   },
   actpentxt: {
     textAlign: 'center',
     fontSize: 15,
-    fontWeight: '700'
   },
-  actpentxt: {
-    textAlign: 'center',
-    fontSize: 15,
-    fontWeight: '700'
-  },
-  activeStyle: {
-    fontWeight: 'bold',
-    marginTop: -5,
-    fontSize: 17
-  },
-  inactiveStyle: {
-    fontWeight: 'normal',
-    marginTop: 0,
-    fontSize: 15
-  }
 });
