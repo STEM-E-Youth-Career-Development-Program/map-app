@@ -4,7 +4,6 @@ import { StyleSheet, View, FlatList, Text, Pressable } from 'react-native';
 import Screen from '../components/Screen';
 import SearchBar from '../components/SearchBar';
 import Event from '../components/Event';
-import SubmitButton from '../components/SubmitButton';
 import PageHeader from '../components/PageHeader';
 
 const events = [
@@ -70,7 +69,7 @@ function EventListScreen(props) {
 
   return (
     <Screen>
-      <PageHeader header='All Events'/>
+      <PageHeader header="All Events" />
       <View style={styles.actpenContainer}>
         <Pressable style={styles.actpen}>
           <Text style={styles.actpentxt}>Active</Text>
@@ -99,7 +98,6 @@ function EventListScreen(props) {
           />
         )}
       />
-      
     </Screen>
   );
 }
@@ -121,6 +119,6 @@ const styles = StyleSheet.create({
   actpentxt: {
     textAlign: 'center',
     fontSize: 15,
-    fontWeight: '700'
+    fontWeight: '700',
   },
 });
