@@ -87,7 +87,7 @@ function EventListScreen(props) {
     <Screen>
       <PageHeader header="All Events" />
       <View style={styles.actpenContainer}>
-        {/* <Pressable
+        <Pressable
           style={[
             styles.actpen,
             active
@@ -122,7 +122,7 @@ function EventListScreen(props) {
           >
             Pending
           </Text>
-        </Pressable> */}
+        </Pressable>
       </View>
       <SearchBar
         value={searchQuery}
