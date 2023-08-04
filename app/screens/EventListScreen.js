@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, FlatList, Text, Pressable } from 'react-native';
 
 import SearchBar from '../components/SearchBar';
+import Screen from '../components/Screen';
 import Event from '../components/Event';
 import PageHeader from '../components/PageHeader';
 import Constants from 'expo-constants';
@@ -62,116 +63,6 @@ const allEventsList = [
     meal: true,
     active: true,
   },
-  {
-    id: 6,
-    heading: 'Medical Workshop',
-    startDate: 'Thurs, Mar 23',
-    endDate: 'Sat, Mar 25',
-    subject: 'Science',
-    distance: '2.5',
-    cost: '25',
-    meal: false,
-    active: true,
-  },
-  {
-    id: 7,
-    heading: 'Medical Workshop',
-    startDate: 'Thurs, Mar 23',
-    endDate: 'Sat, Mar 25',
-    subject: 'Science',
-    distance: '2.5',
-    cost: '25',
-    meal: true,
-    active: true,
-  },
-  {
-    id: 8,
-    heading: 'Medical Workshop',
-    startDate: 'Thurs, Mar 23',
-    endDate: 'Sat, Mar 25',
-    subject: 'Science',
-    distance: '2.5',
-    cost: '25',
-    meal: false,
-    active: true,
-  },
-  {
-    id: 9,
-    heading: 'Medical Workshop',
-    startDate: 'Thurs, Mar 23',
-    endDate: 'Sat, Mar 25',
-    subject: 'Science',
-    distance: '2.5',
-    cost: '25',
-    meal: true,
-    active: true,
-  },
-  {
-    id: 10,
-    heading: 'Medical Workshop',
-    startDate: 'Thurs, Mar 23',
-    endDate: 'Sat, Mar 25',
-    subject: 'Science',
-    distance: '2.5',
-    cost: '25',
-    meal: false,
-    active: true,
-  },
-  {
-    id: 11,
-    heading: 'Technical Workshop',
-    startDate: 'Thurs, Mar 23',
-    endDate: 'Sat, Mar 25',
-    subject: 'Science',
-    distance: '2.5',
-    cost: '25',
-    meal: false,
-    active: false,
-  },
-  {
-    id: 12,
-    heading: 'Technical Workshop',
-    startDate: 'Thurs, Mar 23',
-    endDate: 'Sat, Mar 25',
-    subject: 'Science',
-    distance: '2.5',
-    cost: '25',
-    meal: false,
-    active: false,
-  },
-  {
-    id: 13,
-    heading: 'Technical Workshop',
-    startDate: 'Thurs, Mar 23',
-    endDate: 'Sat, Mar 25',
-    subject: 'Science',
-    distance: '2.5',
-    cost: '25',
-    meal: false,
-    active: false,
-  },
-  {
-    id: 14,
-    heading: 'Technical Workshop',
-    startDate: 'Thurs, Mar 23',
-    endDate: 'Sat, Mar 25',
-    subject: 'Science',
-    distance: '2.5',
-    cost: '25',
-    meal: false,
-    active: false,
-  },
-  {
-    id: 15,
-    heading: 'Technical Workshop',
-    startDate: 'Thurs, Mar 23',
-    endDate: 'Sat, Mar 25',
-    subject: 'Science',
-    distance: '2.5',
-    cost: '25',
-    meal: false,
-    active: false,
-  },
 ];
 
 function EventListScreen(props) {
@@ -196,7 +87,7 @@ function EventListScreen(props) {
     <Screen>
       <PageHeader header="All Events" />
       <View style={styles.actpenContainer}>
-        <Pressable
+        {/* <Pressable
           style={[
             styles.actpen,
             active
@@ -231,7 +122,7 @@ function EventListScreen(props) {
           >
             Pending
           </Text>
-        </Pressable>
+        </Pressable> */}
       </View>
       <SearchBar
         value={searchQuery}

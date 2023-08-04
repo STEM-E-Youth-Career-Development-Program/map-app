@@ -57,7 +57,7 @@ function Event({
           <Text style={{ fontSize: 10 }}>{meal}</Text>
         </View>
       </View>
-      <View style={{ marginHorizontal: 100 }}>
+      <View style={{}}>
         <MaterialCommunityIcons name="map-marker-radius" size={45} />
       </View>
     </View>
@@ -80,34 +80,34 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  shadow: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    width: 75,
-    height: 75,
-    borderRadius: 100,
-    shadowColor: 'black',
-    elevation: 5,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 30,
-  },
-  info: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    height: '65%',
-    marginLeft: 5,
-  },
-  mapPin: {
-    marginLeft: 'auto',
-    height: 40,
-    width: 50,
-  },
-  duplicate: {
-    width: 70,
-    height: 15,
-    marginLeft: 10,
-    marginTop: 'auto',
-  },
+  // shadow: {
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   backgroundColor: 'white',
+  //   width: 75,
+  //   height: 75,
+  //   borderRadius: 100,
+  //   shadowColor: 'black',
+  //   elevation: 5,
+  //   shadowOffset: { width: 0, height: 2 },
+  //   shadowOpacity: 0.25,
+  //   shadowRadius: 30,
+  // },
+  // info: {
+  //   flexDirection: 'column',
+  //   justifyContent: 'space-between',
+  //   height: '65%',
+  //   marginLeft: 5,
+  // },
+  // mapPin: {
+  //   marginLeft: 'auto',
+  //   height: 40,
+  //   width: 50,
+  // },
+  // duplicate: {
+  //   width: 70,
+  //   height: 15,
+  //   marginLeft: 10,
+  //   marginTop: 'auto',
+  // },
 });
