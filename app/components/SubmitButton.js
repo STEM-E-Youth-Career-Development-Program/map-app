@@ -1,13 +1,26 @@
 import React from 'react';
 import { StyleSheet, TouchableWithoutFeedback, Text } from 'react-native';
-import { useFormikContext } from 'formik';
+import { Formik, useFormikContext } from 'formik';
+import AppForm from '../components/AppForm';
+import { LinearGradient } from 'expo-linear-gradient';
 
 function SubmitButton({ title }) {
-  const { handleSubmit } = useFormikContext();
   return (
-    <TouchableWithoutFeedback onPress={handleSubmit}>
-      <Text style={styles.button}>{title}</Text>
-    </TouchableWithoutFeedback>
+    <Formik
+      initialValues={AppForm.initialValues}
+      onSubmit={AppForm.onSubmit}
+      validationSchema={AppForm.validationSchema}
+    >
+      <LinearGradient
+        colors={['black', '#5A5A5A']}
+        style={styles.button}
+        locations={[0.1, 0.9]}
+      >
+        <TouchableWithoutFeedback onPress={useFormikContext}>
+          <Text style={{color: 'white', fontSize: 25, fontWeight: 'bold'}}>{title}</Text>
+        </TouchableWithoutFeedback> 
+      </LinearGradient>
+    </Formik>
   );
 }
 
@@ -15,12 +28,12 @@ export default SubmitButton;
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#000',
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: '95%',
+    height: 60,
     borderRadius: 10,
-    color: 'white',
-    fontSize: 30,
-    marginTop: 15,
-    padding: 10,
-    textAlign: 'center',
+    marginVertical: 10,
   },
 });
