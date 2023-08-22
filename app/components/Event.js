@@ -11,7 +11,9 @@ function Event({
   cost,
   meal,
   active,
+  organization
 }) {
+  
   if (meal==true) {
     meal='food'
   } else if (meal==false) {
