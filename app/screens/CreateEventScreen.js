@@ -9,11 +9,12 @@ import Screen from '../components/Screen';
 import SubmitButton from '../components/SubmitButton';
 
 const validationSchema = Yup.object().shape({
-  name: Yup.string().required().label('Name'),
+  heading: Yup.string().required().label('Name'),
   description: Yup.string().required('Please describe the event'),
-  area: Yup.string().required('Please include the area'),
+  subject: Yup.string().required('Please include the STEM subject'),
   location: Yup.string().required('Please include the location'),
-  startTime: Yup.date().required('Please type in the start time'),
+  startDate: Yup.date().required('Please type in the start date'),
+  cost: Yup.number().required('Please include cost in U.S. dollars (may be 0)'),
 });
 
 function CreateEventScreen(props) {
@@ -23,35 +24,32 @@ function CreateEventScreen(props) {
       <View style={{padding: 10}}>
         <AppForm
           initialValues={{
-            name: '',
+            heading: '',
             description: '',
-            area: '',
+            subject: '',
             location: '',
-            startTime: '',
-            endTime: '',
-            timeZone: '',
-            repeats: '',
+            startDate: '',
+            endDate: '',
+            cost: 0,
+            organization: '',
           }}
           onSubmit={(values) => console.log(values)}
           validationSchema={validationSchema}
           
         >
-          <AppFormField name={'name'} label="Event Name" />
+          <AppFormField name={'heading'} label="Event Name" />
           <AppFormField
             name={'description'}
             label="Event Description"
             multiline
             numberOfLines={3}
           />
-          <AppFormField name={'area'} label="STEM Area" />
-          <AppFormField name={'location'} label="Location" />
-          <AppFormField name={'startTime'} label="Start Time" />
-          <AppFormField name={'endTime'} label="End Time" />
-          <AppFormField name={'timeZone'} label="Time Zone" />
-          <AppFormField
-            name={'repeat'}
-            label="repeat(weekly, monthly, yearly, etc)"
-          />
+          <AppFormField name={'subject'} label="STEM Subject" />
+          <AppFormField name={'location'} label="Location Address" />
+          <AppFormField name={'organization'} label="Organization Name" />
+          <AppFormField name={'startDate'} label="Start Date" />
+          <AppFormField name={'endDate'} label="End Date" />
+          <AppFormField name={'cost'} label="Cost" />
         </AppForm>
       </View>
       <SubmitButton title={'Create'} />

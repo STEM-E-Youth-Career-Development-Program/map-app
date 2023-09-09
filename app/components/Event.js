@@ -8,17 +8,12 @@ function Event({
   endDate,
   subject,
   distance,
+  location,
   cost,
-  meal,
   active,
-  organization
+  organization,
 }) {
-  
-  if (meal==true) {
-    meal='food'
-  } else if (meal==false) {
-    meal='food-off'
-  };
+
   if (Array.isArray(subject) == true) {
     subject = subject.join(', ')
   };
@@ -46,7 +41,6 @@ function Event({
             <Text style={{fontSize: 12}}>{distance} mi</Text>
           </View>
           <Text style={{fontSize: 12}}>${cost}</Text>
-          <MaterialCommunityIcons name={meal} size={12} style={{alignSelf: 'center'}}/>
         </View>
       </View>
       <Image style={styles.mapPin} source={require('../assets/mapPin.png')}/>
