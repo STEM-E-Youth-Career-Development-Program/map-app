@@ -9,14 +9,23 @@ import Screen from '../components/Screen';
 import SubmitButton from '../components/SubmitButton';
 
 const validationSchema = Yup.object().shape({
-  heading: Yup.string().required().label('Name'),
+  heading: Yup.string().required()
+    .label('Name')
+    .max(50, "Must be shorter than 50 characters"),
   description: Yup.string().required('Please describe the event'),
   subject: Yup.string().required('Please include the STEM subject'),
   location: Yup.string().required('Please include the location'),
-  startDate: Yup.date().required('Please type in the start date'),
-  cost: Yup.number().required('Please include cost in U.S. dollars (may be 0)'),
+  startDate: Yup.date().required('Please include the start date'),
+  endDate: Yup.date().min(
+    Yup.ref('startDate'),
+    "End date must be after start date"
+  ),
+  cost: Yup.number().positive("Must be greater than 0 (leave blank if 0)")
 });
-
+Yup.date().min(
+      Yup.ref('startDate'),
+      ({min}) => '',
+    )
 function CreateEventScreen(props) {
   return (
     <Screen>
