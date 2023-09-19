@@ -1,9 +1,10 @@
 import React from 'react';
-import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import Screen from '../components/Screen';
 
-function LandingScreen() {
+function LandingScreen({navigation}) {
   return (
     <Screen>
       <Text style={styles.title}>MapSTEM</Text>
@@ -27,24 +28,37 @@ function LandingScreen() {
         </Text>
       </View>
 
-      <View style={styles.button}>
-        <TouchableOpacity style={styles.box}>
-          <Text style={styles.buttontext}>View Events</Text>
-        </TouchableOpacity>
-      </View>
+      <LinearGradient
+        colors={['black', '#5A5A5A']}
+        style={styles.button}
+        locations={[0.1, 0.9]}
+      >
+        <TouchableWithoutFeedback onPress={() => navigation.navigate('Events')} >
+          <Text style={styles.title}>View Events</Text>
+        </TouchableWithoutFeedback> 
+      </LinearGradient>
+
     </Screen>
   );
 }
+
 export default LandingScreen;
 
 const styles = StyleSheet.create({
   title: {
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: 'white',
     fontSize: 25,
-    backgroundColor: 'white',
-    padding: 20,
-    width: '100%',
+    fontWeight: 'bold'
+  },
+
+  button: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: '95%',
+    height: 60,
+    borderRadius: 10,
+    marginVertical: 10,
   },
 
   user: {
