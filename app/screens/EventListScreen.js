@@ -3,9 +3,9 @@ import { StyleSheet, View, FlatList, Text, Pressable } from 'react-native';
 
 import SearchBar from '../components/SearchBar';
 import Event from '../components/Event';
-import SubmitButton from '../components/SubmitButton';
 import PageHeader from '../components/PageHeader';
 import Constants from 'expo-constants';
+import NextButton from '../components/NextButton';
 
 const allEventsList = [
   {
@@ -160,7 +160,7 @@ const allEventsList = [
   },
 ];
 
-function EventListScreen(props) {
+function EventListScreen({navigation, props}) {
   const [searchQuery, setSearchQuery] = useState('');
   const [active, setActive] = useState(true);
   const [filteredData, setFilteredData] = useState([]);
@@ -179,7 +179,9 @@ function EventListScreen(props) {
 
   return (
     <View style={styles.screen}>
-      <PageHeader header="All Events" />
+      <PageHeader
+        header="All Events"
+      />
       <View style={styles.actpenContainer}>
         <Pressable
           style={[
@@ -238,7 +240,10 @@ function EventListScreen(props) {
           />
         )}
       />
-      <SubmitButton title={'Add New Event'} />
+      <NextButton
+        title={'Add New Event'}
+        onPress={() => navigation.navigate('Create Event')}
+      />
     </View>
   );
 }

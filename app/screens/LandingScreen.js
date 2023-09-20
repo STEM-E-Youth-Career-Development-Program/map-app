@@ -1,6 +1,7 @@
 import React from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { Text, View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import NextButton from '../components/NextButton';
 
 import Screen from '../components/Screen';
 
@@ -18,25 +19,20 @@ function LandingScreen({navigation}) {
 
       <View style={styles.message}>
         <Text style={styles.info}>
-          The STEME Youth Career Development Program’s mapSTEM application
+          The STEME Youth Career Development Program's map STEM application
           tracks various events and activities in Science, Technology,
           Engineering, Math, and Entrepreneurship and makes it accessible and
           affordable for its users.
         </Text>
         <Text style={styles.check}>
-          Check the events near you on a map by clicking the button below
+          Check the events near you on a map by clicking the button below.
         </Text>
       </View>
 
-      <LinearGradient
-        colors={['black', '#5A5A5A']}
-        style={styles.button}
-        locations={[0.1, 0.9]}
-      >
-        <TouchableWithoutFeedback onPress={() => navigation.navigate('Events')} >
-          <Text style={styles.title}>View Events</Text>
-        </TouchableWithoutFeedback> 
-      </LinearGradient>
+      <NextButton
+        title="View Events"
+        onPress={() => navigation.navigate('Events')}
+      />
 
     </Screen>
   );
@@ -50,7 +46,6 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: 'bold'
   },
-
   button: {
     alignItems: 'center',
     alignSelf: 'center',
@@ -60,7 +55,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 10,
   },
-
   user: {
     borderRadius: 10,
     backgroundColor: 'white',
@@ -69,20 +63,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     align: 'center',
   },
-
   hello: {
     fontWeight: 'bold',
     marginLeft: 12,
     marginTop: 7,
     textAlign: 'left',
   },
-
   greeting: {
     marginLeft: 12,
     marginBottom: 0,
     textAlign: 'left',
   },
-
   info: {
     textAlign: 'left',
     fontSize: 18,
@@ -90,14 +81,12 @@ const styles = StyleSheet.create({
     marginRight: 16,
     marginTop: 30,
   },
-
   check: {
     marginTop: 30,
     fontSize: 18,
     marginLeft: 16,
     marginRight: 16,
   },
-
   box: {
     borderRadius: 10,
     backgroundColor: '#272727',
@@ -106,7 +95,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     align: 'center',
   },
-
   buttontext: {
     fontWeight: 'bold',
     fontSize: 20,
