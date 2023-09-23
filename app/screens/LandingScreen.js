@@ -1,6 +1,5 @@
 import React from 'react';
-import { Text, View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Text, View, StyleSheet } from 'react-native';
 import NextButton from '../components/NextButton';
 
 import Screen from '../components/Screen';
