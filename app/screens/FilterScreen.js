@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MultipleSelectList } from 'react-native-dropdown-select-list'
 import Slider from '@react-native-community/slider';
-import Checkbox from 'expo-checkbox';
 import PageHeader from '../components/PageHeader.js';
 import Screen from '../components/Screen.js';
 import SubmitButton from '../components/SubmitButton.js';
@@ -18,8 +17,8 @@ const FilterScreen = () => {
   };
   const [cost, setCost] = useState(0);
   var costText = 'Max. $' + cost;
-  if (cost == 1000) {
-    costText = '$1000+'
+  if (cost == 100) {
+    costText = '$100+'
   } else if (cost == 0) {
     costText = 'Free'
   };
@@ -30,16 +29,6 @@ const FilterScreen = () => {
     {value:'Math'},
     {value:'Entrepreneurship'},
   ]
-  const [Yes, setYes] = useState(false);
-  const [No, setNo] = useState(false);
-  var yestextColor = 'grey';
-  var notextColor = 'grey';
-  if (Yes == (true)) {
-    yestextColor = 'black'
-  };
-  if (No == (true)) {
-    notextColor = 'black'
-  };
 
   return (
     <Screen>
@@ -79,7 +68,7 @@ const FilterScreen = () => {
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={1000}
+        maximumValue={100}
         step={10}
         onValueChange={setCost}
         minimumTrackTintColor='#999999'
@@ -87,34 +76,15 @@ const FilterScreen = () => {
       />
       <View style={styles.sliderLabels}>
         <Text style={styles.sliderText}>$0</Text>
-        <Text style={styles.sliderText}>$1000+</Text>
+        <Text style={styles.sliderText}>$100+</Text>
       </View>
       <View style={{alignSelf: 'center'}}>
         <Text style={styles.sliderValue}>{costText}</Text>
       </View>
 
-       <Text style={styles.heading}>Meal Included</Text>
-      <View style={{flexDirection: 'row'}}>
-        <Checkbox
-          style={styles.checkbox}
-          value={Yes}
-          onValueChange={setYes}
-          color={yestextColor}
-        />
-        <Text style={[styles.checkbox, {color: yestextColor}]}>Yes</Text>
-      </View>
-      <View style={{flexDirection: 'row'}}>
-        <Checkbox
-          style={styles.checkbox}
-          value={No}
-          onValueChange={setNo}
-          color={notextColor}
-        />
-        <Text style={[styles.checkbox, {color: notextColor}]}>No</Text>
-      </View>
       <SubmitButton title={'Apply'} />
       
-  </Screen>
+    </Screen>
   )
 }
 
@@ -152,10 +122,5 @@ const styles = StyleSheet.create({
     color: '#5A5A5A',
     fontWeight: '500',
     marginTop: -20,
-  },
-  checkbox: {
-    marginLeft: '4%',
-    marginTop: 15,
-    fontWeight: '800',
   },
 })
