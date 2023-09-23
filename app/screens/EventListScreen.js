@@ -160,7 +160,7 @@ const allEventsList = [
   },
 ];
 
-function EventListScreen({navigation, props}) {
+function EventListScreen({props}) {
   const [searchQuery, setSearchQuery] = useState('');
   const [active, setActive] = useState(true);
   const [filteredData, setFilteredData] = useState([]);
@@ -179,9 +179,7 @@ function EventListScreen({navigation, props}) {
 
   return (
     <View style={styles.screen}>
-      <PageHeader
-        header="All Events"
-      />
+      <PageHeader header="All Events"/>
       <View style={styles.actpenContainer}>
         <Pressable
           style={[

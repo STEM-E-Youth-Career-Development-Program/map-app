@@ -7,7 +7,6 @@ import PageHeader from '../components/PageHeader.js';
 import Screen from '../components/Screen.js';
 import SubmitButton from '../components/SubmitButton.js';
 
-
 const FilterScreen = () => {
   const [selected, setArea] = useState('');
   const [distance, setDistance] = useState(0);

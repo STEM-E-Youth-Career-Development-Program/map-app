@@ -8,10 +8,11 @@ import {
   Dimensions,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 function SearchBar({ onChangeText, value, ...otherProps }) {
   const searchRef = useRef(null);
-
+  const navigation = useNavigation();
   return (
     <View style={styles.searchRow}>
       <View style={styles.container}>
@@ -34,7 +35,10 @@ function SearchBar({ onChangeText, value, ...otherProps }) {
         <MaterialCommunityIcons name="information-outline" size={30} color={'#999999'} />
       </Pressable>
 
-      <Pressable style={styles.container}>
+      <Pressable
+        style={styles.container}
+        onPress={() => navigation.navigate("Filter Events")}
+      >
         <MaterialCommunityIcons name="format-list-bulleted" size={30} color={'#999999'} />
       </Pressable>
     
