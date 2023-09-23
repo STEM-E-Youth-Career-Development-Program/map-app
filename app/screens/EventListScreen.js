@@ -160,7 +160,7 @@ const allEventsList = [
   },
 ];
 
-function EventListScreen({props}) {
+function EventListScreen({props, navigation}) {
   const [searchQuery, setSearchQuery] = useState('');
   const [active, setActive] = useState(true);
   const [filteredData, setFilteredData] = useState([]);
