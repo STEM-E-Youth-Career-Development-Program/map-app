@@ -3,7 +3,7 @@ import { View, StyleSheet, Text } from 'react-native';
 import { MaterialCommunityIcons} from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native';
 
-function PageHeader({ header, goBack }) {
+function PageHeader({ header }) {
   const navigation = useNavigation();
   return (
     <View
