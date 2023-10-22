@@ -5,7 +5,6 @@ import Slider from '@react-native-community/slider';
 import PageHeader from '../components/PageHeader.js';
 import Screen from '../components/Screen.js';
 import NextButton from '../components/NextButton.js';
-import EventListScreen from './EventListScreen.js';
 
 const FilterScreen = ({navigation}) => {
   const [selected, setArea] = useState('');
@@ -83,7 +82,7 @@ const FilterScreen = ({navigation}) => {
         <Text style={styles.sliderValue}>{costText}</Text>
       </View>
 
-      <NextButton title={'Apply'} onPress={() => navigation.goBack(null)} />
+      <NextButton title={'Apply'} onPress={() => navigation.goBack(distance, cost, selected)} />
       
     </Screen>
   )

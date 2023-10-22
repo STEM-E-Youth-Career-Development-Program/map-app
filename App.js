@@ -18,7 +18,7 @@ function App() {
           component={LandingScreen}
           options={{headerShown: false, animation: 'slide_from_right', animationDuration: 200}}
         />
-        <Stack.Screen 
+        <Stack.Screen
           name="Create Event"
           component={CreateEventScreen}
           options={{headerShown: false, animation: 'slide_from_right', animationDuration: 200}}
