@@ -1,10 +1,8 @@
 import React from 'react';
-import Screen from './Screen';
 import PageHeader from './PageHeader';
-import Event from './Event';
-import CreateEventScreen from '../screens/CreateEventScreen';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, Image, FlatList, Pressable, ImageBackground } from 'react-native';
+import Constants from 'expo-constants';
 
 const eventExample = {
   id: 1,
@@ -18,63 +16,107 @@ const eventExample = {
   description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum facilisis leo vel.',
 }
 
-const EventDetails = (props) => {
-  return (
-    <Screen>
-      <PageHeader header="Medical Workshop" />
-      <Image source={require('../assets/eventdetailex.png')} style={styles.eventImg}/>
-      <View style={styles.iconRow}>
-        <View style={[styles.iconButtons, {right: 20}]}>
-          <Image source={require('../assets/earth.png')} style={{ width: 20, height: 20 }}/>
-        </View>
-        <View style={styles.iconButtons}>
-          <Image source={require('../assets/share.png')} style={{ width: 20, height: 20 }}/>
-        </View>
-      </View>
+const commentExamples = [
+  {
+    Name: 'user',
+    Icon: '',
+    Rating: 5,
+    Comment: 'this is a comment',
+    Date: 'October 21',
+  },
+  {
+    Name: 'user',
+    Icon: '',
+    Rating: 4,
+    Comment: 'this is a comment',
+    Date: 'October 21',
+  },
+  {
+    Name: 'user',
+    Icon: '',
+    Rating: 3,
+    Comment: 'this is a comment',
+    Date: 'October 21',
+  },
+  {
+    Name: 'user',
+    Icon: '',
+    Rating: 2,
+    Comment: 'this is a comment',
+    Date: 'October 21',
+  },
+  {
+    Name: 'user',
+    Icon: '',
+    Rating: 1,
+    Comment: 'this is a comment',
+    Date: 'October 21',
+  },
+];
 
-      <View style={styles.conduct}>
+const EventDetails = ({navigation, props}) => {
+  var stars = [];
+  function ratingStars() {
+    for (i=0;i<=commentExamples.Rating;i++) {
+      stars.push('#f8d74c')
+    }
+    for(i=0;i<=(5 - commentExamples.Rating);i++) {
+      stars.push('grey')
+    }
+  }
+  return (
+    <View style={styles.screen}>
+      <PageHeader header="Medical Workshop" />
+      
+      <ImageBackground source={require('../assets/eventdetailex.png')} imageStyle={{height: 200, flex: 1}} resizeMode='cover' style={{marginBottom: 10}}>
+        <View style={styles.iconRow}>
+          <View style={[styles.iconButtons, {right: 20}]}>
+            <Image source={require('../assets/earth.png')} style={{ width: 20, height: 20 }}/>
+          </View>
+          <View style={styles.iconButtons}>
+            <Image source={require('../assets/share.png')} style={{ width: 20, height: 20 }}/>
+          </View>
+        </View>
+        <View style={styles.conduct}>
           <Text style={{fontWeight:'bold',marginLeft:3}}>Conducted By:</Text>
           <Text style={{fontWeight:'bold',color:'grey'}}>{eventExample.organization}</Text>
-      </View>
-      
+        </View>
+      </ImageBackground>
+
       <Text style={styles.more}>For more information and registration, visit the organizer's website.</Text>
-      <View style={styles.contentBackground}>
-        <View style={{marginLeft: '2%', marginTop: 10}}>
-          <Text style={{ fontWeight: 'bold', color: '#1d1664' }}>Event Details:</Text>
+      
+      <ScrollView style={styles.contentBackground}>
+          <Text style={{ fontWeight: 'bold', color: '#1d1664', fontSize: 15 }}>Event Details:</Text>
           <View style={{marginVertical: 5, display: 'flex', flexDirection: 'row'}}>
             <MaterialCommunityIcons name='calendar-month-outline' size={25} style={{padding: 5}}/>
             <View style={{display: 'flex', flexDirection: 'column'}}>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={{fontWeight: 'bold'}}>Date: </Text>
+              <View style={{flexDirection: 'row', marginBottom: 'auto', marginTop: 'auto'}}>
+                <Text style={styles.subtitle}>Date: </Text>
                 <Text style={{color:'#999999'}}>{eventExample.startDate} - {eventExample.endDate}</Text>
-              </View>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={{fontWeight: 'bold'}}>Time: </Text>
-                <Text style={{color:'#999999'}}>12 AM - 12 PM CST</Text>
               </View>
             </View>
           </View>
           <View style={{marginVertical: 5, display: 'flex', flexDirection: 'row'}}>
             <MaterialCommunityIcons name='map-marker-outline' size={25} style={{padding: 5}}/>
             <View style={{flexDirection: 'row', display: 'flex', alignItems: 'center'}}>
-              <Text style={{fontWeight: 'bold'}}>Location: </Text>
+              <Text style={styles.subtitle}>Location: </Text>
               <Text style={{color:'#999999'}}>{eventExample.location}</Text>
             </View>
           </View>
           <View style={{flexDirection: 'row', justifyContent: 'space-between', marginRight: '2%'}}>
             <View style={{marginVertical: 5}}>
               <View style={{flexDirection:'row', marginBottom: 5}}>
-                <Text style={{fontWeight: 'bold'}}>Cost: </Text>
+                <Text style={styles.subtitle}>Cost: </Text>
                 <Text style={{color:'#999999'}}>${eventExample.cost}</Text>
               </View>
             </View>
             <View style={{flexDirection:'row'}}>
-              <Text style={{fontWeight: 'bold'}}>Subject: </Text>
+              <Text style={styles.subtitle}>Subject: </Text>
               <Text style={{color:'#999999'}}>{eventExample.subject}</Text>
             </View>
           </View>
           <View style={{marginBottom: 10}}>
-            <Text style={{fontWeight: 'bold',}}>Description: </Text>
+            <Text style={styles.subtitle}>Description: </Text>
             <Text style={{color:'#999999', fontSize: 12}}>{eventExample.description}</Text>
           </View>
 
@@ -83,153 +125,82 @@ const EventDetails = (props) => {
           <Text style={styles.ratingtext}>Rating & Reviews</Text>
           <Text style={{fontSize:40, fontWeight: 'bold'}}>5.0</Text>
           <View style={{flexDirection:'row'}}>
-            <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-            <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-            <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-            <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-            <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
+            <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+            <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+            <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+            <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+            <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
             <Text style={{marginLeft:2, fontSize:10}}>(13 reviews)</Text>
           </View>
+
           <Text style={[styles.ratingtext, {marginVertical: 10}]}>Reviews</Text>
             <View style={{marginBottom: 15, flexDirection: 'row'}}>
               <Image source={require('../assets/pfpex.png')} style={styles.reviewpfpex}/>
               <View>
                 <View style={{flexDirection: 'row', width: '95%'}}>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
                   <Text style={{marginLeft: 'auto', fontSize: 10, color: 'grey'}}>June 29</Text>
                 </View>
                 <Text style={{fontWeight:'bold', color:'#171766'}}>name</Text>
                 <Text style={styles.reviewcomment}>lastutitivutviutyvuytyvutu</Text>
               </View>
             </View>
+
             <View style={{marginBottom: 15, flexDirection: 'row'}}>
               <Image source={require('../assets/pfpex.png')} style={styles.reviewpfpex}/>
               <View>
                 <View style={{flexDirection: 'row', width: '95%'}}>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
                   <Text style={{marginLeft: 'auto', fontSize: 10, color: 'grey'}}>June 29</Text>
                 </View>
                 <Text style={{fontWeight:'bold', color:'#171766'}}>name</Text>
                 <Text style={styles.reviewcomment}>lastutitivutviutyvuytyvutu</Text>
               </View>
             </View>
+
             <View style={{marginBottom: 15, flexDirection: 'row'}}>
               <Image source={require('../assets/pfpex.png')} style={styles.reviewpfpex}/>
               <View>
                 <View style={{flexDirection: 'row', width: '95%'}}>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
+                  <MaterialCommunityIcons name={"star"} size={10} color={'#f8d74c'}/>
                   <Text style={{marginLeft: 'auto', fontSize: 10, color: 'grey'}}>June 29</Text>
                 </View>
                 <Text style={{fontWeight:'bold', color:'#171766'}}>name</Text>
                 <Text style={styles.reviewcomment}>lastutitivutviutyvuytyvutu</Text>
               </View>
             </View>
-            <View style={{marginBottom: 15, flexDirection: 'row'}}>
-              <Image source={require('../assets/pfpex.png')} style={styles.reviewpfpex}/>
-              <View>
-                <View style={{flexDirection: 'row', width: '95%'}}>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Text style={{marginLeft: 'auto', fontSize: 10, color: 'grey'}}>June 29</Text>
-                </View>
-                <Text style={{fontWeight:'bold', color:'#171766'}}>name</Text>
-                <Text style={styles.reviewcomment}>lastutitivutviutyvuytyvutu</Text>
-              </View>
-            </View>
-            <View style={{marginBottom: 15, flexDirection: 'row'}}>
-              <Image source={require('../assets/pfpex.png')} style={styles.reviewpfpex}/>
-              <View>
-                <View style={{flexDirection: 'row', width: '95%'}}>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                  <Text style={{marginLeft: 'auto', fontSize: 10, color: 'grey'}}>June 29</Text>
-                </View>
-                <Text style={{fontWeight:'bold', color:'#171766'}}>name</Text>
-                <Text style={styles.reviewcomment}>lastutitivutviutyvuytyvutu</Text>
-              </View>
-            </View>
-          <View style={{marginBottom: 15, flexDirection: 'row'}}>
-            <Image source={require('../assets/pfpex.png')} style={styles.reviewpfpex}/>
-            <View>
-              <View style={{flexDirection: 'row', width: '95%'}}>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Text style={{marginLeft: 'auto', fontSize: 10, color: 'grey'}}>June 29</Text>
-              </View>
-              <Text style={{fontWeight:'bold',color:'#171766',}}>name</Text>
-              <Text style={styles.reviewcomment}>lastutitivutviutyvuytyvutu</Text>
-            </View>
-          </View>
-          <View style={{marginBottom: 15, flexDirection: 'row'}}>
-            <Image source={require('../assets/pfpex.png')} style={styles.reviewpfpex}/>
-            <View>
-              <View style={{flexDirection: 'row', width: '95%'}}>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Text style={{marginLeft: 'auto', fontSize: 10, color: 'grey'}}>June 29</Text>
-              </View>
-              <Text style={{fontWeight:'bold',color:'#171766',}}>name</Text>
-              <Text style={styles.reviewcomment}>lastutitivutviutyvuytyvutu</Text>
-            </View>
-          </View>
-          <View style={{marginBottom: 15, flexDirection: 'row'}}>
-            <Image source={require('../assets/pfpex.png')} style={styles.reviewpfpex}/>
-            <View>
-              <View style={{flexDirection: 'row', width: '95%'}}>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Image source={require('../assets/star.png')} style={styles.reviewstar}/>
-                <Text style={{marginLeft: 'auto', fontSize: 10, color: 'grey'}}>June 29</Text>
-              </View>
-              <Text style={{fontWeight:'bold',color:'#171766',}}>name</Text>
-              <Text style={styles.reviewcomment}>lastutitivutviutyvuytyvutu</Text>
-            </View>
-          </View>
-          <Text>See More Reviews</Text>
-        </View>
-      </View>
-    </Screen>
+
+          <Pressable style={{marginBottom: 20}}>
+            <Text>See More Reviews</Text>
+          </Pressable>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  eventImg: {
-    width:'100%',
-    height:'20%',
-    zIndex: 0,
+  screen: {
+    flex: 1,
+    paddingTop: Constants.statusBarHeight,
+    backgroundColor: '#f3f3f3',
   },
   iconRow: {
     flexDirection: 'row',
     display: 'flex',
-    position: 'absolute',
-    right: 20,
-    top: 60,
+    marginLeft: 'auto',
+    padding: 20
   },
   iconButtons: {
     width: 40,
@@ -243,10 +214,8 @@ const styles = StyleSheet.create({
     width: '50%',
     height: 50,
     borderRadius: 8,
-    backgroundColor: 'white',
-    position: 'absolute',
+    backgroundColor: 'rgba(255,255,255,.75)',
     alignSelf: 'center',
-    top: '12.5%',
     flexDirection:'row',
     alignItems: 'center',
     justifyContent: 'space-around',
@@ -255,9 +224,11 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     textAlign: 'center',
     color: '#999999',
+    paddingTop: 60
   },
   contentBackground:{
-    width: '95%',
+    width: '92.5%',
+    padding: '2.5%',
     backgroundColor: 'white',
     alignSelf: 'center',
     borderRadius: 15,
@@ -280,14 +251,14 @@ const styles = StyleSheet.create({
     height:30,
     borderRadius: 30,
   },
-  reviewstar:{
-    width:10,
-    height:10,
-  },
   reviewcomment:{
     fontWeight:'300',
     color: 'grey',
   },
+  subtitle:{
+    fontWeight: 'bold',
+    fontSize: 15,
+  }
 });
 
 export default EventDetails;

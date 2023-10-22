@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 function SearchBar({ onChangeText, value, ...otherProps }) {
   const searchRef = useRef(null);
   const navigation = useNavigation();
+  
   return (
     <View style={styles.searchRow}>
       <View style={styles.container}>

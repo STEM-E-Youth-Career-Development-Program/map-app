@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, Image, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { TouchableWithoutFeedback } from 'react-native';
 
 function Event({
   heading,
@@ -14,12 +16,16 @@ function Event({
   organization,
 }) {
 
+  const navigation = useNavigation();
+
   if (Array.isArray(subject) == true) {
     subject = subject.join(', ')
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={styles.container}
+    >
       <View style={styles.shadow}>
         <Image
           style={{ width: 70, height: 70 }}
@@ -43,7 +49,10 @@ function Event({
           <Text style={{fontSize: 12}}>${cost}</Text>
         </View>
       </View>
-      <Image style={styles.mapPin} source={require('../assets/mapPin.png')}/>
+      <TouchableWithoutFeedback onPress={() => navigation.navigate("Event Details")}>
+        <Image style={styles.mapPin} source={require('../assets/mapPin.png')}/>
+      </TouchableWithoutFeedback>
+      
     </View>
   );
 }

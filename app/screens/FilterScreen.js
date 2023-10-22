@@ -4,9 +4,10 @@ import { MultipleSelectList } from 'react-native-dropdown-select-list'
 import Slider from '@react-native-community/slider';
 import PageHeader from '../components/PageHeader.js';
 import Screen from '../components/Screen.js';
-import SubmitButton from '../components/SubmitButton.js';
+import NextButton from '../components/NextButton.js';
+import EventListScreen from './EventListScreen.js';
 
-const FilterScreen = () => {
+const FilterScreen = ({navigation}) => {
   const [selected, setArea] = useState('');
   const [distance, setDistance] = useState(0);
   var distanceText = 'Within ' + distance + ' miles';
@@ -82,7 +83,7 @@ const FilterScreen = () => {
         <Text style={styles.sliderValue}>{costText}</Text>
       </View>
 
-      <SubmitButton title={'Apply'} />
+      <NextButton title={'Apply'} onPress={() => navigation.goBack(null)} />
       
     </Screen>
   )
