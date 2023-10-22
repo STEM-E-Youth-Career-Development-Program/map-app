@@ -23,37 +23,33 @@ function Event({
   };
 
   return (
-    <View
-      style={styles.container}
-    >
-      <View style={styles.shadow}>
-        <Image
-          style={{ width: 70, height: 70 }}
-          source={require('../assets/eventIcon.png')}
-        />
-      </View>
-      <View style={styles.info}>
-        <View style={{display: 'flex', flexDirection: 'row'}}>
+    <TouchableWithoutFeedback onPress={() => navigation.navigate("Event Details")}>
+      <View
+        style={styles.container}
+      >
+        <View style={styles.shadow}>
+          <Image
+            style={{ width: 70, height: 70 }}
+            source={require('../assets/eventIcon.png')}
+          />
+        </View>
+        <View style={styles.info}>
           <Text style={styles.heading}>{heading}</Text>
-          <Image style={styles.duplicate} source={require('../assets/duplicate.png')} />
-        </View>
-        <Text style={{fontSize: 12}}>
-          {startDate} - {endDate}
-        </Text>
-        <View style={{ width: '65%', flexDirection: 'row', justifyContent: 'space-between'}}>
-          <Text style={{fontSize: 12}}>{subject}</Text>
-          <View style={{flexDirection: 'row'}}>
-            <MaterialCommunityIcons name={'map-marker-outline'} size={12} style={{alignSelf: 'center'}}/>
-            <Text style={{fontSize: 12}}>{distance} mi</Text>
+          <Text style={{fontSize: 12}}>
+            {startDate} - {endDate}
+          </Text>
+          <View style={{ width: '65%', flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={{fontSize: 12}}>{subject}</Text>
+            <View style={{flexDirection: 'row'}}>
+              <MaterialCommunityIcons name={'map-marker-outline'} size={12} style={{alignSelf: 'center'}}/>
+              <Text style={{fontSize: 12}}>{distance} mi</Text>
+            </View>
+            <Text style={{fontSize: 12}}>${cost}</Text>
           </View>
-          <Text style={{fontSize: 12}}>${cost}</Text>
         </View>
-      </View>
-      <TouchableWithoutFeedback onPress={() => navigation.navigate("Event Details")}>
         <Image style={styles.mapPin} source={require('../assets/mapPin.png')}/>
-      </TouchableWithoutFeedback>
-      
-    </View>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
