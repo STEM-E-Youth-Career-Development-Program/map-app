@@ -1,19 +1,18 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import NextButton from '../components/NextButton';
-import PageHeader from '../components/PageHeader';
 
 import Screen from '../components/Screen';
 
 function LandingScreen({navigation}) {
   return (
     <Screen>
-      <PageHeader header="Map App"/>
+      <Text style={styles.title}>MapSTEM</Text>
 
       <View id="user" style={styles.user}>
-        <Text style={styles.hello}>Hello User!</Text>
+        <Text style={styles.hello}>Hello User</Text>
         <Text id="line" style={styles.greeting}>
-          This is a demo landing screen.
+          Good Morning March 19th, 2023
         </Text>
       </View>
 

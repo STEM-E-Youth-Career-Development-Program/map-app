@@ -8,15 +8,26 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
+    "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.demo.mapapp",
+      "config": {
+          "googleMapsApiKey": "AIzaSyABw1Zlew8uwDkqokOuy9d7JWo9k4Ykj80"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.demo.mapapp",
+      "config": {
+          "googleMaps": {
+              "apiKey": "AIzaSyABw1Zlew8uwDkqokOuy9d7JWo9k4Ykj80"
+          } 
       }
     }
   }
