@@ -6,6 +6,7 @@ import Event from '../components/Event';
 import PageHeader from '../components/PageHeader';
 import Constants from 'expo-constants';
 import NextButton from '../components/NextButton';
+import FilterScreen from './FilterScreen';
 
 const allEventsList = [
   {
@@ -160,7 +161,7 @@ const allEventsList = [
   },
 ];
 
-function EventListScreen({props, navigation}) {
+function EventListScreen({navigation, distance, cost, selected}) {
   const [searchQuery, setSearchQuery] = useState('');
   const [active, setActive] = useState(true);
   const [filteredData, setFilteredData] = useState([]);
@@ -173,6 +174,12 @@ function EventListScreen({props, navigation}) {
     const filteredEvents = allEventsList.filter(event => 
       event.heading.toLowerCase().includes(searchQuery.toLowerCase()) &&
       event.active == active
+      /*
+      &&
+      event.distance == distance &&
+      event.cost <= cost &&
+      event.subject == selected
+      */
     );
     setFilteredData(filteredEvents);
   }, [searchQuery, active]);
