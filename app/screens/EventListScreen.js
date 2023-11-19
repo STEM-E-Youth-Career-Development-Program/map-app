@@ -6,7 +6,6 @@ import Event from '../components/Event';
 import PageHeader from '../components/PageHeader';
 import Constants from 'expo-constants';
 import NextButton from '../components/NextButton';
-import FilterScreen from './FilterScreen';
 
 const allEventsList = [
   {
@@ -161,7 +160,7 @@ const allEventsList = [
   },
 ];
 
-function EventListScreen({navigation, distance, cost, selected}) {
+function EventListScreen({props, navigation}) {
   const [searchQuery, setSearchQuery] = useState('');
   const [active, setActive] = useState(true);
   const [filteredData, setFilteredData] = useState([]);
@@ -171,8 +170,8 @@ function EventListScreen({navigation, distance, cost, selected}) {
   };
 
   useEffect(() => {
-    const filteredEvents = allEventsList.filter(event => 
-      event.heading.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    const filteredEvents = events.filter(event =>
+      event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) &&
       event.active == active
       /*
       &&
@@ -186,7 +185,7 @@ function EventListScreen({navigation, distance, cost, selected}) {
 
   return (
     <View style={styles.screen}>
-      <PageHeader header="All Events"/>
+      <PageHeader header="All Events" />
       <View style={styles.actpenContainer}>
         <Pressable
           style={[
@@ -229,19 +228,23 @@ function EventListScreen({navigation, distance, cost, selected}) {
         value={searchQuery}
         onChangeText={handleSearch}
         placeholder="Search for event"
+        onPressIcon={() => navigation.navigate('Filter Events')}
+        isList={true}
       />
       <FlatList
         data={filteredData}
         keyExtractor={(event) => event.id.toString()}
         renderItem={({ item }) => (
           <Event
-            heading={item.heading}
-            startDate={item.startDate}
-            endDate={item.endDate}
-            subject={item.subject}
-            distance={item.distance}
-            cost={item.cost}
+            heading={item.eventName}
+            startDate={item.eventDate}
+            subject={item.eventSubject}
+            distance={item.eventDistance}
+            cost={item.eventCost}
+            meal={item.mealIncluded}
             status={item.active ? 'Active' : 'Pending'}
+            navigation={navigation}
+            allDetails={item}
           />
         )}
       />
@@ -265,7 +268,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginHorizontal: 10,
-    marginTop: 5,
+    marginTop: 10,
   },
   actpen: {
     borderBottomWidth: 2,

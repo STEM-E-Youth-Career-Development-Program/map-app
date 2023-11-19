@@ -24,7 +24,7 @@ function SubmitButton({ title }) {
         }}
         locations={[0.1, 0.9]}
       >
-        <TouchableWithoutFeedback onPress={useFormikContext}>
+        <TouchableWithoutFeedback /*onPress={useFormikContext}*/>
           <Text
             style={{
               color: 'white',
@@ -34,7 +34,7 @@ function SubmitButton({ title }) {
           >
             {title}
           </Text>
-        </TouchableWithoutFeedback> 
+        </TouchableWithoutFeedback>
       </LinearGradient>
     </Formik>
   );

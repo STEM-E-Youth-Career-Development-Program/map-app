@@ -1,8 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Image, Text } from 'react-native';
+import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { TouchableWithoutFeedback } from 'react-native';
 
 function Event({
   heading,
@@ -14,42 +12,48 @@ function Event({
   cost,
   active,
   organization,
+  meal,
+  navigation,
+  allDetails
 }) {
-
-  const navigation = useNavigation();
 
   if (Array.isArray(subject) == true) {
     subject = subject.join(', ')
   };
 
   return (
-    <TouchableWithoutFeedback onPress={() => navigation.navigate("Event Details")}>
-      <View
-        style={styles.container}
-      >
-        <View style={styles.shadow}>
-          <Image
-            style={{ width: 70, height: 70 }}
-            source={require('../assets/eventIcon.png')}
-          />
-        </View>
-        <View style={styles.info}>
+    <TouchableOpacity activeOpacity={.5} onPress={() => navigation.navigate('Event Details', { allDetails })} style={styles.container}>
+      <View style={styles.shadow}>
+        <Image
+          style={{ width: 70, height: 70 }}
+          source={require('../assets/eventIcon.png')}
+        />
+      </View>
+      <View style={styles.info}>
+        <View style={{ display: 'flex', flexDirection: 'row' }}>
           <Text style={styles.heading}>{heading}</Text>
-          <Text style={{fontSize: 12}}>
-            {startDate} - {endDate}
-          </Text>
-          <View style={{ width: '65%', flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={{fontSize: 12}}>{subject}</Text>
-            <View style={{flexDirection: 'row'}}>
-              <MaterialCommunityIcons name={'map-marker-outline'} size={12} style={{alignSelf: 'center'}}/>
-              <Text style={{fontSize: 12}}>{distance} mi</Text>
-            </View>
-            <Text style={{fontSize: 12}}>${cost}</Text>
+          <Image style={styles.duplicate} source={require('../assets/duplicate.png')} />
+        </View>
+        <Text style={{ fontSize: 12 }}>
+          {startDate}
+        </Text>
+        <View style={{ width: '73%', flexDirection: 'row', justifyContent: 'space-between', marginTop: 2.5 }}>
+          <Text style={{ fontSize: 11 }}>Subject : {subject}</Text>
+          <View style={{ flexDirection: 'row', marginHorizontal: 4 }}>
+            <MaterialCommunityIcons name={'map-marker-outline'} size={12} style={{ alignSelf: 'center' }} />
+            <Text style={{ fontSize: 11 }}>{distance}</Text>
+          </View>
+          <Text style={{ fontSize: 11 }}>{cost}</Text>
+          <View style={{ flexDirection: 'row', marginHorizontal: 4 }}>
+            <MaterialCommunityIcons name={'silverware-fork-knife'} size={12} style={{ alignSelf: 'center' }} />
+            <Text style={{ fontSize: 11 }}> {meal}</Text>
           </View>
         </View>
-        <Image style={styles.mapPin} source={require('../assets/mapPin.png')}/>
       </View>
-    </TouchableWithoutFeedback>
+      <TouchableOpacity style={{ marginLeft: 'auto' }} onPress={() => { navigation.navigate('Home', { eventId: allDetails.id }) }}>
+        <Image style={styles.mapPin} source={require('../assets/mapPin.png')} />
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 }
 
@@ -61,7 +65,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomColor: 'black',
-    borderBottomWidth: 1,
+    borderBottomWidth: 1.2,
     width: '95%',
     height: 90,
     alignSelf: 'center',
@@ -74,12 +78,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
-    width: 75, 
+    width: 75,
     height: 75,
     borderRadius: 100,
     shadowColor: 'black',
     elevation: 5,
-    shadowOffset: { width: 0, height: 2 }, 
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 30,
   },
@@ -92,7 +96,8 @@ const styles = StyleSheet.create({
   mapPin: {
     marginLeft: 'auto',
     height: 40,
-    width: 50,
+    width: 40,
+    resizeMode: 'contain'
   },
   duplicate: {
     width: 70,

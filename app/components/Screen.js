@@ -4,7 +4,7 @@ import Constants from 'expo-constants';
 
 function Screen({ children, style }) {
   return (
-    <ScrollView style={[styles.screen, style]}>
+    <ScrollView style={[styles.screen, style]} automaticallyAdjustKeyboardInsets={true}>
       <View style={[styles.view, style]}>{children}</View>
     </ScrollView>
   );
