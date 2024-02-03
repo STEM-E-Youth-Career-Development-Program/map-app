@@ -5,7 +5,6 @@ import { View, StatusBar, SafeAreaView, Alert, Image, Dimensions, Pressable } fr
 import MapCard from '../components/MapCards';
 import SearchBar from '../components/SearchBar';
 import Carousel from 'react-native-snap-carousel';
-import events from '../shared/allevents.json';
 import { decodePolyline } from '../utils/helpers';
 import TransportMode from '../components/TransportMode';
 import { MAP_API_KEY } from '@env'
@@ -22,48 +21,61 @@ const MapScreen = (props) => {
     const [polylineCoords, setpolylineCoords] = useState(null)
     const [selectedIndex, setSelectedIndex] = useState(0)
     const [filteredEvents, setFilteredEvents] = useState([]);
-    const radius = 0.1;
+    const [eventsCoordinates, setEventsCoordinates] = useState([]);
+    const radius = 5;
+
     // const [listEventId, setlistEventId] = useState(route?.params?.eventId || null)
 
     useEffect(() => {
         (async () => {
-            // Ask for location permission
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
                 Alert.alert('Permission denied', 'We need location permissions to get your location.');
                 return;
             }
 
-            // Get current location
             let currentLocation = await Location.getCurrentPositionAsync({});
             setLocation(currentLocation.coords);
             fitToFrame(currentLocation.coords);
             createPolyline(selectedIndex, currentLocation.coords);
-            filterEventsWithinRadius(currentLocation.coords);
-        })();
+            filterEventsWithinRadius(currentLocation.coords, radius);
 
+            // Fetch data from the API
+            fetch('https://mapstem-api.azurewebsites.net/api/Event')
+                .then((response) => response.json())
+                .then((data) => {
+                    const onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
+                    const eventCoordinates = onsiteEvents.map((event) => ({
+                        latitude: parseFloat(event.latitude),
+                        longitude: parseFloat(event.longitude),
+                    }));
+                    setEventsCoordinates(eventCoordinates);
+                    setFilteredEvents(onsiteEvents);
+                })
+                .catch((error) => console.error('Error fetching data:', error));
+        })();
     }, []);
 
     const filterEventsWithinRadius = (userLocation) => {
-        const filtered = events.filter((event) => {
-            const distance = getDistance(userLocation, event.coordinate);
+        const filtered = eventsCoordinates.filter((event) => {
+            const distance = getDistance(userLocation, event);
+            console.log(`Distance for event: ${distance} miles`);
             return distance <= radius;
         });
         setFilteredEvents(filtered);
     };
 
+
     const getDistance = (coord1, coord2) => {
-        // Calculate distance between two coordinates (Haversine formula)
-        const R = 6371; // Radius of the Earth in kilometers
+        const R = 3959; // Radius of the Earth in miles
         const dLat = deg2rad(coord2.latitude - coord1.latitude);
         const dLon = deg2rad(coord2.longitude - coord1.longitude);
         const a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(deg2rad(coord1.latitude)) * Math.cos(deg2rad(coord2.latitude)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c; // Distance in kilometers
-        const distanceInMiles = distance * 0.621371; // Convert distance to miles
-        return distanceInMiles;
+        const distance = R * c; // Distance in miles
+        return distance;
     };
 
     const deg2rad = (deg) => {
@@ -74,9 +86,9 @@ const MapScreen = (props) => {
     useFocusEffect(
         React.useCallback(() => {
             // This will run every time the screen is focused or re-focused
-            console.log('Screen A is focused', route?.params?.eventId);
+            // console.log('Screen A is focused', route?.params?.eventId);
             if (route?.params?.eventId) {
-                const ind = events.findIndex((item) => item.id == route?.params?.eventId)
+                const ind = filteredEvents.findIndex((item) => item.id == route?.params?.eventId)
                 onSnapFunc(ind)
             }
 
@@ -91,9 +103,10 @@ const MapScreen = (props) => {
     );
 
     const fitToFrame = (userLocation) => {
-        let eventLocs = events.map(({ coordinate }) => {
-            return coordinate
-        })
+        let eventLocs = eventsCoordinates.map(({ latitude, longitude }) => ({
+            latitude,
+            longitude,
+        }));
         if (mapRef) {
             // mapRef?.current?.animateToRegion(tempRegion, 100);
             mapRef?.current?.fitToCoordinates([...eventLocs, {
@@ -103,31 +116,61 @@ const MapScreen = (props) => {
         }
     }
 
+    // const createPolyline = (eventIndex, userLocation) => {
+    //     const destination = eventsCoordinates[eventIndex].latitude + ',' + eventsCoordinates[eventIndex].longitude
+    //     const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude + ',' + userLocation.longitude}&destination=${destination}&key=${MAP_API_KEY}`;
+
+    //     fetch(apiUrl)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const points = data.routes[0].overview_polyline.points;
+    //             const res = decodePolyline(points)
+    //             setpolylineCoords(res)
+
+    //             if (mapRef) {
+    //                 mapRef?.current?.fitToCoordinates([events[eventIndex].coordinate, {
+    //                     latitude: userLocation.latitude,
+    //                     longitude: userLocation.longitude
+    //                 }], { edgePadding: { top: 20, right: 20, bottom: 80, left: 20 }, animated: true })
+    //             }
+    //         })
+    //         .catch(error => console.error(error));
+    // }
+
     const createPolyline = (eventIndex, userLocation) => {
-        const destination = events[eventIndex].coordinate.latitude + ',' + events[eventIndex].coordinate.longitude
-        const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude + ',' + userLocation.longitude}&destination=${destination}&key=${MAP_API_KEY}`;
-        console.log('agya', apiUrl)
+        // Check if eventsCoordinates is not empty and eventIndex is within its bounds
+        if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
+            const destination = eventsCoordinates[eventIndex].latitude + ',' + eventsCoordinates[eventIndex].longitude;
 
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                const points = data.routes[0].overview_polyline.points;
-                const res = decodePolyline(points)
-                setpolylineCoords(res)
+            const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude + ',' + userLocation.longitude}&destination=${destination}&key=${MAP_API_KEY}`;
 
-                if (mapRef) {
-                    mapRef?.current?.fitToCoordinates([events[eventIndex].coordinate, {
-                        latitude: userLocation.latitude,
-                        longitude: userLocation.longitude
-                    }], { edgePadding: { top: 20, right: 20, bottom: 80, left: 20 }, animated: true })
-                }
-            })
-            .catch(error => console.error(error));
-    }
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const points = data.routes[0].overview_polyline.points;
+                    const res = decodePolyline(points);
+                    setpolylineCoords(res);
+
+                    if (mapRef) {
+                        mapRef?.current?.fitToCoordinates([
+                            { latitude: eventsCoordinates[eventIndex].latitude, longitude: eventsCoordinates[eventIndex].longitude },
+                            { latitude: userLocation.latitude, longitude: userLocation.longitude }
+                        ], { edgePadding: { top: 20, right: 20, bottom: 80, left: 20 }, animated: true });
+                    }
+                })
+                .catch(error => console.error(error));
+        } else {
+            // Handle the case when eventsCoordinates is empty or eventIndex is out of bounds
+            console.error('Invalid eventIndex or eventsCoordinates is empty');
+        }
+    };
+
 
     const _renderItem = ({ item, index }) => {
-        return (<MapCard item={item} navigation={navigation} isSelected={selectedIndex === index} />)
-    }
+        const distance = getDistance(location, eventsCoordinates[index]);
+        return <MapCard item={item} navigation={navigation} isSelected={selectedIndex === index} distance={distance} />;
+    };
+
 
     const onSnapFunc = (ind) => {
         setSelectedIndex(ind)
@@ -155,8 +198,6 @@ const MapScreen = (props) => {
         }
     };
 
-
-
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
             <StatusBar backgroundColor='transparent' translucent />
@@ -179,10 +220,10 @@ const MapScreen = (props) => {
                             rotation={getMarkerRotation()}
                         />
                     )}
-                    {events.map((item, index) => (
+                    {filteredEvents.map((coordinate, index) => (
                         <Marker
                             key={index}
-                            coordinate={item.coordinate}
+                            coordinate={coordinate}
                             onPress={() => onEventMarkerPress(index)}
                         >
                             <Image
@@ -202,10 +243,11 @@ const MapScreen = (props) => {
                             strokeWidth={2.5}
                         />
                     }
+                    {/* Location Radius */}
                     {location && (
                         <Circle
                             center={{ latitude: location.latitude, longitude: location.longitude }}
-                            radius={1609.34 * radius} // Convert miles to meters (1 mile = 1609.34 meters)
+                            radius={1609.34 * radius}
                             strokeWidth={1}
                             strokeColor="blue"
                             fillColor="rgba(0, 128, 255, 0.2)"
@@ -222,7 +264,7 @@ const MapScreen = (props) => {
 
                     }
                     {location &&
-                        <TransportMode userLocation={location} destination={events[selectedIndex].coordinate} />
+                        <TransportMode userLocation={location} destination={eventsCoordinates[selectedIndex]} />
                     }
                 </View>
                 {location && !route?.params?.eventId &&
@@ -231,7 +273,7 @@ const MapScreen = (props) => {
                             // ref={(c) => { this._carousel = c; }}
                             // layoutCardOffset={9}
                             ref={carouselRef}
-                            data={events}
+                            data={filteredEvents}
                             renderItem={_renderItem}
                             sliderWidth={Dimensions.get('screen').width}
                             itemWidth={Dimensions.get('screen').width / 2.09}

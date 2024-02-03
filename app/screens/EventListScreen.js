@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, View, FlatList, Text, Pressable } from 'react-native';
 
 import SearchBar from '../components/SearchBar';
@@ -6,182 +6,127 @@ import Event from '../components/Event';
 import PageHeader from '../components/PageHeader';
 import Constants from 'expo-constants';
 import NextButton from '../components/NextButton';
+import { useNavigation } from '@react-navigation/native';
+import { useLocation } from '../components/locationGet';
 
-const allEventsList = [
-  {
-    id: 1,
-    heading: 'Medical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: true,
-  },
-  {
-    id: 2,
-    heading: 'Medical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: true,
-  },
-  {
-    id: 3,
-    heading: 'Medical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: true,
-  },
-  {
-    id: 4,
-    heading: 'Medical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: true,
-  },
-  {
-    id: 5,
-    heading: 'Medical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: true,
-  },
-  {
-    id: 6,
-    heading: 'Medical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: true,
-  },
-  {
-    id: 7,
-    heading: 'Medical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: true,
-  },
-  {
-    id: 8,
-    heading: 'Medical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: true,
-  },
-  {
-    id: 9,
-    heading: 'Medical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: true,
-  },
-  {
-    id: 10,
-    heading: 'Medical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: true,
-  },
-  {
-    id: 11,
-    heading: 'Technical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: false,
-  },
-  {
-    id: 12,
-    heading: 'Technical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: false,
-  },
-  {
-    id: 13,
-    heading: 'Technical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: false,
-  },
-  {
-    id: 14,
-    heading: 'Technical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: false,
-  },
-  {
-    id: 15,
-    heading: 'Technical Workshop',
-    startDate: 'Mar 23',
-    endDate: 'Mar 25',
-    subject: 'Science',
-    distance: 2.5,
-    cost: 25,
-    active: false,
-  },
-];
+function EventListScreen({ route, props, navigation }) {
+  const { location } = useLocation();
+  const { selectedSubjects, selectedCost, distance, eventType } = route.params || {};
 
-function EventListScreen({props, navigation}) {
+  // console.log("check",eventType,  selectedSubjects, selectedCost)
+  console.log("check type and distance", eventType, selectedCost)
   const [searchQuery, setSearchQuery] = useState('');
   const [active, setActive] = useState(true);
+  const [eventsAPI, setEvents] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pollingInterval, setPollingInterval] = useState(null);
+
+
+  // console.log('Current Location in Event List:', location);
+
 
   const handleSearch = (text) => {
     setSearchQuery(text);
   };
 
+  // useEffect(() => {
+  //   fetch(`https://mapstem-api.azurewebsites.net/api/Event?Subject=${selectedSubjects}&Cost=${selectedCost}`)
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       console.log("check data",data)
+  //       setEvents(data);
+  //       setLoading(false);
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error fetching data:', error);
+  //       setLoading(false);
+  //     });
+  // }, []);
+
   useEffect(() => {
-    const filteredEvents = events.filter(event =>
+    // Fetch events based on selectedSubjects, selectedCost, eventType, and distance
+    if (selectedSubjects && selectedCost) {
+      fetch(`https://mapstem-api.azurewebsites.net/api/Event?Subject=${selectedSubjects}&Cost=${selectedCost}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setEvents(data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+          setLoading(false);
+        });
+    } else {
+      fetch('https://mapstem-api.azurewebsites.net/api/Event')
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setEvents(data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+          setLoading(false);
+        });
+    }
+  }, [selectedSubjects, selectedCost, eventType, distance]);
+
+  useEffect(() => {
+    // Filter events based on searchQuery, active status, and location
+    if (loading) {
+      return; // Wait until data is loaded
+    }
+
+    const eventsWithDistance = Array.isArray(eventsAPI)
+      ? eventsAPI.map((event) => {
+        const eventDistance = calculateDistance(
+          location.latitude,
+          location.longitude,
+          event.latitude,
+          event.longitude
+        );
+        return { ...event, distance: eventDistance };
+      })
+      : [];
+
+    const filteredEvents = eventsWithDistance.filter((event) =>
       event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      event.active == active
-      /*
-      &&
-      event.distance == distance &&
-      event.cost <= cost &&
-      event.subject == selected
-      */
+      ((active && event.eventStatus === 'Active') ||
+        (!active && event.eventStatus === 'Pending')) &&
+      (!eventType || event.eventType === eventType) && // Check eventType
+      (!distance || event.distance <= distance) // Check distance
     );
+
     setFilteredData(filteredEvents);
-  }, [searchQuery, active]);
+  }, [searchQuery, active, loading, eventsAPI, location, eventType, distance]);
+
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 3958.8; // Earth radius in miles
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    return distance;
+  };
+
+  const toRadians = (angle) => {
+    return (angle * Math.PI) / 180;
+  };
+
 
   return (
     <View style={styles.screen}>
@@ -231,23 +176,67 @@ function EventListScreen({props, navigation}) {
         onPressIcon={() => navigation.navigate('Filter Events')}
         isList={true}
       />
-      <FlatList
+      {/* <FlatList
         data={filteredData}
         keyExtractor={(event) => event.id.toString()}
         renderItem={({ item }) => (
           <Event
+            image = {item.imageData}
             heading={item.eventName}
-            startDate={item.eventDate}
-            subject={item.eventSubject}
-            distance={item.eventDistance}
-            cost={item.eventCost}
+            type = {item.eventType}
+            cost={item.cost}
+            description={item.description}
+            startDate={item.startDate}
+            endDate={item.endDate}
+            startTime={item.startTime}
+            endTime={item.endTime}
+            address={item.address}
+            companyname={item.compmayName}
+            subject={item.subject}
+            contact={item.contactNo}
+            eligibility={item.eligibility}
+            gradeLevel={item.gradeLevel}
+            ageGroup={item.ageGroup}
             meal={item.mealIncluded}
-            status={item.active ? 'Active' : 'Pending'}
+            //distance={item.eventDistance}
             navigation={navigation}
             allDetails={item}
           />
         )}
+      /> */}
+      <FlatList
+        data={filteredData}
+        keyExtractor={(event) => event.id.toString()}
+        renderItem={({ item }) => {
+          let distance = item.distance; // or use const if you don't need to reassign distance
+
+          return (
+            <Event
+              image={item.imageData}
+              heading={item.eventName}
+              type={item.eventType}
+              cost={item.cost}
+              description={item.description}
+              startDate={item.startDate}
+              endDate={item.endDate}
+              startTime={item.startTime}
+              endTime={item.endTime}
+              address={item.address}
+              companyname={item.compmayName}
+              subject={item.subject}
+              contact={item.contactNo}
+              eligibility={item.eligibility}
+              gradeLevel={item.gradeLevel}
+              ageGroup={item.ageGroup}
+              meal={item.mealIncluded}
+              distance={distance}
+              navigation={navigation}
+              allDetails={item}
+            />
+          );
+        }}
       />
+
       <NextButton
         title={'Add New Event'}
         onPress={() => navigation.navigate('Create Event')}

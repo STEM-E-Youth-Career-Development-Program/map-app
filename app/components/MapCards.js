@@ -1,16 +1,23 @@
 import { StyleSheet, Text, View, ImageBackground, Dimensions, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import eventsData from '../shared/allevents.json';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
 
-const MapCard = ({ item, navigation }) => {
+const MapCard = ({ item, navigation, isSelected, distance }) => {
+  const calculateDuration = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const durationInDays = Math.floor((end - start) / (24 * 60 * 60 * 1000));
+
+    return durationInDays === 0 || durationInDays === 1 ? '1 Day' : `${durationInDays} Days`;
+  };
+  const base64Image = `data:image/jpeg;base64,${item.imageData}`;
   return (
-    <TouchableOpacity activeOpacity={.9} onPress={() => navigation.navigate('Event Details', { allDetails: item })} style={styles.cardItems}>
+    <TouchableOpacity activeOpacity={.9} onPress={() => navigation.navigate('Event Details', { allDetails: item, distance })} style={styles.cardItems}>
       <View style={styles.circleAvatar}>
-        <ImageBackground source={{ uri: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZmVtYWxlJTIwZG9jdG9yfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60" }}
+        <ImageBackground source={{ uri: base64Image }}
           style={styles.image}
         />
       </View>
@@ -18,13 +25,17 @@ const MapCard = ({ item, navigation }) => {
         <Text numberOfLines={1} style={styles.mainTitle}>
           {item.eventName}
         </Text>
-        <Text style={styles.subtitle}>
+        {/* <Text style={styles.subtitle}>
           {item.eventLocation}
-        </Text>
+        </Text> */}
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingHorizontal: 15, marginTop: 5 }}>
-        <Text style={styles.text1}>Cost: <Text style={{ fontSize: height * 0.014, color: 'grey' }}>{item.eventCost}</Text></Text>
-        <Text style={styles.text1}>Distance: <Text style={{ fontSize: height * 0.014, color: 'grey' }}>{item.eventDistance}</Text></Text>
+        <Text style={styles.text1}>Cost: <Text style={{ fontSize: height * 0.014, color: 'grey' }}>{item.cost}</Text></Text>
+        <Text style={styles.text1}>Distance:  
+        {distance && (
+        <Text style={{ fontSize: height * 0.014, color: 'grey' }}> {distance.toFixed(2)} mi</Text>
+        )}
+        </Text>
       </View>
       <View style={{ borderBottomColor: '#ddd', borderBottomWidth: 0.7, width: '80%', marginVertical: height * 0.018 }} />
       <View style={{ flexDirection: 'row', width: '100%', paddingLeft: 20 }}>
@@ -34,14 +45,14 @@ const MapCard = ({ item, navigation }) => {
           <Text style={styles.text2}>Subject:</Text>
         </View>
         <View>
-          <Text style={styles.text3}>3 Days</Text>
-          <Text style={styles.text3}>Online</Text>
-          <Text style={styles.text3}>{item.eventSubject}</Text>
+        <Text style={styles.text3}>{calculateDuration(item.startDate, item.endDate)}</Text>
+          <Text style={styles.text3}>{item.eventType}</Text>
+          <Text style={styles.text3}>{item.subject}</Text>
         </View>
       </View>
       <View style={styles.bottomrow}>
         <MaterialCommunityIcons name='silverware-fork-knife' size={width * 0.04} style={{ marginRight: 5 }} />
-        <Text style={styles.text3}>Meals included</Text>
+        <Text style={styles.text3}>{item.mealIncluded}</Text>
       </View>
     </TouchableOpacity>
   )
@@ -74,8 +85,8 @@ const styles = StyleSheet.create({
     top: - width * 0.09
   },
   image: {
-    width: width * 0.23,
-    height: width * 0.23,
+    width: width * 0.27,
+    height: width * 0.27,
   },
   text1: {
     fontSize: height * 0.014,
