@@ -9,6 +9,7 @@ import EventDetails from './app/components/EventDetails';
 import FilterScreen from './app/screens/FilterScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { LocationProvider } from './app/components/locationGet';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +17,8 @@ function App() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar style="auto" />
+      <LocationProvider>
+
       <NavigationContainer>
         <Stack.Navigator initialRouteName='Home'>
           <Stack.Screen
@@ -45,6 +48,8 @@ function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
+      </LocationProvider>
+
     </SafeAreaView>
   )
 }
