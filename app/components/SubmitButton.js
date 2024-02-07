@@ -4,7 +4,7 @@ import { Formik, useFormikContext } from 'formik';
 import AppForm from '../components/AppForm';
 import { LinearGradient } from 'expo-linear-gradient';
 
-function SubmitButton({ title }) {
+function SubmitButton({ title, selectedSubjects, selectedCost, onPress }) {
   return (
     <Formik
       initialValues={AppForm.initialValues}
@@ -24,7 +24,7 @@ function SubmitButton({ title }) {
         }}
         locations={[0.1, 0.9]}
       >
-        <TouchableWithoutFeedback /*onPress={useFormikContext}*/>
+        <TouchableWithoutFeedback onPress={() => onPress(selectedSubjects, selectedCost)}>
           <Text
             style={{
               color: 'white',

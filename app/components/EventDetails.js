@@ -7,34 +7,33 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, Image, ScrollView, ImageBackground, Dimensions } from 'react-native';
 import Constants from 'expo-constants';
 
-const height = Dimensions.get('window').height
 
-const eventExample = {
-  id: 1,
-  heading: 'Medical Workshop',
-  startDate: 'Mar 23',
-  endDate: 'Mar 25',
-  subject: 'Science',
-  location: '...',
-  cost: 20,
-  organization: 'UT Austin',
-  description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum facilisis leo vel.',
-}
+const height = Dimensions.get('window').height
 
 const EventDetails = (props) => {
 
-  const { allDetails } = props.route.params;
+  const { allDetails, distance } = props.route.params;
+  const base64Image = `data:image/jpeg;base64,${allDetails.imageData}`;
+  // console.log("check", allDetails)
 
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
   return (
     <>
       <View style={{ paddingTop: Constants.statusBarHeight }}>
         <PageHeader header={allDetails.eventName} />
       </View>
       <ScrollView>
-        <ImageBackground source={require('../assets/eventdetailex.png')} style={styles.eventImg}>
+        <ImageBackground source={{ uri: base64Image }} style={styles.eventImg}>
           <View style={styles.overlayView} />
         </ImageBackground>
         <View style={styles.iconRow}>
+        {/* <View style={[styles.iconButtons, { right: 15 }]}>
+            <Image  source={{ uri: `${allDetails.imageData}` }}
+          style={styles.eventImg} />
+          </View> */}
           <View style={[styles.iconButtons, { right: 7 }]}>
             <Image source={require('../assets/earth.png')} style={{ width: 20, height: 20 }} />
           </View>
@@ -45,7 +44,7 @@ const EventDetails = (props) => {
 
         <View style={styles.conduct}>
           <Text style={{ fontWeight: 'bold', }}>Conducted By:</Text>
-          <Text style={{ fontWeight: 'bold', color: 'grey' }}>{allDetails.eventLocation}</Text>
+          <Text style={{ fontWeight: 'bold', color: 'grey' }}>{allDetails.compmayName}</Text>
         </View>
 
         <Text style={styles.more}>For more information and registration, visit the <Text style={styles.underlineText}>organizer's website.</Text></Text>
@@ -55,40 +54,60 @@ const EventDetails = (props) => {
             <View style={{ marginTop: 8, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
               <MaterialCommunityIcons name='calendar-month-outline' size={20} style={{ paddingRight: 10 }} />
               <Text style={{ fontWeight: '600', paddingRight: 25 }}>Date: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.eventDate}</Text>
+              <Text style={{ color: '#999999' }}>{formatDate(allDetails.startDate)} - {formatDate(allDetails.endDate)}</Text>
             </View>
             <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
               <MaterialCommunityIcons name='calendar-month-outline' size={20} style={{ paddingRight: 10 }} />
               <Text style={{ fontWeight: '600', paddingRight: 25 }}>Time: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.eventTime}</Text>
+              <Text style={{ color: '#999999' }}>{allDetails.startTime} - {allDetails.endTime} </Text>
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <MaterialCommunityIcons name='map-marker-outline' size={20} style={{ paddingRight: 10 }} />
               <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Location: </Text>
-              <Text style={{ color: '#999999' }}>321 Street Dr, {allDetails.eventLocation}</Text>
+              <Text style={{ color: '#999999', maxWidth: '70%' }} numberOfLines={2} ellipsizeMode='tail'>{allDetails.address}</Text>
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Distance: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.eventDistance} away</Text>
+              <Text style={{ color: '#999999' }}>{distance.toFixed(2)} mi</Text>
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 28 }}>Cost: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.eventCost}</Text>
+              <Text style={{ color: '#999999' }}>$ {allDetails.cost}</Text>
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Subject: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.eventSubject}</Text>
+              <Text style={{ color: '#999999' }}>{allDetails.subject}</Text>
+            </View>
+            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+              <View style={{ width: '8%' }} />
+              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Event Type: </Text>
+              <Text style={{ color: '#999999' }}>{allDetails.eventType}</Text>
+            </View>
+            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+              <View style={{ width: '8%' }} />
+              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Grade Level: </Text>
+              <Text style={{ color: '#999999' }}>{allDetails.gradeLevel}</Text>
+            </View>
+            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+              <View style={{ width: '8%' }} />
+              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Eligibility: </Text>
+              <Text style={{ color: '#999999' }}>{allDetails.eligibility}</Text>
+            </View>
+            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+              <View style={{ width: '8%' }} />
+              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Age Group: </Text>
+              <Text style={{ color: '#999999' }}>{allDetails.ageGroup}</Text>
             </View>
 
             <View style={{ marginVertical: 17 }}>
               <Text style={{ fontWeight: '600', fontSize: 16 }}>Description: </Text>
-              <Text style={{ color: '#999999', fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }}>{allDetails.description}</Text>
+              <Text style={{ color: '#999999', maxWidth: '70%', fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }}  numberOfLines={2} ellipsizeMode='tail'>{allDetails.description}</Text>
             </View>
 
-            <View style={styles.line} />
+            {/* <View style={styles.line} />
 
             <Text style={styles.ratingtext}>Rating & Reviews</Text>
             <Text style={{ fontSize: 35, fontWeight: 'bold' }}>5.0</Text>
@@ -129,8 +148,10 @@ const EventDetails = (props) => {
               </View>
             </View>
 
-            <Text style={{ marginBottom: 20 }}>See More Reviews</Text>
+            <Text style={{ marginBottom: 20 }}>See More Reviews</Text> */}
+
           </View>
+          
         </View>
       </ScrollView>
     </>
@@ -161,7 +182,7 @@ const styles = StyleSheet.create({
   },
   conduct: {
     width: '50%',
-    height: 45,
+    height: 'auto', // Set height to auto to accommodate varying text lengths
     borderRadius: 8,
     backgroundColor: 'white',
     position: 'absolute',
@@ -170,7 +191,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
+    flexWrap: 'wrap', // Allow text to wrap to the next line
+    paddingTop: 20,
+    paddingRight: 10,
+    paddingBottom: 20,
+    paddingLeft: 10
+
   },
+  
   more: {
     marginVertical: 20,
     textAlign: 'center',

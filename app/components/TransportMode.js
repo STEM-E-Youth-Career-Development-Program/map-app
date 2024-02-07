@@ -18,9 +18,9 @@ const TransportMode = (props) => {
             ])
                 .then(results => {
                     // Handle the results of the API calls
-                    console.log('Result 1:', results[0]);
-                    console.log('Result 2:', results[1]);
-                    console.log('Result 3:', results[2]);
+                    // console.log('Result 1:', results[0]);
+                    // console.log('Result 2:', results[1]);
+                    // console.log('Result 3:', results[2]);
                     const res = {
                         walking: results[0],
                         driving: results[1],
