@@ -4,7 +4,7 @@ import PageHeader from './PageHeader';
 import Event from './Event';
 import CreateEventScreen from '../screens/CreateEventScreen';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { View, Text, StyleSheet, Image, ScrollView, ImageBackground, Dimensions } from 'react-native';
+import { TouchableOpacity, View, Text, StyleSheet, Image, ScrollView, ImageBackground, Dimensions, Linking, Share } from 'react-native';
 import Constants from 'expo-constants';
 
 
@@ -20,6 +20,32 @@ const EventDetails = (props) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  const handleUrlPress = () => {
+    Linking.openURL(allDetails.url);
+  };
+
+  const handleShare = async () => {
+    try {
+      const result = await Share.share({
+        message: `Check out this event: ${allDetails.eventName} at ${allDetails.address}`,
+        url: allDetails.url,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // Shared via activity type
+        } else {
+          // Shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // Dismissed
+      }
+    } catch (error) {
+      console.error('Error sharing event:', error.message);
+    }
+  };
+
+
   return (
     <>
       <View style={{ paddingTop: Constants.statusBarHeight }}>
@@ -34,12 +60,14 @@ const EventDetails = (props) => {
             <Image  source={{ uri: `${allDetails.imageData}` }}
           style={styles.eventImg} />
           </View> */}
-          <View style={[styles.iconButtons, { right: 7 }]}>
-            <Image source={require('../assets/earth.png')} style={{ width: 20, height: 20 }} />
-          </View>
-          <View style={styles.iconButtons}>
+         {allDetails.url && (
+            <TouchableOpacity onPress={handleUrlPress} style={[styles.iconButtons, { right: 7 }]}>
+              <Image source={require('../assets/earth.png')} style={{ width: 20, height: 20 }} />
+            </TouchableOpacity>
+          )}
+           <TouchableOpacity onPress={handleShare} style={styles.iconButtons}>
             <Image source={require('../assets/share.png')} style={{ width: 20, height: 20 }} />
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.conduct}>
@@ -47,7 +75,15 @@ const EventDetails = (props) => {
           <Text style={{ fontWeight: 'bold', color: 'grey' }}>{allDetails.compmayName}</Text>
         </View>
 
-        <Text style={styles.more}>For more information and registration, visit the <Text style={styles.underlineText}>organizer's website.</Text></Text>
+        {allDetails.url && (
+        <Text style={styles.more}>
+          For more information and registration, visit the{' '}
+          <TouchableOpacity onPress={handleUrlPress}>
+            <Text style={styles.underlineText}>Organizer's Website</Text>
+          </TouchableOpacity>
+        </Text>
+        )}
+        
         <View style={styles.contentBackground}>
           <View style={{ marginLeft: '2.5%', marginTop: 12 }}>
             <Text style={{ fontWeight: 'bold', color: '#171766', fontSize: 16 }}>Event Details:</Text>

@@ -240,6 +240,7 @@ function EventListScreen({ route, props, navigation }) {
           </Text>
         </Pressable>
       </View>
+      
       <SearchBar
         value={searchQuery}
         onChangeText={handleSearch}
