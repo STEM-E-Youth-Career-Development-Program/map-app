@@ -33,14 +33,14 @@ const FilterScreen = ({ selectedSubjects, selectedCost }) => {
 
   var distanceText = "Within " + distance + " miles";
   if (distance == 100) {
-    distanceText = "100 miles";
+    distanceText = "Max";
   } else if (distance == 0) {
     distanceText = "0 miles";
   }
   const [cost, setCost] = useState(90);
   var costText = "Max. $" + cost;
   if (cost == 100) {
-    costText = "$100";
+    costText = "Max";
   } else if (cost == 0) {
     costText = "Free";
   }
@@ -76,9 +76,23 @@ const FilterScreen = ({ selectedSubjects, selectedCost }) => {
   // Transform API data to an array of strings using the 'id' property
   const transformedData = apiData.map((item) => item.name);
 
+
+  const handleResetFilters = () => {
+    // Reset all filter values to default
+    setSelected([]);
+    setSelectedLocation("");
+    setShowDistance(true);
+    setDistance(50);
+    setCost(90);
+  };
+
   return (
     <Screen>
       <PageHeader header={"Filter & Sort"} />
+
+      <TouchableOpacity onPress={handleResetFilters} style={styles.resetButton}>
+        <Text style={styles.resetButtonText}>Reset Filters</Text>
+      </TouchableOpacity>
 
       <Text style={styles.heading}>Subject</Text>
       <View style={{ paddingHorizontal: 16, paddingTop: 15 }}>
@@ -223,6 +237,17 @@ const styles = StyleSheet.create({
     width: "92%",
     alignSelf: "center",
     backgroundColor: "transparent"
+  },
+
+  resetButton: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+  },
+  resetButtonText: {
+    color: 'black',
+    fontWeight: 'bold',
+    fontSize: 20
   },
 
 });

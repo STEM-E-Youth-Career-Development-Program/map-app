@@ -121,6 +121,7 @@ function CreateEventScreen(props) {
     address: '',
     description: '',
     mealInclude: '',
+    webURL: '',
   });
 
 
@@ -185,7 +186,6 @@ function CreateEventScreen(props) {
       // console.log("check", values);
       // console.log("form value check", formValues);
 
-      
       const { latitude, longitude } = await handleGeocode(values.address);
       const formattedStartTime = values.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const formattedEndTime = values.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -212,7 +212,7 @@ function CreateEventScreen(props) {
       formData.append('Address', values.address);
       formData.append('Description', values.description);
       formData.append('MealIncluded', values.mealInclude);
-
+      formData.append('Url', values.webURL);
       formData.append("Latitude", latitude);
       formData.append("Longitude", longitude);
       console.log('Before fetch');
@@ -498,7 +498,7 @@ function CreateEventScreen(props) {
                   value={values.eligibility}
 
                 />
-                <AppFormField name={"ageGroup"} label="Age Group" 
+                <AppFormField name={"ageGroup"} label="Age Group"
                   onChangeText={handleChange('ageGroup')}
                   onBlur={handleBlur('ageGroup')}
                   value={values.ageGroup}
@@ -516,6 +516,14 @@ function CreateEventScreen(props) {
                   value={values.mealInclude}
 
                 />
+
+                <AppFormField name={"webURL"} label="Web URL"
+                  onChangeText={handleChange('webURL')}
+                  onBlur={handleBlur('webURL')}
+                  value={values.webURL}
+
+                />
+
 
                 <LinearGradient
                   colors={['black', '#5A5A5A']}

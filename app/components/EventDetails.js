@@ -4,7 +4,7 @@ import PageHeader from './PageHeader';
 import Event from './Event';
 import CreateEventScreen from '../screens/CreateEventScreen';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { View, Text, StyleSheet, Image, ScrollView, ImageBackground, Dimensions } from 'react-native';
+import { TouchableOpacity, View, Text, StyleSheet, Image, ScrollView, ImageBackground, Dimensions, Linking, Share } from 'react-native';
 import Constants from 'expo-constants';
 
 
@@ -20,6 +20,36 @@ const EventDetails = (props) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  const handleUrlPress = () => {
+    Linking.openURL(allDetails.url);
+  };
+
+  const handleShare = async () => {
+    try {
+      const result = await Share.share({
+        message: `Check out this event: ${allDetails.eventName} at ${allDetails.address}`,
+        url: allDetails.url,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // Shared via activity type
+        } else {
+          // Shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // Dismissed
+      }
+    } catch (error) {
+      console.error('Error sharing event:', error.message);
+    }
+  };
+
+
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
   return (
     <>
       <View style={{ paddingTop: Constants.statusBarHeight }}>
@@ -30,16 +60,18 @@ const EventDetails = (props) => {
           <View style={styles.overlayView} />
         </ImageBackground>
         <View style={styles.iconRow}>
-        {/* <View style={[styles.iconButtons, { right: 15 }]}>
+          {/* <View style={[styles.iconButtons, { right: 15 }]}>
             <Image  source={{ uri: `${allDetails.imageData}` }}
           style={styles.eventImg} />
           </View> */}
-          <View style={[styles.iconButtons, { right: 7 }]}>
-            <Image source={require('../assets/earth.png')} style={{ width: 20, height: 20 }} />
-          </View>
-          <View style={styles.iconButtons}>
+          {allDetails.url && (
+            <TouchableOpacity onPress={handleUrlPress} style={[styles.iconButtons, { right: 7 }]}>
+              <Image source={require('../assets/earth.png')} style={{ width: 20, height: 20 }} />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={handleShare} style={styles.iconButtons}>
             <Image source={require('../assets/share.png')} style={{ width: 20, height: 20 }} />
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.conduct}>
@@ -47,7 +79,15 @@ const EventDetails = (props) => {
           <Text style={{ fontWeight: 'bold', color: 'grey' }}>{allDetails.compmayName}</Text>
         </View>
 
-        <Text style={styles.more}>For more information and registration, visit the <Text style={styles.underlineText}>organizer's website.</Text></Text>
+        {allDetails.url && (
+          <Text style={styles.more}>
+            For more information and registration, visit the{' '}
+            <TouchableOpacity onPress={handleUrlPress}>
+              <Text style={styles.underlineText}>Organizer's Website</Text>
+            </TouchableOpacity>
+          </Text>
+        )}
+
         <View style={styles.contentBackground}>
           <View style={{ marginLeft: '2.5%', marginTop: 12 }}>
             <Text style={{ fontWeight: 'bold', color: '#171766', fontSize: 16 }}>Event Details:</Text>
@@ -64,7 +104,7 @@ const EventDetails = (props) => {
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <MaterialCommunityIcons name='map-marker-outline' size={20} style={{ paddingRight: 10 }} />
               <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Location: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.address}</Text>
+              <Text style={{ color: '#999999', maxWidth: '70%' }} numberOfLines={2} ellipsizeMode='tail'>{allDetails.address}</Text>
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
@@ -104,7 +144,7 @@ const EventDetails = (props) => {
 
             <View style={{ marginVertical: 17 }}>
               <Text style={{ fontWeight: '600', fontSize: 16 }}>Description: </Text>
-              <Text style={{ color: '#999999', fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }}>{allDetails.description}</Text>
+              <Text style={{ color: '#999999', maxWidth: '70%', fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }} numberOfLines={2} ellipsizeMode='tail'>{allDetails.description}</Text>
             </View>
 
             {/* <View style={styles.line} />
@@ -151,7 +191,7 @@ const EventDetails = (props) => {
             <Text style={{ marginBottom: 20 }}>See More Reviews</Text> */}
 
           </View>
-          
+
         </View>
       </ScrollView>
     </>
@@ -182,7 +222,7 @@ const styles = StyleSheet.create({
   },
   conduct: {
     width: '50%',
-    height: 45,
+    height: 'auto', // Set height to auto to accommodate varying text lengths
     borderRadius: 8,
     backgroundColor: 'white',
     position: 'absolute',
@@ -191,7 +231,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
+    flexWrap: 'wrap', // Allow text to wrap to the next line
+    paddingTop: 20,
+    paddingRight: 10,
+    paddingBottom: 20,
+    paddingLeft: 10
+
   },
+
   more: {
     marginVertical: 20,
     textAlign: 'center',

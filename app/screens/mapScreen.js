@@ -17,6 +17,7 @@ const MapScreen = (props) => {
     const carouselRef = useRef(null);
     const route = useRoute();
     const navigation = useNavigation()
+    const [searchQuery, setSearchQuery] = useState('');
     const [location, setLocation] = useState(null);
     const [polylineCoords, setpolylineCoords] = useState(null)
     const [selectedIndex, setSelectedIndex] = useState(0)
@@ -25,6 +26,10 @@ const MapScreen = (props) => {
     const radius = 5;
 
     // const [listEventId, setlistEventId] = useState(route?.params?.eventId || null)
+
+    const handleSearch = (text) => {
+        setSearchQuery(text);
+    };
 
     useEffect(() => {
         (async () => {
@@ -49,12 +54,23 @@ const MapScreen = (props) => {
                         latitude: parseFloat(event.latitude),
                         longitude: parseFloat(event.longitude),
                     }));
+
+                    // Filter events based on search query
+                    const filteredEvents = onsiteEvents.filter((event) =>
+                        event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (event.subject && event.subject.toLowerCase().includes(searchQuery.toLowerCase()))
+                    );
+
                     setEventsCoordinates(eventCoordinates);
-                    setFilteredEvents(onsiteEvents);
+                    setFilteredEvents(filteredEvents);
                 })
                 .catch((error) => console.error('Error fetching data:', error));
         })();
-    }, []);
+    }, [searchQuery]); // Include searchQuery in the dependency array
+
+
+
+
 
     const filterEventsWithinRadius = (userLocation) => {
         const filtered = eventsCoordinates.filter((event) => {
@@ -256,7 +272,12 @@ const MapScreen = (props) => {
                 </MapView>
                 <View style={{ position: 'absolute', top: 0, width: '100%', zIndex: 1 }}>
                     {!route?.params?.eventId ?
-                        <SearchBar onPressIcon={() => navigation.navigate('Events')} isList={false} />
+                        <SearchBar
+                            value={searchQuery}
+                            onChangeText={handleSearch}
+                            placeholder="Search for event"
+                            onPressIcon={() => navigation.navigate('Events')}
+                            isList={false} />
                         :
                         <Pressable style={{ width: 50, height: 50, backgroundColor: '#fff', borderRadius: 50, marginVertical: 20, left: 25, shadowOpacity: 0.25, shadowRadius: 3.2, shadowOffset: { width: 2, height: 2 }, elevation: 5, justifyContent: 'center', alignItems: 'center' }} onPress={() => navigation.navigate('Events')}>
                             <MaterialCommunityIcons name="arrow-left" size={29} />

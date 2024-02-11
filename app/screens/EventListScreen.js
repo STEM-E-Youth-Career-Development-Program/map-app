@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, View, FlatList, Text, Pressable } from 'react-native';
+import { StyleSheet, View, FlatList, Text, Pressable, TouchableOpacity } from 'react-native';
 
 import SearchBar from '../components/SearchBar';
 import Event from '../components/Event';
@@ -8,20 +8,59 @@ import Constants from 'expo-constants';
 import NextButton from '../components/NextButton';
 import { useNavigation } from '@react-navigation/native';
 import { useLocation } from '../components/locationGet';
-
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 function EventListScreen({ route, props, navigation }) {
   const { location } = useLocation();
   const { selectedSubjects, selectedCost, distance, eventType } = route.params || {};
 
   // console.log("check",eventType,  selectedSubjects, selectedCost)
-  console.log("check type and distance", eventType, selectedCost)
+  console.log("check type and distance", eventType, selectedCost, selectedSubjects, distance)
   const [searchQuery, setSearchQuery] = useState('');
   const [active, setActive] = useState(true);
   const [eventsAPI, setEvents] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pollingInterval, setPollingInterval] = useState(null);
+  const [selectedFilters, setSelectedFilters] = useState([]);
 
+  const renderFilterCapsules = () => {
+    return (
+      <View style={styles.filterCapsulesContainer}>
+        {renderFilter('Event Type', eventType)}
+        {renderFilter('Selected Cost', selectedCost)}
+        {renderFilter('Selected Subjects', selectedSubjects)}
+        {renderFilter('Distance', distance)}
+      </View>
+    );
+  };
+
+  // Render individual filter capsule
+  const renderFilter = (label, value) => {
+    if (!value) return null;
+
+    let formattedValue = value;
+    if (label === 'Distance') {
+      formattedValue = `${value} mi`;
+    } else if (label === 'Selected Cost') {
+      formattedValue = `$${value}`;
+    }
+
+    return (
+      <View style={styles.filterCapsule}>
+        {/* <Text style={styles.filterLabel}>{label}: </Text> */}
+        <Text style={styles.filterValue}>{formattedValue}</Text>
+        <TouchableOpacity onPress={() => removeFilter(label)}>
+          <MaterialCommunityIcons name="close" size={20} color="white" />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+
+  // Function to remove a filter
+  const removeFilter = (label) => {
+    setSelectedFilters(selectedFilters.filter((filter) => filter.label !== label));
+  };
 
   // console.log('Current Location in Event List:', location);
 
@@ -81,6 +120,35 @@ function EventListScreen({ route, props, navigation }) {
     }
   }, [selectedSubjects, selectedCost, eventType, distance]);
 
+  // useEffect(() => {
+  //   if (loading) {
+  //     return;
+  //   }
+
+  //   const eventsWithDistance = Array.isArray(eventsAPI)
+  //     ? eventsAPI.map((event) => {
+  //       const eventDistance = calculateDistance(
+  //         location.latitude,
+  //         location.longitude,
+  //         event.latitude,
+  //         event.longitude
+  //       );
+  //       return { ...event, distance: eventDistance };
+  //     })
+  //     : [];
+
+  //   const filteredEvents = eventsWithDistance.filter((event) =>
+  //     event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) &&
+  //     ((active && event.eventStatus === 'Active') ||
+  //       (!active && event.eventStatus === 'Pending')) &&
+  //     (!eventType || event.eventType === eventType) && // Check eventType
+  //     (!distance || event.distance <= distance) // Check distance'
+  //   );
+
+  //   setFilteredData(filteredEvents);
+  // }, [searchQuery, active, loading, eventsAPI, location, eventType, distance]);
+
+
   useEffect(() => {
     // Filter events based on searchQuery, active status, and location
     if (loading) {
@@ -100,11 +168,12 @@ function EventListScreen({ route, props, navigation }) {
       : [];
 
     const filteredEvents = eventsWithDistance.filter((event) =>
-      event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (event.subject && event.subject.toLowerCase().includes(searchQuery.toLowerCase()))) &&
       ((active && event.eventStatus === 'Active') ||
         (!active && event.eventStatus === 'Pending')) &&
-      (!eventType || event.eventType === eventType) && // Check eventType
-      (!distance || event.distance <= distance) // Check distance
+      (!eventType || event.eventType === eventType) &&
+      (!distance || event.distance <= distance)
     );
 
     setFilteredData(filteredEvents);
@@ -131,6 +200,8 @@ function EventListScreen({ route, props, navigation }) {
   return (
     <View style={styles.screen}>
       <PageHeader header="All Events" />
+      {renderFilterCapsules()}
+
       <View style={styles.actpenContainer}>
         <Pressable
           style={[
@@ -169,6 +240,7 @@ function EventListScreen({ route, props, navigation }) {
           </Text>
         </Pressable>
       </View>
+
       <SearchBar
         value={searchQuery}
         onChangeText={handleSearch}
@@ -267,4 +339,28 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 15,
   },
+  filterCapsulesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 10,
+    marginTop: 10,
+  },
+  filterCapsule: {
+    backgroundColor: '#000',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 5,
+    marginBottom: 5,
+  },
+  filterLabel: {
+    fontWeight: 'bold',
+  },
+  filterValue: {
+    marginLeft: 5,
+    color: '#fff'
+  },
+
 });

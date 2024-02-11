@@ -34,7 +34,7 @@ function SearchBar({ onChangeText, value, onPressIcon, isList, ...otherProps }) 
               {...otherProps}
             />
           </View>
-          <MaterialCommunityIcons name="microphone-outline" size={28} style={{ marginLeft: 'auto' }} />
+          {/* <MaterialCommunityIcons name="microphone-outline" size={28} style={{ marginLeft: 'auto' }} /> */}
         </View>
 
         <Pressable style={styles.container} onPress={() => setModalVisible(true)}>

@@ -33,13 +33,12 @@ function Event({
     <TouchableOpacity activeOpacity={.5} onPress={() => navigation.navigate('Event Details', { allDetails, distance })} style={styles.container}>
       <View style={styles.shadow}>
         <Image
-          style={{ width: 70, height: 70, borderRadius: 35}}
+          style={{ width: 70, height: 70, borderRadius: 35 }}
           source={{ uri: base64Image }}
         />
       </View>
       <View style={styles.info}>
         <View style={{ display: 'flex', flexDirection: 'row' }}>
-          <Text style={styles.heading}>{heading}</Text>
           {/* <Image style={styles.duplicate} source={require('../assets/duplicate.png')} /> */}
         </View>
         <Text style={{ fontSize: 12 }}>
@@ -59,10 +58,10 @@ function Event({
         </View>
       </View>
       {allDetails.eventType === 'Onsite' && (
-      <TouchableOpacity style={{ marginLeft: 'auto' }} onPress={() => { navigation.navigate('Home', { eventId: allDetails.id }) }}>
-        <Image style={styles.mapPin} source={require('../assets/mapPin.png')} />
-      </TouchableOpacity>
-       )}
+        <TouchableOpacity style={{ marginLeft: 'auto' }} onPress={() => { navigation.navigate('Home', { eventId: allDetails.id }) }}>
+          <Image style={styles.mapPin} source={require('../assets/mapPin.png')} />
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 }
