@@ -45,7 +45,7 @@ const validationSchema = Yup.object().shape({
 
 
 
-function CreateEventScreen({props, route}) {
+function UpdateEventScreen({props, route}) {
 
 
 
@@ -93,26 +93,53 @@ function CreateEventScreen({props, route}) {
   };
 
 
-  const [formValues, setFormValues] = useState({
-    ageGroup: '',
-    contactNo: '',
-    eventImage: null,
-    companyName: '',
-    eventName: '',
-    endTime: '',
-    endDate: '',
-    subject: '',
-    gradeLevel: '',
-    eligibility: '',
-    cost: '',
-    startTime: '',
-    startDate: '',
-    eventType: '',
-    address: '',
-    description: '',
-    mealInclude: '',
-    webURL: '',
-  });
+  const [formValues, setFormValues] = useState();
+  
+  const { eventId } = route.params;
+  //console.log("check Event Id", eventId);
+  
+  console.log('Form Values:', formValues);
+
+  useEffect(() => {
+    const fetchEventDetails = async (eventId) => {
+      try {
+        const response = await fetch(`https://mapstem-api.azurewebsites.net/api/Event/detail/event-id/${eventId}`);
+        if (!response.ok) {
+          console.error('Failed to fetch event details:', response.status);
+          return;
+        }
+        const eventData = await response.json();
+        console.log("hello events", eventData.data)
+        setFormValues({
+          ...formValues,
+          ageGroup: eventData.data.ageGroup || '',
+          contactNo: eventData.data.contactNo || '',
+          eventImage: eventData.data.eventImage || null,
+          companyName: eventData.data.compmayName || '',
+          eventName: eventData.data.eventName || '',
+          endTime: eventData.data.endTime || '',
+          endDate: eventData.data.endDate || '',
+          subject: eventData.data.subject || '',
+          gradeLevel: eventData.data.gradeLevel || '',
+          eligibility: eventData.data.eligibility || '',
+          cost: eventData.data.cost.toString() || '',
+          startTime: eventData.data.startTime || '',
+          startDate: eventData.data.startDate || '',
+          eventType: eventData.data.eventType || '',
+          address: eventData.data.address || '',
+          description: eventData.data.description || '',
+          mealInclude: eventData.data.mealInclude || '',
+          webURL: eventData.data.url || '',
+        });
+      } catch (error) {
+        console.error('Error fetching event details:', error);
+      }
+    };
+    fetchEventDetails(eventId);
+  }, [eventId]);
+  
+  
+  
 
   useEffect(() => {
     fetch("https://mapstem-api.azurewebsites.net/api/Subject")
@@ -179,10 +206,25 @@ function CreateEventScreen({props, route}) {
     }
   };
 
+  const handleRemoveImage = () => {
+    setShowEventImage('');
+  };
 
-  const handleSubmit = async (values) => {
+
+
+ // Update Event Handle 
+  const handleSubmit = async (formValues) => {
     try {
-      // console.log("check form Data", selected);
+      console.log("check submission", formValues)
+      const userData = await AsyncStorage.getItem('userData');
+      const userDataObject = JSON.parse(userData);
+      const token = userDataObject.data;
+      if (!token) {
+        console.error('Token not found. User is not authenticated.');
+        return;
+      }
+
+      const { eventId } = route.params;
       const imageUri = formValues.eventImage ? formValues.eventImage.uri : null;
       const selectedSubjectsString = selected.join(';');
       console.log("hello", selectedSubjectsString)
@@ -190,15 +232,10 @@ function CreateEventScreen({props, route}) {
       const formattedStartTime = values.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const formattedEndTime = values.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      // Create FormData object
       const formData = new FormData();
+      formData.append('id', eventId);
       formData.append('AgeGroup', values.ageGroup);
       formData.append('ContactNo', values.contactNo);
-      // formData.append('EventImage', {
-      //   uri: formValues.eventImage,
-      //   type: 'image/jpeg',
-      //   name: 'image.jpg',
-      // });
       if (formValues.eventImage) {
         formData.append('EventImage', {
           uri: formValues.eventImage,
@@ -225,51 +262,108 @@ function CreateEventScreen({props, route}) {
       formData.append('Url', values.webURL);
       formData.append("Latitude", latitude);
       formData.append("Longitude", longitude);
-      console.log('Before fetch');
-      // Make the API call to upload the image
+      console.log('Before fetch', formData);
       const response = await fetch('https://mapstem-api.azurewebsites.net/api/Event', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`,
         },
         body: formData,
 
       });
       console.log('After fetch');
-
-      // Log the response status and content
       console.log('Response Status:', response.status);
       const responseText = await response.text();
-      // console.log('Response Content:', responseText);
-
-      // Check if the request was successful
       if (response.ok) {
         console.log('Event created successfully');
         // Show success message
         Alert.alert(
           'Success',
-          'Event created successfully',
+          'Event update successfully',
           [{ text: 'OK', onPress: () => navigation.navigate('Events') }],
           { cancelable: false }
         );
-
-        // Wait for 5 seconds before navigating to the Events screen
-        // setTimeout(() => {
-        //   navigation.navigate('Events');
-        // }, 5000);
       } else {
         console.error('Failed to create event');
-        // Handle the error, you can parse response.json() for more details
       }
     } catch (error) {
       console.error('Error creating event', error);
     }
+  };  
+// Activate Event Handle
+  const handleActivate = async () => {
+    try {
+       const userData = await AsyncStorage.getItem('userData');
+       const userDataObject = JSON.parse(userData);
+       const token = userDataObject.data;
+       if (!token) {
+         console.error('Token not found. User is not authenticated.');
+         return;
+       }
+   
+      const eventId = route.params.eventId; 
+      const response = await fetch(`https://mapstem-api.azurewebsites.net/api/Event/event-type/event-id/${eventId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+        }),
+      });
+
+      if (response.ok) {
+        console.log('Event activated successfully');
+        Alert.alert(
+          'Success',
+          'Event activated successfully',
+          [{ text: 'OK', onPress: () => navigation.navigate('Events') }],
+          { cancelable: false }
+        );
+      } else {
+        console.error('Failed to activate event');
+      }
+    } catch (error) {
+      console.error('Error activating event:', error);
+    }
+  };
+// Delete Event Handle
+  const handleDelete = async () => {
+    try {
+      const userData = await AsyncStorage.getItem('userData');
+      const userDataObject = JSON.parse(userData);
+      const token = userDataObject.data;
+      if (!token) {
+        console.error('Token not found. User is not authenticated.');
+        return;
+      }
+  
+      const eventId = route.params.eventId; 
+      const response = await fetch(`https://mapstem-api.azurewebsites.net/api/Event/event-id/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      if (response.ok) {
+        console.log('Event deleted successfully');
+        Alert.alert(
+          'Success',
+          'Event deleted successfully',
+          [{ text: 'OK', onPress: () => navigation.navigate('Events') }],
+          { cancelable: false }
+        );
+      } else {
+        console.error('Failed to delete event');
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
   };
 
-  const handleRemoveImage = () => {
-    setShowEventImage('');
-  };
-
+  
   return (
     <Screen>
       <KeyboardAwareScrollView
@@ -277,8 +371,9 @@ function CreateEventScreen({props, route}) {
         enableOnAndroid
         extraScrollHeight={Platform.OS === 'ios' ? 130 : 0}
       >
-        <PageHeader header={"Create New Event"} />
+        <PageHeader header={"Update Event"} />
         <View style={{ padding: 10, paddingBottom: 75 }}>
+          {formValues  &&  
           <Formik
             initialValues={formValues}
             onSubmit={handleSubmit}
@@ -324,7 +419,7 @@ function CreateEventScreen({props, route}) {
 
 
                 <AppFormField 
-                  name={"heading"} 
+                  name={"eventName"} 
                   label="Event Name" 
                   isRequired={true}
                   onChangeText={handleChange('eventName')}
@@ -332,7 +427,6 @@ function CreateEventScreen({props, route}) {
                   value={values.eventName}
                   placeholder="Event Name"
                 />
-
                 <AppFormField
                   name={"eventType"}
                   label="Event Type"
@@ -341,14 +435,17 @@ function CreateEventScreen({props, route}) {
                   onPress={() => setDropdownOpen(true)}
                   onDropdown={true}
                   onChangeText={(value) => {
-                    handleChange('eventType')(value); // Update Formik state
+                    handleChange('eventType')(value);
                     setFormValues({ ...formValues, eventType: value });
                   }}
                   onBlur={handleBlur('eventType')}
                   value={values.eventType}
                 />
 
-                <AppFormField name={"cost"} label="Cost (in dollars)" isRequired={true}
+                <AppFormField 
+                  name={"cost"} 
+                  label="Cost (in dollars)" 
+                  isRequired={true}
                   onChangeText={handleChange('cost')}
                   onBlur={handleBlur('cost')}
                   value={values.cost}
@@ -378,7 +475,7 @@ function CreateEventScreen({props, route}) {
                       }}
                     />
                   }
-                  value={startDate.toLocaleDateString()}
+                  value={values.startDate}
                 />
 
                 {startOpen && (
@@ -406,7 +503,7 @@ function CreateEventScreen({props, route}) {
                       onPress={() => setEndOpen(true)}
                     />
                   }
-                  value={endDate.toLocaleDateString()}
+                  value={values.endDate}
                 />
 
                 {endOpen && (
@@ -425,7 +522,7 @@ function CreateEventScreen({props, route}) {
 
                 <AppFormField
                   name={"startTime"}
-                  value={startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  value={values.startTime}
                   label="Start Time"
                   isRequired={true}
                   icon={
@@ -455,7 +552,7 @@ function CreateEventScreen({props, route}) {
                 <AppFormField
                   name={"endTime"}
                   label="End Time"
-                  value={endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  value={values.endTime}
                   isRequired={true}
                   icon={
                     <MaterialIcons
@@ -533,6 +630,7 @@ function CreateEventScreen({props, route}) {
                   keyboardType="numeric"
 
                 />
+                
                 <AppFormField
                   name={"eligibility"}
                   label="Eligibility"
@@ -612,13 +710,92 @@ function CreateEventScreen({props, route}) {
                         fontWeight: 'bold',
                       }}
                     >
-                      Submit For Approval
+                      Update Event
                     </Text>
                   </TouchableOpacity>
                 </LinearGradient>
+
+
+                <LinearGradient
+                  colors={['black', '#5A5A5A']}
+                  style={{
+                    alignItems: 'center',
+                    alignSelf: 'center',
+                    justifyContent: 'center',
+                    width: '95%',
+                    height: 60,
+                    borderRadius: 10,
+                    marginVertical: 10,
+                  }}
+                  locations={[0.1, 0.9]}
+                >
+                  <TouchableOpacity
+                    style={{
+                      alignItems: 'center',
+                      alignSelf: 'center',
+                      justifyContent: 'center',
+                      width: '95%',
+                      height: 60,
+                      borderRadius: 10,
+                      marginVertical: 10,
+                      backgroundColor: 'black', 
+                    }}
+                    onPress={handleActivate}
+                  >
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontSize: 25,
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      Activate Event
+                    </Text>
+                  </TouchableOpacity>
+                </LinearGradient>
+
+                <LinearGradient
+                  colors={['black', '#5A5A5A']}
+                  style={{
+                    alignItems: 'center',
+                    alignSelf: 'center',
+                    justifyContent: 'center',
+                    width: '95%',
+                    height: 60,
+                    borderRadius: 10,
+                    marginVertical: 10,
+                  }}
+                  locations={[0.1, 0.9]}
+                >
+                  <TouchableOpacity
+                    style={{
+                      alignItems: 'center',
+                      alignSelf: 'center',
+                      justifyContent: 'center',
+                      width: '95%',
+                      height: 60,
+                      borderRadius: 10,
+                      marginVertical: 10,
+                      backgroundColor: 'black',
+                    }}
+                    onPress={handleDelete}
+                  >
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontSize: 25,
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      Delete Event
+                    </Text>
+                  </TouchableOpacity>
+                </LinearGradient>
+
               </View>
             )}
           </Formik>
+}
         </View>
 
 
@@ -627,7 +804,7 @@ function CreateEventScreen({props, route}) {
   );
 }
 
-export default CreateEventScreen;
+export default UpdateEventScreen;
 
 const styles = StyleSheet.create({
   addPic: {

@@ -25,7 +25,6 @@ const MapScreen = (props) => {
     const [eventsCoordinates, setEventsCoordinates] = useState([]);
     const radius = 5;
 
-    // const [listEventId, setlistEventId] = useState(route?.params?.eventId || null)
 
     const handleSearch = (text) => {
         setSearchQuery(text);
@@ -38,13 +37,13 @@ const MapScreen = (props) => {
                 Alert.alert('Permission denied', 'We need location permissions to get your location.');
                 return;
             }
-
+    
             let currentLocation = await Location.getCurrentPositionAsync({});
             setLocation(currentLocation.coords);
             fitToFrame(currentLocation.coords);
             createPolyline(selectedIndex, currentLocation.coords);
             filterEventsWithinRadius(currentLocation.coords, radius);
-
+    
             // Fetch data from the API
             fetch('https://mapstem-api.azurewebsites.net/api/Event')
                 .then((response) => response.json())
@@ -54,21 +53,23 @@ const MapScreen = (props) => {
                         latitude: parseFloat(event.latitude),
                         longitude: parseFloat(event.longitude),
                     }));
-
-                    // Filter events based on search query
-                    const filteredEvents = onsiteEvents.filter((event) =>
-                        event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        (event.subject && event.subject.toLowerCase().includes(searchQuery.toLowerCase()))
-                    );
-
+    
+                    // Convert subject array to a string and lowercase for comparison
+                    const filteredEvents = onsiteEvents.filter((event) => {
+                        const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
+                        return (
+                            event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            subjectString.includes(searchQuery.toLowerCase())
+                        );
+                    });
+    
                     setEventsCoordinates(eventCoordinates);
                     setFilteredEvents(filteredEvents);
                 })
                 .catch((error) => console.error('Error fetching data:', error));
         })();
-    }, [searchQuery]); // Include searchQuery in the dependency array
-
-
+    }, [searchQuery]);
+    
 
 
 
@@ -83,14 +84,14 @@ const MapScreen = (props) => {
 
 
     const getDistance = (coord1, coord2) => {
-        const R = 3959; // Radius of the Earth in miles
+        const R = 3959; 
         const dLat = deg2rad(coord2.latitude - coord1.latitude);
         const dLon = deg2rad(coord2.longitude - coord1.longitude);
         const a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(deg2rad(coord1.latitude)) * Math.cos(deg2rad(coord2.latitude)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c; // Distance in miles
+        const distance = R * c;
         return distance;
     };
 
@@ -101,16 +102,11 @@ const MapScreen = (props) => {
 
     useFocusEffect(
         React.useCallback(() => {
-            // This will run every time the screen is focused or re-focused
-            // console.log('Screen A is focused', route?.params?.eventId);
             if (route?.params?.eventId) {
                 const ind = filteredEvents.findIndex((item) => item.id == route?.params?.eventId)
                 onSnapFunc(ind)
             }
-
-            // Add your logic here
             return () => {
-                // This will be called when the component is unmounted or when the effect is cleaned up
                 navigation.setParams({
                     eventId: null,
                 });
@@ -124,7 +120,6 @@ const MapScreen = (props) => {
             longitude,
         }));
         if (mapRef) {
-            // mapRef?.current?.animateToRegion(tempRegion, 100);
             mapRef?.current?.fitToCoordinates([...eventLocs, {
                 latitude: userLocation.latitude,
                 longitude: userLocation.longitude
@@ -132,29 +127,8 @@ const MapScreen = (props) => {
         }
     }
 
-    // const createPolyline = (eventIndex, userLocation) => {
-    //     const destination = eventsCoordinates[eventIndex].latitude + ',' + eventsCoordinates[eventIndex].longitude
-    //     const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude + ',' + userLocation.longitude}&destination=${destination}&key=${MAP_API_KEY}`;
-
-    //     fetch(apiUrl)
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             const points = data.routes[0].overview_polyline.points;
-    //             const res = decodePolyline(points)
-    //             setpolylineCoords(res)
-
-    //             if (mapRef) {
-    //                 mapRef?.current?.fitToCoordinates([events[eventIndex].coordinate, {
-    //                     latitude: userLocation.latitude,
-    //                     longitude: userLocation.longitude
-    //                 }], { edgePadding: { top: 20, right: 20, bottom: 80, left: 20 }, animated: true })
-    //             }
-    //         })
-    //         .catch(error => console.error(error));
-    // }
 
     const createPolyline = (eventIndex, userLocation) => {
-        // Check if eventsCoordinates is not empty and eventIndex is within its bounds
         if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
             const destination = eventsCoordinates[eventIndex].latitude + ',' + eventsCoordinates[eventIndex].longitude;
 
@@ -171,7 +145,7 @@ const MapScreen = (props) => {
                         mapRef?.current?.fitToCoordinates([
                             { latitude: eventsCoordinates[eventIndex].latitude, longitude: eventsCoordinates[eventIndex].longitude },
                             { latitude: userLocation.latitude, longitude: userLocation.longitude }
-                        ], { edgePadding: { top: 20, right: 20, bottom: 80, left: 20 }, animated: true });
+                        ], { edgePadding: { top: 80, right: 20, bottom: 80, left: 80 }, animated: true });
                     }
                 })
                 .catch(error => console.error(error));
@@ -191,21 +165,36 @@ const MapScreen = (props) => {
     const onSnapFunc = (ind) => {
         setSelectedIndex(ind)
         createPolyline(ind, location)
-        // if (mapRef) {
-        //     mapRef?.current?.fitToCoordinates([events[ind].coordinate, {
-        //         latitude: location.latitude,
-        //         longitude: location.longitude
-        //     }], { edgePadding: { top: 20, right: 20, bottom: 80, left: 20 }, animated: true })
-        // }
     }
+
+    // const onSnapFunc = (ind) => {
+    //     setSelectedIndex(ind);
+    //     createPolyline(ind, location); // Create the polyline for the selected event
+        
+    //     // Calculate the center between the current location and the selected event marker
+    //     const centerLat = (location.latitude + eventsCoordinates[ind].latitude) / 2;
+    //     const centerLng = (location.longitude + eventsCoordinates[ind].longitude) / 2;
+    
+    //     // Set a fixed delta value to maintain the zoom level (adjust as needed)
+    //     const deltaValue = 1; // Adjust this value as needed
+    
+    //     // Adjust the map viewport to center between the two locations while maintaining the current zoom level
+    //     mapRef.current.animateToRegion({
+    //         latitude: centerLat,
+    //         longitude: centerLng,
+    //         latitudeDelta: deltaValue,
+    //         longitudeDelta: deltaValue,
+    //     });
+    // }
+    
+    
+    
 
     const getMarkerRotation = () => {
         return 180;
     };
 
     const onEventMarkerPress = (index) => {
-        // Handle the press event for the event marker here
-        // You can set the selected index and update the polyline accordingly
         setSelectedIndex(index);
         createPolyline(index, location);
 
@@ -214,6 +203,58 @@ const MapScreen = (props) => {
         }
     };
 
+    const fitMarkersOnMap = () => {
+        let minLat = location.latitude;
+        let maxLat = location.latitude;
+        let minLng = location.longitude;
+        let maxLng = location.longitude;
+    
+        // Find min and max coordinates among current location and event markers
+        eventsCoordinates.forEach((marker) => {
+            minLat = Math.min(minLat, marker.latitude);
+            maxLat = Math.max(maxLat, marker.latitude);
+            minLng = Math.min(minLng, marker.longitude);
+            maxLng = Math.max(maxLng, marker.longitude);
+        });
+    
+        // Calculate center and delta for the region
+        const latDelta = (maxLat - minLat) * 12.2; // Add some padding
+        const lngDelta = (maxLng - minLng) * 12.2; // Add some padding
+        const centerLat = (minLat + maxLat) / 2;
+        const centerLng = (minLng + maxLng) / 2;
+    
+        // Set the region of the map to fit both current location and event markers
+        mapRef.current.fitToCoordinates(
+            [
+                { latitude: minLat, longitude: minLng },
+                { latitude: maxLat, longitude: maxLng },
+            ],
+            {
+                edgePadding: { top: 150, right: 150, bottom: 150, left: 150 },
+                animated: true,
+            }
+        );
+    
+        // Zoom out the map by adjusting the region
+        mapRef.current.animateToRegion(
+            {
+                latitude: centerLat,
+                longitude: centerLng,
+                latitudeDelta: latDelta,
+                longitudeDelta: lngDelta,
+            },
+            1000 // Animation duration
+        );
+    };
+    
+    // Call this function once both location and eventsCoordinates are set
+    useEffect(() => {
+        if (location && eventsCoordinates.length > 0) {
+            fitMarkersOnMap();
+        }
+    }, [location, eventsCoordinates]);
+
+    
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
             <StatusBar backgroundColor='transparent' translucent />
@@ -222,12 +263,12 @@ const MapScreen = (props) => {
                     ref={mapRef}
                     style={{ width: '100%', flex: 1, }}
                     provider={PROVIDER_GOOGLE}
-                    initialRegion={{
-                        latitude: location ? location.latitude : 37.78825,
-                        longitude: location ? location.longitude : -122.4324,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421,
-                    }}
+                    // initialRegion={{
+                    //     latitude: location ? location.latitude : 37.78825,
+                    //     longitude: location ? location.longitude : -122.4324,
+                    //     latitudeDelta: 0.2,
+                    //     longitudeDelta: 0.2,
+                    // }}
                 >
                     {location && (
                         <Marker

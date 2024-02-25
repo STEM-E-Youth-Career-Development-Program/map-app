@@ -13,8 +13,36 @@ const height = Dimensions.get('window').height
 const EventDetails = (props) => {
 
   const { allDetails, distance } = props.route.params;
-  const base64Image = `data:image/jpeg;base64,${allDetails.imageData}`;
+  //const base64Image = `data:image/jpeg;base64,${allDetails.imageData}`;
   // console.log("check", allDetails)
+
+  const renderImage = () => {
+    if (!allDetails.imageData) {
+      return (
+        <ImageBackground
+          source={require('../assets/STEME.png')}
+          style={styles.eventImgBackground}
+        >
+          <View style={styles.overlayView} />
+          <Image style={styles.eventImg} source={require('../assets/STEME.png')} />
+        </ImageBackground>
+      );
+    } else {
+      return (
+        <ImageBackground
+          source={{ uri: `data:image/jpeg;base64,${allDetails.imageData}` }}
+          style={styles.eventImgBackground}
+        >
+          <View style={styles.overlayView} />
+          <Image
+            style={styles.eventImg}
+            source={{ uri: `data:image/jpeg;base64,${allDetails.imageData}` }}
+          />
+        </ImageBackground>
+      );
+    }
+  };
+  
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -52,9 +80,10 @@ const EventDetails = (props) => {
         <PageHeader header={allDetails.eventName} />
       </View>
       <ScrollView>
-        <ImageBackground source={{ uri: base64Image }} style={styles.eventImg}>
+      {renderImage() }
+        {/* <ImageBackground source={{ uri: base64Image }} style={styles.eventImg}>
           <View style={styles.overlayView} />
-        </ImageBackground>
+        </ImageBackground> */}
         <View style={styles.iconRow}>
         {/* <View style={[styles.iconButtons, { right: 15 }]}>
             <Image  source={{ uri: `${allDetails.imageData}` }}
@@ -87,6 +116,14 @@ const EventDetails = (props) => {
         <View style={styles.contentBackground}>
           <View style={{ marginLeft: '2.5%', marginTop: 12 }}>
             <Text style={{ fontWeight: 'bold', color: '#171766', fontSize: 16 }}>Event Details:</Text>
+
+            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+              {/* <MaterialCommunityIcons name='map-marker-outline' size={20} style={{ paddingRight: 10 }} /> */}
+              <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Eveent Name: </Text>
+              <Text style={{ color: '#999999', maxWidth: '70%' }} numberOfLines={2} ellipsizeMode='tail'>{allDetails.eventName}</Text>
+            </View>
+
+
             <View style={{ marginTop: 8, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
               <MaterialCommunityIcons name='calendar-month-outline' size={20} style={{ paddingRight: 10 }} />
               <Text style={{ fontWeight: '600', paddingRight: 25 }}>Date: </Text>
@@ -115,7 +152,7 @@ const EventDetails = (props) => {
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Subject: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.subject}</Text>
+              <Text style={{ color: '#999999', maxWidth: '70%' }} numberOfLines={2}>{allDetails.subject.join(', ')}</Text>
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
@@ -140,7 +177,7 @@ const EventDetails = (props) => {
 
             <View style={{ marginVertical: 17 }}>
               <Text style={{ fontWeight: '600', fontSize: 16 }}>Description: </Text>
-              <Text style={{ color: '#999999', maxWidth: '70%', fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }}  numberOfLines={2} ellipsizeMode='tail'>{allDetails.description}</Text>
+              <Text style={{ color: '#999999', maxWidth: '97%', textAlign: "justify" ,fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }}  ellipsizeMode='tail'>{allDetails.description}</Text>
             </View>
 
             {/* <View style={styles.line} />

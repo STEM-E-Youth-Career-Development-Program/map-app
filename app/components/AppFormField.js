@@ -7,6 +7,7 @@ import { View } from "react-native";
 import { useEffect } from "react";
 import { Dropdown } from "react-native-element-dropdown";
 import { StyleSheet } from "react-native";
+import { MultipleSelectList } from "react-native-dropdown-select-list";
 
 
 function AppFormField({
@@ -18,9 +19,9 @@ function AppFormField({
   ...otherProps
 }) {
   const inputRef = useRef(null);
-  const { errors, setFieldTouched, setFieldValue, touched, values } =
-    useFormikContext();
-  const [value, setValue] = useState(null);
+  const { errors, setFieldTouched, setFieldValue, touched, values } = useFormikContext();
+  const [value, setValue] = useState(values[name] || null);
+  //console.log("check values name", value, values[name])
   const [isFocus, setIsFocus] = useState(false);
   const [eventTypeDropdownItems] = useState([
     { label: "Virtual", value: "1" },
@@ -31,6 +32,7 @@ function AppFormField({
     { label: "No", value: "2" },
   ]);
   const [subjectDropdownItems, setSubjectDropdownItems] = useState([]);
+
 
   const selectedValue = values[name];
 
@@ -57,6 +59,8 @@ function AppFormField({
     }
   }, [name]);
 
+
+  const labelsName = subjectDropdownItems.map(item => item.label);
   return (
     <View style={{}}>
       <Label
@@ -78,19 +82,19 @@ function AppFormField({
               labelField="label"
               valueField="value"
               placeholder={!isFocus ? "Select Event Type" : "..."}
-              value={value}
+              value={value !== null ? value : values[name]}
               onFocus={() => setIsFocus(true)}
               onBlur={() => setIsFocus(false)}
               onChange={(item) => {
                 setValue(item.value); // Update local state
                 setIsFocus(false);
-      
+
                 // Update Formik state with the selected value
                 setFieldValue(name, item.label);
               }}
             />
 
-          ) : 
+          ) :
             name === "mealInclude" ? (
               <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: "black" }]}
@@ -103,41 +107,39 @@ function AppFormField({
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? "Select Meals" : "..."}
-                value={value}
+                value={value !== null ? value : values[name]}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
                 onChange={(item) => {
                   setValue(item.value); // Update local state
                   setIsFocus(false);
-        
+
                   // Update Formik state with the selected value
                   setFieldValue(name, item.label);
                 }}
               />
-          ) : (
-            <Dropdown
-              style={[styles.dropdown, isFocus && { borderColor: "black" }]}
-              itemContainerStyle={{}}
-              containerStyle={{ borderRadius: 16 }}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              data={subjectDropdownItems}
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder={!isFocus ? "Select Subject" : "..."}
-              value={value}
-              onFocus={() => setIsFocus(true)}
-              onBlur={() => setIsFocus(false)}
-              onChange={(item) => {
-                setValue(item.value); // Update local state
-                setIsFocus(false);
-      
-                // Update Formik state with the selected value
-                setFieldValue(name, item.label);
-              }}
-            />
-          )}
+            ) : (
+              <Dropdown
+                style={[styles.dropdown, isFocus && { borderColor: "black" }]}
+                itemContainerStyle={{}}
+                containerStyle={{ borderRadius: 16 }}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                data={subjectDropdownItems}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? "Select Subject" : "..."}
+                value={value !== null ? value : values[name]}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={(item) => {
+                  setValue(item.value);
+                  setIsFocus(false);
+                  setFieldValue(name, item.label);
+                }}
+              />
+            )}
         </View>
       ) : (
         <AppTextInput

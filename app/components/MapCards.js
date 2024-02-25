@@ -14,21 +14,32 @@ const MapCard = ({ item, navigation, isSelected, distance }) => {
     return durationInDays === 0 || durationInDays === 1 ? '1 Day' : `${durationInDays} Days`;
   };
   const base64Image = `data:image/jpeg;base64,${item.imageData}`;
+
+  const renderImage = () => {
+    if (!item.imageData) {
+      return <ImageBackground style={styles.image} source={require('../assets/STEME.png')} />;
+    } else if (item.imageData.startsWith('http')) {
+      return <ImageBackground style={styles.image} source={{ uri: item.imageData }} />;
+    } else {
+      return <ImageBackground style={styles.image} source={{ uri: `data:image/jpeg;base64,${item.imageData}` }} />;
+    }
+  };
+
   return (
     <TouchableOpacity activeOpacity={.9} onPress={() => navigation.navigate('Event Details', { allDetails: item, distance })} style={styles.cardItems}>
       <View style={styles.circleAvatar}>
-        <ImageBackground source={{ uri: base64Image }}
+      {renderImage() }
+        {/* <ImageBackground source={{ uri: base64Image }}
           style={styles.image}
-        />
+        /> */}
       </View>
-      <View style={{ width: '100%' }}>
+      <View style={{ width: '80%' }}>
         <Text numberOfLines={1} style={styles.mainTitle}>
           {item.eventName}
         </Text>
-        {/* <Text style={styles.subtitle}>
-          {item.eventLocation}
-        </Text> */}
       </View>
+
+
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingHorizontal: 15, marginTop: 5 }}>
         <Text style={styles.text1}>Cost: <Text style={{ fontSize: height * 0.014, color: 'grey' }}>{item.cost}</Text></Text>
         <Text style={styles.text1}>Distance:  
@@ -47,7 +58,7 @@ const MapCard = ({ item, navigation, isSelected, distance }) => {
         <View>
         <Text style={styles.text3}>{calculateDuration(item.startDate, item.endDate)}</Text>
           <Text style={styles.text3}>{item.eventType}</Text>
-          <Text style={styles.text3}>{item.subject}</Text>
+          <Text style={[styles.text3, { maxWidth: '70%' }]} numberOfLines={1} ellipsizeMode='tail'>{item.subject.join(', ')}</Text>
         </View>
       </View>
       <View style={styles.bottomrow}>
