@@ -490,7 +490,7 @@ function CreateEventScreen(props) {
                 />
                 <AppFormField
                   name={"eligibility"}
-                  label="Eligibility"
+                  label="More Details"
                   multiline
                   numberOfLines={3}
                   onChangeText={handleChange('eligibility')}
@@ -506,7 +506,7 @@ function CreateEventScreen(props) {
                 />
                 <AppFormField
                   name={"mealInclude"}
-                  label="Meals Included"
+                  label="Meals Include"
                   isRequired={true}
                   icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
                   onPress={() => setMealIncludeDropdownOpen(true)}
