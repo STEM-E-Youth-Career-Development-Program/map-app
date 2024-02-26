@@ -490,7 +490,7 @@ function CreateEventScreen(props) {
                 />
                 <AppFormField
                   name={"eligibility"}
-                  label="More Details"
+                  label="Eligibility"
                   multiline
                   numberOfLines={3}
                   onChangeText={handleChange('eligibility')}
