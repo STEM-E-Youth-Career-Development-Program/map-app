@@ -17,6 +17,7 @@ const MapScreen = (props) => {
     const carouselRef = useRef(null);
     const route = useRoute();
     const navigation = useNavigation()
+    const [eventsData, seteventsData] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [location, setLocation] = useState(null);
     const [polylineCoords, setpolylineCoords] = useState(null)
@@ -49,6 +50,7 @@ const MapScreen = (props) => {
                 .then((response) => response.json())
                 .then((data) => {
                     const onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
+                    seteventsData(onsiteEvents)
                     const eventCoordinates = onsiteEvents.map((event) => ({
                         latitude: parseFloat(event.latitude),
                         longitude: parseFloat(event.longitude),
@@ -128,34 +130,68 @@ const MapScreen = (props) => {
     }
 
 
-    const createPolyline = (eventIndex, userLocation) => {
-        if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
-            const destination = eventsCoordinates[eventIndex].latitude + ',' + eventsCoordinates[eventIndex].longitude;
+    // const createPolyline = (eventIndex, userLocation) => {
+    //     if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
+    //         const destination = eventsCoordinates[eventIndex].latitude + ',' + eventsCoordinates[eventIndex].longitude;
 
-            const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude + ',' + userLocation.longitude}&destination=${destination}&key=${MAP_API_KEY}`;
+    //         console.log("check", destination)
+    //         const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude + ',' + userLocation.longitude}&destination=${destination}&key=${MAP_API_KEY}`;
 
+    //         fetch(apiUrl)
+    //             .then(response => response.json())
+    //             .then(data => {
+    //                 const points = data.routes[0].overview_polyline.points;
+    //                 const res = decodePolyline(points);
+    //                 setpolylineCoords(res);
+
+    //                 if (mapRef) {
+    //                     mapRef?.current?.fitToCoordinates([
+    //                         { latitude: eventsCoordinates[eventIndex].latitude, longitude: eventsCoordinates[eventIndex].longitude },
+    //                         { latitude: userLocation.latitude, longitude: userLocation.longitude }
+    //                     ], { edgePadding: { top: 80, right: 20, bottom: 80, left: 80 }, animated: true });
+    //                 }
+    //             })
+    //             .catch(error => console.error(error));
+    //     } else {
+    //         // Handle the case when eventsCoordinates is empty or eventIndex is out of bounds
+    //         console.error('Invalid eventIndex or eventsCoordinates is empty');
+    //     }
+    // };
+
+
+const createPolyline = (eventIndex, userLocation) => {
+    if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
+        const destination = eventsCoordinates[eventIndex];
+        if (destination && destination.latitude && destination.longitude) {
+            const destinationString = `${destination.latitude},${destination.longitude}`;
+            const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude},${userLocation.longitude}&destination=${destinationString}&key=${MAP_API_KEY}`;
+    
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
                     const points = data.routes[0].overview_polyline.points;
                     const res = decodePolyline(points);
                     setpolylineCoords(res);
-
+    
                     if (mapRef) {
                         mapRef?.current?.fitToCoordinates([
-                            { latitude: eventsCoordinates[eventIndex].latitude, longitude: eventsCoordinates[eventIndex].longitude },
+                            { latitude: destination.latitude, longitude: destination.longitude },
                             { latitude: userLocation.latitude, longitude: userLocation.longitude }
                         ], { edgePadding: { top: 80, right: 20, bottom: 80, left: 80 }, animated: true });
                     }
                 })
                 .catch(error => console.error(error));
         } else {
-            // Handle the case when eventsCoordinates is empty or eventIndex is out of bounds
-            console.error('Invalid eventIndex or eventsCoordinates is empty');
+            console.error('Invalid destination coordinates');
         }
-    };
+    } else {
+        console.error('Invalid eventIndex or eventsCoordinates is empty');
+    }
+};
 
+    
 
+    
     const _renderItem = ({ item, index }) => {
         const distance = getDistance(location, eventsCoordinates[index]);
         return <MapCard item={item} navigation={navigation} isSelected={selectedIndex === index} distance={distance} />;
@@ -259,6 +295,8 @@ const MapScreen = (props) => {
         <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
             <StatusBar backgroundColor='transparent' translucent />
             <View style={{ flex: 1, width: '100%', position: 'relative', }}>
+            {eventsData && 
+            <>
                 <MapView
                     ref={mapRef}
                     style={{ width: '100%', flex: 1, }}
@@ -352,6 +390,8 @@ const MapScreen = (props) => {
                         />
                     </View>
                 }
+                </>
+            }
             </View>
 
         </SafeAreaView>

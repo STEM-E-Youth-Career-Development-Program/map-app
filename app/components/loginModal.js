@@ -1,54 +1,91 @@
 import React, { useState, useEffect } from 'react';
-import { View, Modal, Pressable, Text, StyleSheet, TouchableOpacity, AppState } from 'react-native';
+import { View, Modal, Pressable, Text, StyleSheet, TouchableOpacity, AppState, Alert } from 'react-native';
 import { Formik } from 'formik';
 import AppFormField from "../components/AppFormField";
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 const LoginModal = ({ isVisible, onClose }) => {
+
+  const navigation = useNavigation();
 
   const [formValues, setFormValues] = useState({
     username: '',
     password: ''
   });
 
+  // const handleSubmit = async (values) => {
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append('Username', values.username);
+  //     formData.append('Password', values.password);
+
+  //     const response = await fetch('https://mapstem-api.azurewebsites.net/api/Auth/login', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //       },
+  //       body: formData,
+  //     });
+
+  //     console.log('Response Status:', response.status);
+  //     const responseData = await response.json();
+
+  //     if (responseData.statusCode === 200) {
+  //       console.log('Login successful:');
+  //       // Store response data in local storage
+  //       await AsyncStorage.setItem('userData', JSON.stringify(responseData));
+
+  //       console.log('Login storage:', AsyncStorage);
+  //     } else {
+  //       const errorData = await response.json();
+  //       console.error('Login Failed:', errorData.message || 'Unknown error');
+  //       // Show error message to the user
+  //       // setError('Login failed: ' + (errorData.message || 'Unknown error'));
+  //     }
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //     // Show error message to the user
+  //     // setError('Login failed: ' + error.message);
+  //   }
+  // };
+
   const handleSubmit = async (values) => {
     try {
-      const formData = new FormData();
-      formData.append('Username', values.username);
-      formData.append('Password', values.password);
+        const formData = new FormData();
+        formData.append('Username', values.username);
+        formData.append('Password', values.password);
 
-      const response = await fetch('https://mapstem-api.azurewebsites.net/api/Auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData,
-      });
+        const response = await fetch('https://mapstem-api.azurewebsites.net/api/Auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            body: formData,
+        });
 
-      console.log('Response Status:', response.status);
-      const responseData = await response.json();
 
-      if (responseData.statusCode === 200) {
-        console.log('Login successful:');
-        // Store response data in local storage
-        await AsyncStorage.setItem('userData', JSON.stringify(responseData));
-
-        console.log('Login storage:', AsyncStorage);
-      } else {
-        const errorData = await response.json();
-        console.error('Login Failed:', errorData.message || 'Unknown error');
-        // Show error message to the user
-        // setError('Login failed: ' + (errorData.message || 'Unknown error'));
-      }
+        const responseData = await response.json();
+        console.log('API Response:', responseData);
+        if (responseData.statusCode === 200 ) { 
+          console.log('Login successful:');
+          await AsyncStorage.setItem('userData', JSON.stringify(responseData));
+          console.log('Login storage:', AsyncStorage); // Log AsyncStorage
+          const userData = await AsyncStorage.getItem('userData');
+          console.log('Retrieved User Data:', userData); // Log retrieved data
+            // navigation.navigate('Events')
+        } else {
+            Alert.alert('Login Failed', 'Invalid username or password. Please try again.');
+        }
     } catch (error) {
-      console.error('Error:', error);
-      // Show error message to the user
-      // setError('Login failed: ' + error.message);
+        console.error('Error:', error);
+        Alert.alert('Error', 'Login failed: ' + error.message);
     }
-  };
+};
 
 
+  
   return (
     <Modal
       animationType='none'

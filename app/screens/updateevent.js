@@ -45,7 +45,7 @@ const validationSchema = Yup.object().shape({
 
 
 
-function UpdateEventScreen({props, route}) {
+function UpdateEventScreen({ props, route }) {
 
 
 
@@ -94,10 +94,10 @@ function UpdateEventScreen({props, route}) {
 
 
   const [formValues, setFormValues] = useState();
-  
+
   const { eventId } = route.params;
   //console.log("check Event Id", eventId);
-  
+
   console.log('Form Values:', formValues);
 
   useEffect(() => {
@@ -109,7 +109,14 @@ function UpdateEventScreen({props, route}) {
           return;
         }
         const eventData = await response.json();
-        console.log("hello events", eventData.data)
+        const endDate = eventData.data.endDate ? new Date(eventData.data.endDate) : null;
+        const formattedEndDate = endDate ? endDate.toLocaleDateString() : '';
+        const startDate = eventData.data.startDate ? new Date(eventData.data.startDate) : null;
+        const formattedStartDate = startDate ? startDate.toLocaleDateString() : '';
+        const endTime = eventData.data.endTime ? new Date(eventData.data.endTime) : null; // Parse endTime
+        const formattedEndTime = endTime ? endTime.toLocaleTimeString() : ''; // Format endTime
+        const startTime = eventData.data.startTime ? new Date(eventData.data.startTime) : null; // Parse startTime
+        const formattedStartTime = startTime ? startTime.toLocaleTimeString() : ''; // Format startTime
         setFormValues({
           ...formValues,
           ageGroup: eventData.data.ageGroup || '',
@@ -117,14 +124,14 @@ function UpdateEventScreen({props, route}) {
           eventImage: eventData.data.eventImage || null,
           companyName: eventData.data.compmayName || '',
           eventName: eventData.data.eventName || '',
-          endTime: eventData.data.endTime || '',
-          endDate: eventData.data.endDate || '',
+          endTime: formattedEndTime || '', // Set formattedEndTime
+          endDate: formattedEndDate || '',
           subject: eventData.data.subject || '',
           gradeLevel: eventData.data.gradeLevel || '',
           eligibility: eventData.data.eligibility || '',
           cost: eventData.data.cost.toString() || '',
-          startTime: eventData.data.startTime || '',
-          startDate: eventData.data.startDate || '',
+          startTime: formattedStartTime || '', // Set formattedStartTime
+          startDate: formattedStartDate || '',
           eventType: eventData.data.eventType || '',
           address: eventData.data.address || '',
           description: eventData.data.description || '',
@@ -137,9 +144,9 @@ function UpdateEventScreen({props, route}) {
     };
     fetchEventDetails(eventId);
   }, [eventId]);
-  
-  
-  
+
+
+
 
   useEffect(() => {
     fetch("https://mapstem-api.azurewebsites.net/api/Subject")
@@ -212,11 +219,12 @@ function UpdateEventScreen({props, route}) {
 
 
 
- // Update Event Handle 
-  const handleSubmit = async (formValues) => {
+  // Update Event Handle 
+  const handleSubmit = async (values) => {
     try {
-      console.log("check submission", formValues)
+      console.log("check submission", values)
       const userData = await AsyncStorage.getItem('userData');
+      console.log("check user data", userData)
       const userDataObject = JSON.parse(userData);
       const token = userDataObject.data;
       if (!token) {
@@ -227,7 +235,6 @@ function UpdateEventScreen({props, route}) {
       const { eventId } = route.params;
       const imageUri = formValues.eventImage ? formValues.eventImage.uri : null;
       const selectedSubjectsString = selected.join(';');
-      console.log("hello", selectedSubjectsString)
       const { latitude, longitude } = await handleGeocode(values.address);
       const formattedStartTime = values.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const formattedEndTime = values.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -276,7 +283,7 @@ function UpdateEventScreen({props, route}) {
       console.log('Response Status:', response.status);
       const responseText = await response.text();
       if (response.ok) {
-        console.log('Event created successfully');
+        console.log('Event updated successfully');
         // Show success message
         Alert.alert(
           'Success',
@@ -285,24 +292,24 @@ function UpdateEventScreen({props, route}) {
           { cancelable: false }
         );
       } else {
-        console.error('Failed to create event');
+        console.error('Failed to update event');
       }
     } catch (error) {
-      console.error('Error creating event', error);
+      console.error('Error updating event', error);
     }
-  };  
-// Activate Event Handle
+  };
+  // Activate Event Handle
   const handleActivate = async () => {
     try {
-       const userData = await AsyncStorage.getItem('userData');
-       const userDataObject = JSON.parse(userData);
-       const token = userDataObject.data;
-       if (!token) {
-         console.error('Token not found. User is not authenticated.');
-         return;
-       }
-   
-      const eventId = route.params.eventId; 
+      const userData = await AsyncStorage.getItem('userData');
+      const userDataObject = JSON.parse(userData);
+      const token = userDataObject.data;
+      if (!token) {
+        console.error('Token not found. User is not authenticated.');
+        return;
+      }
+
+      const eventId = route.params.eventId;
       const response = await fetch(`https://mapstem-api.azurewebsites.net/api/Event/event-type/event-id/${eventId}`, {
         method: 'PUT',
         headers: {
@@ -327,7 +334,7 @@ function UpdateEventScreen({props, route}) {
       console.error('Error activating event:', error);
     }
   };
-// Delete Event Handle
+  // Delete Event Handle
   const handleDelete = async () => {
     try {
       const userData = await AsyncStorage.getItem('userData');
@@ -337,8 +344,8 @@ function UpdateEventScreen({props, route}) {
         console.error('Token not found. User is not authenticated.');
         return;
       }
-  
-      const eventId = route.params.eventId; 
+
+      const eventId = route.params.eventId;
       const response = await fetch(`https://mapstem-api.azurewebsites.net/api/Event/event-id/${eventId}`, {
         method: 'DELETE',
         headers: {
@@ -346,7 +353,7 @@ function UpdateEventScreen({props, route}) {
           'Authorization': `Bearer ${token}`,
         },
       });
-  
+
       if (response.ok) {
         console.log('Event deleted successfully');
         Alert.alert(
@@ -363,7 +370,7 @@ function UpdateEventScreen({props, route}) {
     }
   };
 
-  
+
   return (
     <Screen>
       <KeyboardAwareScrollView
@@ -373,230 +380,230 @@ function UpdateEventScreen({props, route}) {
       >
         <PageHeader header={"Update Event"} />
         <View style={{ padding: 10, paddingBottom: 75 }}>
-          {formValues  &&  
-          <Formik
-            initialValues={formValues}
-            onSubmit={handleSubmit}
-          // validationSchema={validationSchema}
-          >
-            {({ handleChange, handleBlur, handleSubmit, values, setValues }) => (
-              <View>
-                <Text style={{ fontSize: 16 }}>Select Event Image</Text>
-                <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
-                  <TouchableOpacity
-                    style={{
-                      backgroundColor: '#ffffff',
-                      borderWidth: 1,
-                      borderColor: '#000',
-                      borderRadius: 10,
-                      paddingVertical: 30,
-                      paddingHorizontal: 20,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '100%',
+          {formValues &&
+            <Formik
+              initialValues={formValues}
+              onSubmit={handleSubmit}
+            // validationSchema={validationSchema}
+            >
+              {({ handleChange, handleBlur, handleSubmit, values, setValues }) => (
+                <View>
+                  <Text style={{ fontSize: 16 }}>Select Event Image</Text>
+                  <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: '#ffffff',
+                        borderWidth: 1,
+                        borderColor: '#000',
+                        borderRadius: 10,
+                        paddingVertical: 30,
+                        paddingHorizontal: 20,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                      }}
+                      onPress={handleImagePicker}
+                    >
+                      <FontAwesome name="plus" size={20} color="black" style={{ marginRight: 10 }} />
+
+                    </TouchableOpacity>
+
+                    {/* Display the selected image */}
+                    {showeventImage && (
+                      <View style={{ alignItems: 'center', marginTop: 10 }}>
+                        <Text style={{ fontSize: 16 }}>Selected Image:</Text>
+                        <Image
+                          source={{ uri: showeventImage }}
+                          style={{ width: 200, height: 200, borderRadius: 10, marginTop: 10 }}
+                        />
+                        <TouchableOpacity onPress={handleRemoveImage} style={{ position: 'absolute', top: 5, right: 5 }}>
+                          <Text style={{ fontSize: 16, color: 'red' }}>X</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+
+
+                  <AppFormField
+                    name={"eventName"}
+                    label="Event Name"
+                    isRequired={true}
+                    onChangeText={handleChange('eventName')}
+                    onBlur={handleBlur('eventName')}
+                    value={values.eventName}
+                    placeholder="Event Name"
+                  />
+                  <AppFormField
+                    name={"eventType"}
+                    label="Event Type"
+                    isRequired={true}
+                    icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                    onPress={() => setDropdownOpen(true)}
+                    onDropdown={true}
+                    onChangeText={(value) => {
+                      handleChange('eventType')(value);
+                      setFormValues({ ...formValues, eventType: value });
                     }}
-                    onPress={handleImagePicker}
-                  >
-                    <FontAwesome name="plus" size={20} color="black" style={{ marginRight: 10 }} />
+                    onBlur={handleBlur('eventType')}
+                    value={values.eventType}
+                  />
 
-                  </TouchableOpacity>
+                  <AppFormField
+                    name={"cost"}
+                    label="Cost (in dollars)"
+                    isRequired={true}
+                    onChangeText={handleChange('cost')}
+                    onBlur={handleBlur('cost')}
+                    value={values.cost}
+                  />
+                  <AppFormField
+                    name={"description"}
+                    label="Description"
+                    multiline
+                    numberOfLines={3}
+                    onChangeText={handleChange('description')}
+                    onBlur={handleBlur('description')}
+                    value={values.description}
+                  />
 
-                  {/* Display the selected image */}
-                  {showeventImage && (
-                    <View style={{ alignItems: 'center', marginTop: 10 }}>
-                      <Text style={{ fontSize: 16 }}>Selected Image:</Text>
-                      <Image
-                        source={{ uri: showeventImage }}
-                        style={{ width: 200, height: 200, borderRadius: 10, marginTop: 10 }}
+                  <AppFormField
+                    name={"startDate"}
+                    label="Start Date"
+                    isRequired={true}
+                    icon={
+                      <EvilIcons
+                        name="calendar"
+                        color={"#999"}
+                        size={28}
+                        onPress={() => {
+                          setDatePickerMode("date");
+                          setStartOpen(true);
+                        }}
                       />
-                      <TouchableOpacity onPress={handleRemoveImage} style={{ position: 'absolute', top: 5, right: 5 }}>
-                        <Text style={{ fontSize: 16, color: 'red' }}>X</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
+                    }
+                    value={startDate.toLocaleDateString()}
+                  />
 
-
-                <AppFormField 
-                  name={"eventName"} 
-                  label="Event Name" 
-                  isRequired={true}
-                  onChangeText={handleChange('eventName')}
-                  onBlur={handleBlur('eventName')}
-                  value={values.eventName}
-                  placeholder="Event Name"
-                />
-                <AppFormField
-                  name={"eventType"}
-                  label="Event Type"
-                  isRequired={true}
-                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
-                  onPress={() => setDropdownOpen(true)}
-                  onDropdown={true}
-                  onChangeText={(value) => {
-                    handleChange('eventType')(value);
-                    setFormValues({ ...formValues, eventType: value });
-                  }}
-                  onBlur={handleBlur('eventType')}
-                  value={values.eventType}
-                />
-
-                <AppFormField 
-                  name={"cost"} 
-                  label="Cost (in dollars)" 
-                  isRequired={true}
-                  onChangeText={handleChange('cost')}
-                  onBlur={handleBlur('cost')}
-                  value={values.cost}
-                />
-                <AppFormField
-                  name={"description"}
-                  label="Description"
-                  multiline
-                  numberOfLines={3}
-                  onChangeText={handleChange('description')}
-                  onBlur={handleBlur('description')}
-                  value={values.description}
-                />
-
-                <AppFormField
-                  name={"startDate"}
-                  label="Start Date"
-                  isRequired={true}
-                  icon={
-                    <EvilIcons
-                      name="calendar"
-                      color={"#999"}
-                      size={28}
-                      onPress={() => {
-                        setDatePickerMode("date");
-                        setStartOpen(true);
+                  {startOpen && (
+                    <DateTimePicker
+                      value={startDate}
+                      mode={datePickerMode}
+                      display="default"
+                      onChange={(event, selectedDate) => {
+                        onChangeStartDate(event, selectedDate);
+                        setValues({ ...values, startDate: selectedDate });
+                        setFormValues({ ...formValues, startDate: selectedDate });
                       }}
                     />
-                  }
-                  value={values.startDate}
-                />
+                  )}
 
-                {startOpen && (
-                  <DateTimePicker
-                    value={startDate}
-                    mode={datePickerMode}
-                    display="default"
-                    onChange={(event, selectedDate) => {
-                      onChangeStartDate(event, selectedDate);
-                      setValues({ ...values, startDate: selectedDate });
-                      setFormValues({ ...formValues, startDate: selectedDate });
-                    }}
+                  <AppFormField
+                    name={"endDate"}
+                    label="End Date"
+                    isRequired={true}
+                    icon={
+                      <EvilIcons
+                        name="calendar"
+                        color={"#999"}
+                        size={28}
+                        onPress={() => setEndOpen(true)}
+                      />
+                    }
+                    value={endDate.toLocaleDateString()}
                   />
-                )}
 
-                <AppFormField
-                  name={"endDate"}
-                  label="End Date"
-                  isRequired={true}
-                  icon={
-                    <EvilIcons
-                      name="calendar"
-                      color={"#999"}
-                      size={28}
-                      onPress={() => setEndOpen(true)}
+                  {endOpen && (
+                    <DateTimePicker
+                      value={endDate}
+                      mode="date"
+                      is24Hour={true}
+                      display="default"
+                      onChange={(event, selectedDate) => {
+                        onChangeEndDate(event, selectedDate);
+                        setValues({ ...values, endDate: selectedDate }); // Update Formik state
+                        setFormValues({ ...formValues, endDate: selectedDate });
+                      }}
                     />
-                  }
-                  value={values.endDate}
-                />
+                  )}
 
-                {endOpen && (
-                  <DateTimePicker
-                    value={endDate}
-                    mode="date"
-                    is24Hour={true}
-                    display="default"
-                    onChange={(event, selectedDate) => {
-                      onChangeEndDate(event, selectedDate);
-                      setValues({ ...values, endDate: selectedDate }); // Update Formik state
-                      setFormValues({ ...formValues, endDate: selectedDate });
-                    }}
+                  <AppFormField
+                    name={"startTime"}
+                    value={startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    label="Start Time"
+                    isRequired={true}
+                    icon={
+                      <MaterialIcons
+                        name="access-time"
+                        color={"#999"}
+                        size={25}
+                        onPress={() => setStartTimeOpen(true)}
+                      />
+                    }
                   />
-                )}
 
-                <AppFormField
-                  name={"startTime"}
-                  value={values.startTime}
-                  label="Start Time"
-                  isRequired={true}
-                  icon={
-                    <MaterialIcons
-                      name="access-time"
-                      color={"#999"}
-                      size={25}
-                      onPress={() => setStartTimeOpen(true)}
+                  {startTimeOpen && (
+                    <DateTimePicker
+                      value={startTime}
+                      mode="time"
+                      is24Hour={true}
+                      display="default"
+                      onChange={(event, selectedTime) => {
+                        onChangeStartTime(event, selectedTime);
+                        setValues({ ...values, startTime: selectedTime }); // Update Formik state
+                        setFormValues({ ...formValues, startTime: selectedTime });
+                      }}
                     />
-                  }
-                />
+                  )}
 
-                {startTimeOpen && (
-                  <DateTimePicker
-                    value={startTime}
-                    mode="time"
-                    is24Hour={true}
-                    display="default"
-                    onChange={(event, selectedTime) => {
-                      onChangeStartTime(event, selectedTime);
-                      setValues({ ...values, startTime: selectedTime }); // Update Formik state
-                      setFormValues({ ...formValues, startTime: selectedTime });
-                    }}
+                  <AppFormField
+                    name={"endTime"}
+                    label="End Time"
+                    value={endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    isRequired={true}
+                    icon={
+                      <MaterialIcons
+                        name="access-time"
+                        color={"#999"}
+                        size={25}
+                        onPress={() => setEndTimeOpen(true)}
+                      />
+                    }
                   />
-                )}
 
-                <AppFormField
-                  name={"endTime"}
-                  label="End Time"
-                  value={values.endTime}
-                  isRequired={true}
-                  icon={
-                    <MaterialIcons
-                      name="access-time"
-                      color={"#999"}
-                      size={25}
-                      onPress={() => setEndTimeOpen(true)}
+                  {endTimeOpen && (
+                    <DateTimePicker
+                      value={endTime}
+                      mode="time"
+                      is24Hour={true}
+                      display="default"
+                      onChange={(event, selectedTime) => {
+                        onChangeEndTime(event, selectedTime);
+                        setValues({ ...values, endTime: selectedTime }); // Update Formik state
+                        setFormValues({ ...formValues, endTime: selectedTime });
+                      }}
                     />
-                  }
-                />
+                  )}
 
-                {endTimeOpen && (
-                  <DateTimePicker
-                    value={endTime}
-                    mode="time"
-                    is24Hour={true}
-                    display="default"
-                    onChange={(event, selectedTime) => {
-                      onChangeEndTime(event, selectedTime);
-                      setValues({ ...values, endTime: selectedTime }); // Update Formik state
-                      setFormValues({ ...formValues, endTime: selectedTime });
-                    }}
+                  <AppFormField name={"location"} label="Address" isRequired={true}
+                    onChangeText={handleChange('address')}
+                    onBlur={handleBlur('address')}
+                    value={values.address}
                   />
-                )}
-
-                <AppFormField name={"location"} label="Address" isRequired={true}
-                  onChangeText={handleChange('address')}
-                  onBlur={handleBlur('address')}
-                  value={values.address}
-                />
-                <AppFormField
-                  name={"company"}
-                  label="Host/Company Name"
-                  isRequired={true}
-                  onChangeText={handleChange('companyName')}
-                  onBlur={handleBlur('companyName')}
-                  value={values.companyName}
-                />
-                <AppFormField name={"grade"} label="Grade Level"
-                  onChangeText={handleChange('gradeLevel')}
-                  onBlur={handleBlur('gradeLevel')}
-                  value={values.gradeLevel}
-                />
-                {/* <AppFormField
+                  <AppFormField
+                    name={"company"}
+                    label="Host/Company Name"
+                    isRequired={true}
+                    onChangeText={handleChange('companyName')}
+                    onBlur={handleBlur('companyName')}
+                    value={values.companyName}
+                  />
+                  <AppFormField name={"grade"} label="Grade Level"
+                    onChangeText={handleChange('gradeLevel')}
+                    onBlur={handleBlur('gradeLevel')}
+                    value={values.gradeLevel}
+                  />
+                  {/* <AppFormField
                   name={"subject"}
                   label="Subject"
                   isRequired={true}
@@ -608,80 +615,80 @@ function UpdateEventScreen({props, route}) {
                   value={values.subject}
                 /> */}
 
-                <Text style={styles.heading}>Subject</Text>
-                <MultipleSelectList
-                  style={[styles.dropdown, isFocus && { borderColor: "black" }]}
-                  setSelected={(val) => setSelected(val)}
-                  data={labelsName}
-                  save="value"
-                  label="Categories"
-                  placeholder="Select Subjects"
-                  searchPlaceholder="Select Subjects"
-                  search={true}
-                  selected={selected}
-                />
+                  <Text style={styles.heading}>Subject</Text>
+                  <MultipleSelectList
+                    style={[styles.dropdown, isFocus && { borderColor: "black" }]}
+                    setSelected={(val) => setSelected(val)}
+                    data={labelsName}
+                    save="value"
+                    label="Categories"
+                    placeholder="Select Subjects"
+                    searchPlaceholder="Select Subjects"
+                    search={true}
+                    selected={selected}
+                  />
 
-                <AppFormField
-                  name={"contact"}
-                  label="Contact Number"
-                  onChangeText={handleChange('contactNo')}
-                  onBlur={handleBlur('contactNo')}
-                  value={values.contactNo}
-                  keyboardType="numeric"
+                  <AppFormField
+                    name={"contact"}
+                    label="Contact Number"
+                    onChangeText={handleChange('contactNo')}
+                    onBlur={handleBlur('contactNo')}
+                    value={values.contactNo}
+                    keyboardType="numeric"
 
-                />
-                
-                <AppFormField
-                  name={"eligibility"}
-                  label="Eligibility"
-                  multiline
-                  numberOfLines={3}
-                  onChangeText={handleChange('eligibility')}
-                  onBlur={handleBlur('eligibility')}
-                  value={values.eligibility}
+                  />
 
-                />
-                <AppFormField name={"ageGroup"} label="Age Group"
-                  onChangeText={handleChange('ageGroup')}
-                  onBlur={handleBlur('ageGroup')}
-                  value={values.ageGroup}
+                  <AppFormField
+                    name={"eligibility"}
+                    label="Eligibility"
+                    multiline
+                    numberOfLines={3}
+                    onChangeText={handleChange('eligibility')}
+                    onBlur={handleBlur('eligibility')}
+                    value={values.eligibility}
 
-                />
-                <AppFormField
-                  name={"mealInclude"}
-                  label="Meals Include"
-                  isRequired={true}
-                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
-                  onPress={() => setMealIncludeDropdownOpen(true)}
-                  onDropdown={true}
-                  onChangeText={handleChange('mealInclude')}
-                  onBlur={handleBlur('mealInclude')}
-                  value={values.mealInclude}
+                  />
+                  <AppFormField name={"ageGroup"} label="Age Group"
+                    onChangeText={handleChange('ageGroup')}
+                    onBlur={handleBlur('ageGroup')}
+                    value={values.ageGroup}
 
-                />
+                  />
+                  <AppFormField
+                    name={"mealInclude"}
+                    label="Meals Include"
+                    isRequired={true}
+                    icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                    onPress={() => setMealIncludeDropdownOpen(true)}
+                    onDropdown={true}
+                    onChangeText={handleChange('mealInclude')}
+                    onBlur={handleBlur('mealInclude')}
+                    value={values.mealInclude}
 
-                <AppFormField name={"webURL"} label="Web URL"
-                  onChangeText={handleChange('webURL')}
-                  onBlur={handleBlur('webURL')}
-                  value={values.webURL}
+                  />
 
-                />
+                  <AppFormField name={"webURL"} label="Web URL"
+                    onChangeText={handleChange('webURL')}
+                    onBlur={handleBlur('webURL')}
+                    value={values.webURL}
+
+                  />
 
 
-                <LinearGradient
-                  colors={['black', '#5A5A5A']}
-                  style={{
-                    alignItems: 'center',
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                    width: '95%',
-                    height: 60,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                  locations={[0.1, 0.9]}
-                >
-                  {/* <Button
+                  <LinearGradient
+                    colors={['black', '#5A5A5A']}
+                    style={{
+                      alignItems: 'center',
+                      alignSelf: 'center',
+                      justifyContent: 'center',
+                      width: '95%',
+                      height: 60,
+                      borderRadius: 10,
+                      marginVertical: 10,
+                    }}
+                    locations={[0.1, 0.9]}
+                  >
+                    {/* <Button
                     style={{
                       color: 'white',
                       fontSize: 25,
@@ -690,7 +697,34 @@ function UpdateEventScreen({props, route}) {
                     onPress={handleSubmit}
                     title="Submit For Approval"
                   /> */}
-                  <TouchableOpacity
+                    <TouchableOpacity
+                      style={{
+                        alignItems: 'center',
+                        alignSelf: 'center',
+                        justifyContent: 'center',
+                        width: '95%',
+                        height: 60,
+                        borderRadius: 10,
+                        marginVertical: 10,
+                        backgroundColor: 'black', // Set background color instead of using LinearGradient
+                      }}
+                      onPress={handleSubmit}
+                    >
+                      <Text
+                        style={{
+                          color: 'white',
+                          fontSize: 25,
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        Update Event
+                      </Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
+
+
+                  <LinearGradient
+                    colors={['black', '#5A5A5A']}
                     style={{
                       alignItems: 'center',
                       alignSelf: 'center',
@@ -699,37 +733,36 @@ function UpdateEventScreen({props, route}) {
                       height: 60,
                       borderRadius: 10,
                       marginVertical: 10,
-                      backgroundColor: 'black', // Set background color instead of using LinearGradient
                     }}
-                    onPress={handleSubmit}
+                    locations={[0.1, 0.9]}
                   >
-                    <Text
+                    <TouchableOpacity
                       style={{
-                        color: 'white',
-                        fontSize: 25,
-                        fontWeight: 'bold',
+                        alignItems: 'center',
+                        alignSelf: 'center',
+                        justifyContent: 'center',
+                        width: '95%',
+                        height: 60,
+                        borderRadius: 10,
+                        marginVertical: 10,
+                        backgroundColor: 'black',
                       }}
+                      onPress={handleActivate}
                     >
-                      Update Event
-                    </Text>
-                  </TouchableOpacity>
-                </LinearGradient>
+                      <Text
+                        style={{
+                          color: 'white',
+                          fontSize: 25,
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        Activate Event
+                      </Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
 
-
-                <LinearGradient
-                  colors={['black', '#5A5A5A']}
-                  style={{
-                    alignItems: 'center',
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                    width: '95%',
-                    height: 60,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                  locations={[0.1, 0.9]}
-                >
-                  <TouchableOpacity
+                  <LinearGradient
+                    colors={['black', '#5A5A5A']}
                     style={{
                       alignItems: 'center',
                       alignSelf: 'center',
@@ -738,64 +771,38 @@ function UpdateEventScreen({props, route}) {
                       height: 60,
                       borderRadius: 10,
                       marginVertical: 10,
-                      backgroundColor: 'black', 
                     }}
-                    onPress={handleActivate}
+                    locations={[0.1, 0.9]}
                   >
-                    <Text
+                    <TouchableOpacity
                       style={{
-                        color: 'white',
-                        fontSize: 25,
-                        fontWeight: 'bold',
+                        alignItems: 'center',
+                        alignSelf: 'center',
+                        justifyContent: 'center',
+                        width: '95%',
+                        height: 60,
+                        borderRadius: 10,
+                        marginVertical: 10,
+                        backgroundColor: 'black',
                       }}
+                      onPress={handleDelete}
                     >
-                      Activate Event
-                    </Text>
-                  </TouchableOpacity>
-                </LinearGradient>
+                      <Text
+                        style={{
+                          color: 'white',
+                          fontSize: 25,
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        Delete Event
+                      </Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
 
-                <LinearGradient
-                  colors={['black', '#5A5A5A']}
-                  style={{
-                    alignItems: 'center',
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                    width: '95%',
-                    height: 60,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                  locations={[0.1, 0.9]}
-                >
-                  <TouchableOpacity
-                    style={{
-                      alignItems: 'center',
-                      alignSelf: 'center',
-                      justifyContent: 'center',
-                      width: '95%',
-                      height: 60,
-                      borderRadius: 10,
-                      marginVertical: 10,
-                      backgroundColor: 'black',
-                    }}
-                    onPress={handleDelete}
-                  >
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: 25,
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      Delete Event
-                    </Text>
-                  </TouchableOpacity>
-                </LinearGradient>
-
-              </View>
-            )}
-          </Formik>
-}
+                </View>
+              )}
+            </Formik>
+          }
         </View>
 
 

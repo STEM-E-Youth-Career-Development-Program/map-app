@@ -56,7 +56,6 @@ function Event({
           setModalVisible(true);
         }
       } else {
-        console.error('User data not found or invalid');
         setModalVisible(true);
       }
     } catch (error) {
