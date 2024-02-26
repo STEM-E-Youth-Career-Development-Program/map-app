@@ -45,11 +45,6 @@ const EventDetails = (props) => {
     }
   };
 
-
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
   return (
     <>
       <View style={{ paddingTop: Constants.statusBarHeight }}>
@@ -131,6 +126,7 @@ const EventDetails = (props) => {
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Grade Level: </Text>
               <Text style={{ color: '#999999' }}>{allDetails.gradeLevel}</Text>
             </View>
+
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>More Details: </Text>
@@ -142,6 +138,7 @@ const EventDetails = (props) => {
                 <Text style={{ color: '#999999' }}>{'Not Eligible'}</Text>
               )}
             </View>
+
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Age Group: </Text>
