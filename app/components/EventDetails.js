@@ -133,8 +133,14 @@ const EventDetails = (props) => {
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Eligibility: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.eligibility}</Text>
+              <Text style={{ fontWeight: '600', paddingRight: 10 }}>More Details: </Text>
+              {/* requires user information. Example: userDetails.ageGroup <= allDetails.ageGroup */}
+              {/* displays 'eligible' or 'not eligible' */}
+              {allDetails ? (
+                <Text style={{ color: '#999999' }}>{'Eligibile'}</Text>
+                ) : (
+                <Text style={{ color: '#999999' }}>{'Not Eligible'}</Text>
+              )}
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
