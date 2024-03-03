@@ -198,7 +198,7 @@ function CreateEventScreen(props) {
         type: 'image/jpeg',
         name: 'image.jpg',
       });
-      formData.append('CompmayName', values.companyName);
+      formData.append('CompanyName', values.companyName);
       formData.append('EventName', values.eventName);
       formData.append('EndTime', formattedEndTime);
       formData.append('EndDate', values.endDate.toISOString());
@@ -316,7 +316,7 @@ function CreateEventScreen(props) {
                   value={values.eventType}
                 />
 
-                <AppFormField name={"cost"} label="Cost (in dollars)" isRequired={true}
+                <AppFormField name={"cost"} label="Average Cost (in dollars)" isRequired={true}
                   onChangeText={handleChange('cost')}
                   onBlur={handleBlur('cost')}
                   value={values.cost}
