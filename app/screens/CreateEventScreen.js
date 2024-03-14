@@ -141,7 +141,7 @@ function CreateEventScreen(props) {
       console.error('Error creating event', error);
     }
   };
-  
+
   return (
     <Screen>
       <KeyboardAwareScrollView
@@ -207,7 +207,7 @@ function CreateEventScreen(props) {
 
                 {/* Grade Level */}
                 <AppFormField
-                  name={"gradeLevel"}
+                   name={"gradeLevel"}
                   label="Grade Level"
                   isRequired={true}
                   icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
@@ -219,9 +219,9 @@ function CreateEventScreen(props) {
                   }}
                   onBlur={handleBlur('gradeLevel')}
                   value={values.gradeLevel}
-                  dropdownOpen={gradeDropdownOpen}
+                  dropdownOpen={gradeDropdownOpen} // Pass state variable to manage visibility
                   dropdownData={gradeLevels}
-                  setDropdownOpen={setGradeDropdownOpen}
+                  setDropdownOpen={setGradeDropdownOpen} // Close dropdown
                 />
 
                 {/* Subject */}
