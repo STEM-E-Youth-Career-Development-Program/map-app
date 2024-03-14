@@ -2,22 +2,23 @@ import React, { useState } from "react";
 import { StyleSheet, View, Text, Platform, Image, Button, TouchableOpacity, Alert } from "react-native";
 import * as Yup from "yup";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { DateTimePicker } from "@react-native-community/datetimepicker";
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Formik } from 'formik';
 import { useNavigation } from '@react-navigation/native';
-import * as Location from 'expo-location';
 import AppFormField from "../components/AppFormField";
 import Screen from "../components/Screen";
 import PageHeader from "../components/PageHeader";
-import { EvilIcons, MaterialIcons, FontAwesome } from '@expo/vector-icons'; // Add appropriate icons
+import { FontAwesome } from '@expo/vector-icons'; // Add appropriate icons
 import CustomDropdown from "../components/CustomDropdown";
 
-const gradeLevels = ['Kindergarten', '1st Grade', '2nd Grade', '3rd Grade', '4th Grade', '5th Grade', '6th Grade', '7th Grade', '8th Grade', '9th Grade', '10th Grade', '11th Grade', '12th Grade'];
+const gradeLevels = ['2nd Grade', '3rd Grade', '4th Grade', '5th Grade', '6th Grade', '7th Grade', '8th Grade', '9th Grade', '10th Grade', '11th Grade', '12th Grade'];
 
 function CreateEventScreen(props) {
   const navigation = useNavigation();
+
+  const [eventImage, setEventImage] = useState(null);
+  const [gradeLevel, setGradeLevel] = useState('');
 
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -205,15 +206,13 @@ function CreateEventScreen(props) {
                   onBlur={handleBlur('description')}
                   value={values.description}
                 />
-
-                  {/* Grade Level */}
-                  
+                 {/* Grade Level Dropdown */}
                   <CustomDropdown
-                 label="Grade Level"
-                data={gradeLevels}
-                 value={values.gradeLevel}
-                 onSelect={(selectedGrade) => setValues({ ...values, gradeLevel: selectedGrade })}
- />
+                  label="Grade Level"
+                  data={gradeLevels}
+                  value={gradeLevel}
+                  onSelect={(selectedGrade) => setGradeLevel(selectedGrade)}
+                />
                 
 
                 {/* Subject */}
