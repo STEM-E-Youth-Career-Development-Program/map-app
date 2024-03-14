@@ -464,13 +464,13 @@ function CreateEventScreen(props) {
                       }}
                     >
                       Submit For Approval
-                    </Text>
-                  </TouchableOpacity>
-                </LinearGradient>
-              </View>
-            )}
-          </Formik>
-        </View>
+                      </Text>
+          </TouchableOpacity>
+        </LinearGradient>
+      </View>
+    )}
+  </Formik>
+</View>
       </KeyboardAwareScrollView>
     </Screen>
   );
