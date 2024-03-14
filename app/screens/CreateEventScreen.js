@@ -141,7 +141,7 @@ function CreateEventScreen(props) {
       console.error('Error creating event', error);
     }
   };
-
+  
   return (
     <Screen>
       <KeyboardAwareScrollView
@@ -205,7 +205,6 @@ function CreateEventScreen(props) {
                   value={values.description}
                 />
 
-                {/* Add your other form fields here */}
                 {/* Grade Level */}
                 <AppFormField
                   name={"gradeLevel"}
@@ -238,7 +237,51 @@ function CreateEventScreen(props) {
                   value={values.subject}
                 />
 
-                {/* Other Fields... */}
+                <AppFormField
+                  name={"contactNo"}
+                  label="Contact Number"
+                  onChangeText={handleChange('contactNo')}
+                  onBlur={handleBlur('contactNo')}
+                  value={values.contactNo}
+                  keyboardType="numeric"
+                />
+
+                <AppFormField
+                  name={"eligibility"}
+                  label="More Details"
+                  multiline
+                  numberOfLines={3}
+                  onChangeText={handleChange('eligibility')}
+                  onBlur={handleBlur('eligibility')}
+                  value={values.eligibility}
+                />
+
+                <AppFormField
+                  name={"mealInclude"}
+                  label="Meals Included"
+                  isRequired={true}
+                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                  onPress={() => setMealIncludeDropdownOpen(true)}
+                  onDropdown={true}
+                  onChangeText={handleChange('mealInclude')}
+                  onBlur={handleBlur('mealInclude')}
+                  value={values.mealInclude}
+                />
+
+                <AppFormField
+                  name={"webURL"}
+                  label="Web URL"
+                  onChangeText={handleChange('webURL')}
+                  onBlur={handleBlur('webURL')}
+                  value={values.webURL}
+                />
+
+                {/* Add other form fields here as needed */}
+
+                <Button title="Select Event Image" onPress={handleImagePicker} />
+                {values.eventImage && (
+                  <Image source={{ uri: values.eventImage }} style={{ width: 100, height: 100 }} />
+                )}
 
                 <LinearGradient
                   colors={['black', '#5A5A5A']}
@@ -299,3 +342,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
