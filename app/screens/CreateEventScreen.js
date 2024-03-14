@@ -12,7 +12,7 @@ import PageHeader from "../components/PageHeader";
 import { FontAwesome } from '@expo/vector-icons'; // Add appropriate icons
 import CustomDropdown from "../components/CustomDropdown";
 
-const gradeLevels = ['2nd Grade', '3rd Grade', '4th Grade', '5th Grade', '6th Grade', '7th Grade', '8th Grade', '9th Grade', '10th Grade', '11th Grade', '12th Grade'];
+const gradeLevels = ['Kindergarden','1st grade','2nd Grade', '3rd Grade', '4th Grade', '5th Grade', '6th Grade', '7th Grade', '8th Grade', '9th Grade', '10th Grade', '11th Grade', '12th Grade'];
 
 function CreateEventScreen(props) {
   const navigation = useNavigation();
@@ -206,13 +206,13 @@ function CreateEventScreen(props) {
                   onBlur={handleBlur('description')}
                   value={values.description}
                 />
-                 {/* Grade Level Dropdown */}
+                
                   <CustomDropdown
-                  label="Grade Level"
-                  data={gradeLevels}
-                  value={gradeLevel}
-                  onSelect={(selectedGrade) => setGradeLevel(selectedGrade)}
-                />
+              label="Grade Level"
+              data={gradeLevels}
+              value={values.gradeLevel}
+              onSelect={(selectedGrade) => setSelectedGrade(selectedGrade)} // Update selectedGrade state
+                 />
                 
 
                 {/* Subject */}
