@@ -12,6 +12,7 @@ import AppFormField from "../components/AppFormField";
 import Screen from "../components/Screen";
 import PageHeader from "../components/PageHeader";
 import { EvilIcons, MaterialIcons, FontAwesome } from '@expo/vector-icons'; // Add appropriate icons
+import CustomDropdown from "../components/CustomDropdown";
 
 const gradeLevels = ['Kindergarten', '1st Grade', '2nd Grade', '3rd Grade', '4th Grade', '5th Grade', '6th Grade', '7th Grade', '8th Grade', '9th Grade', '10th Grade', '11th Grade', '12th Grade'];
 
@@ -205,25 +206,14 @@ function CreateEventScreen(props) {
                   value={values.description}
                 />
 
-                {/* Grade Level */}
-<AppFormField
-  name={"gradeLevel"}
-  label="Grade Level"
-  isRequired={true}
-  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
-  onPress={() => setGradeDropdownOpen(true)}
-  onDropdown={true}
-  onChangeText={(value) => {
-    handleChange('gradeLevel')(value);
-    setFormValues({ ...formValues, gradeLevel: value });
-  }}
-  onBlur={handleBlur('gradeLevel')}
-  value={values.gradeLevel}
-  dropdownOpen={gradeDropdownOpen} // Pass state variable to manage visibility
-  dropdownData={gradeLevels.map((grade) => ({ label: grade, value: grade }))} // Convert gradeLevels to dropdown data format
-  setDropdownOpen={setGradeDropdownOpen} // Close dropdown
-/>
-
+                  {/* Grade Level */}
+                  
+                  <CustomDropdown
+                 label="Grade Level"
+                data={gradeLevels}
+                 value={values.gradeLevel}
+                 onSelect={(selectedGrade) => setValues({ ...values, gradeLevel: selectedGrade })}
+ />
                 
 
                 {/* Subject */}
