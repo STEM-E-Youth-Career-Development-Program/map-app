@@ -17,7 +17,8 @@ import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 
-
+const [gradeDropdownOpen, setGradeDropdownOpen] = useState(false); // Step 1: Define state variable
+const gradeLevels = ['Kindergarten', '1st Grade', '2nd Grade', '3rd Grade', '4th Grade', '5th Grade', '6th Grade', '7th Grade', '8th Grade', '9th Grade', '10th Grade', '11th Grade', '12th Grade'];
 const validationSchema = Yup.object().shape({
   heading: Yup.string()
     .required()
@@ -26,10 +27,6 @@ const validationSchema = Yup.object().shape({
   grade: Yup.string()
     .required()
     .label("Grade")
-    .max(50, "Must be shorter than 50 characters"),
-  ageGroup: Yup.string()
-    .required()
-    .label("ageGroup")
     .max(50, "Must be shorter than 50 characters"),
   description: Yup.string().required("Please describe the event"),
   subject: Yup.string().required("Please include the STEM subject"),
@@ -104,7 +101,7 @@ function CreateEventScreen(props) {
 
 
   const [formValues, setFormValues] = useState({
-    ageGroup: '',
+    
     contactNo: '',
     eventImage: null,
     companyName: '',
@@ -462,11 +459,24 @@ function CreateEventScreen(props) {
                   onBlur={handleBlur('companyName')}
                   value={values.companyName}
                 />
-                <AppFormField name={"grade"} label="Grade Level"
-                  onChangeText={handleChange('gradeLevel')}
-                  onBlur={handleBlur('gradeLevel')}
-                  value={values.gradeLevel}
-                />
+                <AppFormField
+                name={"gradeLevel"}
+                 label="Grade Level"
+                 isRequired={true}
+  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+ onPress={() => setGradeDropdownOpen(true)} // Step 3: Open dropdown
+  onDropdown={true}
+  onChangeText={(value) => {
+    handleChange('gradeLevel')(value); // Update Formik state
+    setFormValues({ ...formValues, gradeLevel: value }); // Update local state
+  }}
+  onBlur={handleBlur('gradeLevel')}
+  value={values.grade}
+ dropdownOpen={gradeDropdownOpen} // Pass state variable to manage visibility
+  dropdownData={gradeLevels}
+ setDropdownOpen={setGradeDropdownOpen} // Step 3: Close dropdown
+/>
+
                 <AppFormField
                   name={"subject"}
                   label="Subject"
@@ -498,12 +508,7 @@ function CreateEventScreen(props) {
                   value={values.eligibility}
 
                 />
-                <AppFormField name={"ageGroup"} label="Age Group"
-                  onChangeText={handleChange('ageGroup')}
-                  onBlur={handleBlur('ageGroup')}
-                  value={values.ageGroup}
-
-                />
+               {/* Age group removed */}
                 <AppFormField
                   name={"mealInclude"}
                   label="Meals Included"
