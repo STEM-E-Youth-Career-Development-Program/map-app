@@ -207,22 +207,25 @@ function CreateEventScreen(props) {
 
                 {/* Grade Level */}
                 <AppFormField
-                   name={"gradeLevel"}
-                  label="Grade Level"
-                  isRequired={true}
-                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
-                  onPress={() => setGradeDropdownOpen(true)}
-                  onDropdown={true}
-                  onChangeText={(value) => {
-                    handleChange('gradeLevel')(value);
-                    setFormValues({ ...formValues, gradeLevel: value });
-                  }}
-                  onBlur={handleBlur('gradeLevel')}
-                  value={values.gradeLevel}
-                  dropdownOpen={gradeDropdownOpen} // Pass state variable to manage visibility
-                  dropdownData={gradeLevels}
-                  setDropdownOpen={setGradeDropdownOpen} // Close dropdown
-                />
+                 
+
+                name={"gradeLevel"}
+                label="Grade Level"
+                isRequired={true}
+                icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                onPress={() => setGradeDropdownOpen(true)}
+                onDropdown={true}
+                onChangeText={(value) => {
+                handleChange('gradeLevel')(value);
+                setFormValues({ ...formValues, gradeLevel: value });
+}}
+                onBlur={handleBlur('gradeLevel')}
+                value={values.gradeLevel}
+                dropdownOpen={gradeDropdownOpen} // Pass state variable to manage visibility
+                dropdownData={gradeLevels}
+                setDropdownOpen={setGradeDropdownOpen} // Close dropdown
+/>
+                
 
                 {/* Subject */}
                 <AppFormField
