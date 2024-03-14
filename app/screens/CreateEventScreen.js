@@ -54,6 +54,13 @@ function CreateEventScreen(props) {
     webURL: '',
   });
 
+const setSelectedGrade = (selectedGrade) => {
+  setFormValues({
+    ...formValues,
+    gradeLevel: selectedGrade,
+  });
+};
+
   const handleImagePicker = async () => {
     try {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
