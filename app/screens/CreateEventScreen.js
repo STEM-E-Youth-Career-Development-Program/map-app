@@ -206,13 +206,13 @@ function CreateEventScreen(props) {
                   onBlur={handleBlur('description')}
                   value={values.description}
                 />
-                
-                  <CustomDropdown
+
+                   <CustomDropdown
               label="Grade Level"
               data={gradeLevels}
               value={values.gradeLevel}
-              onSelect={(selectedGrade) => setSelectedGrade(selectedGrade)} // Update selectedGrade state
-                 />
+              onSelect={setSelectedGrade} // Pass setSelectedGrade as onSelect prop
+            />
                 
 
                 {/* Subject */}
