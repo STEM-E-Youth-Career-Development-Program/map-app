@@ -17,7 +17,7 @@ const gradeLevels = ['2nd Grade', '3rd Grade', '4th Grade', '5th Grade', '6th Gr
 function CreateEventScreen(props) {
   const navigation = useNavigation();
 
-  const [eventImage, setEventImage] = useState(null);
+ 
   const [gradeLevel, setGradeLevel] = useState('');
 
   const [startDate, setStartDate] = useState(new Date());
