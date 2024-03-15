@@ -17,9 +17,7 @@ const CustomDropdown = ({ label, data, value, onSelect }) => {
       <View style={styles.dropdownContainer}>
         <TouchableOpacity onPress={() => setOpen(!open)} style={styles.header}>
           <View style={styles.dropdownHeader}>
-            <Text style={styles.selectedText}>
-              {selectedItem ? `Picked: ${selectedItem}` : 'Select'}
-            </Text>
+            <Text style={styles.selectedText}>{selectedItem || 'Select'}</Text>
           </View>
         </TouchableOpacity>
         {open && (
