@@ -15,7 +15,11 @@ const CustomDropdown = ({ label, data, value, onSelect }) => {
     <View style={styles.container}>
       <TouchableOpacity onPress={() => setOpen(!open)} style={styles.header}>
         <Text style={styles.label}>{label}</Text>
-        <Text>{selectedItem ? `Picked: ${selectedItem}` : 'Select'}</Text>
+        <View style={styles.dropdownHeader}>
+          <Text style={styles.selectedText}>
+            {selectedItem ? `Picked: ${selectedItem}` : 'Select'}
+          </Text>
+        </View>
       </TouchableOpacity>
       {open && (
         <View style={styles.dropdown}>
@@ -25,7 +29,7 @@ const CustomDropdown = ({ label, data, value, onSelect }) => {
               onPress={() => handleSelect(item)}
               style={[styles.item, item === value && styles.selectedItem]}
             >
-              <Text>{item}</Text>
+              <Text style={styles.itemText}>{item}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -49,17 +53,32 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: 'bold',
   },
+  dropdownHeader: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  selectedText: {
+    fontSize: 16,
+    color: '#333',
+  },
   dropdown: {
     marginTop: 5,
     borderRadius: 5,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fff',
     elevation: 3,
   },
   item: {
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   selectedItem: {
-    backgroundColor: '#b2dfdb', // Highlight color for selected item
+    backgroundColor: '#f0f0f0',
+  },
+  itemText: {
+    fontSize: 16,
+    color: '#333',
   },
 });
 
