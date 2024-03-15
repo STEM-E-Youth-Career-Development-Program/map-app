@@ -13,8 +13,8 @@ const CustomDropdown = ({ label, data, value, onSelect }) => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.label}>{label}</Text>
       <TouchableOpacity onPress={() => setOpen(!open)} style={styles.header}>
-        <Text style={styles.label}>{label}</Text>
         <View style={styles.dropdownHeader}>
           <Text style={styles.selectedText}>
             {selectedItem ? `Picked: ${selectedItem}` : 'Select'}
@@ -37,49 +37,3 @@ const CustomDropdown = ({ label, data, value, onSelect }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-  },
-  label: {
-    fontWeight: 'bold',
-  },
-  dropdownHeader: {
-    flex: 1,
-    alignItems: 'flex-end',
-  },
-  selectedText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  dropdown: {
-    marginTop: 5,
-    borderRadius: 5,
-    backgroundColor: '#fff',
-    elevation: 3,
-  },
-  item: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  selectedItem: {
-    backgroundColor: '#f0f0f0',
-  },
-  itemText: {
-    fontSize: 16,
-    color: '#333',
-  },
-});
-
-export default CustomDropdown;
