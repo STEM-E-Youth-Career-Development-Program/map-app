@@ -61,8 +61,14 @@ Program's mapSTEM application tracks various events and activities in Science, T
 
 ## Getting Started
 
-This is will give you instructions on how to set up your project locally.
-Follow these simple steps and/or watch the YouTube guides.
+Most of our packages and libraries require some knowledge in JavaScript. However, you don't need to worry because you can learn:
+-  [Introduction to JavaScript](https://join.codecademy.com/learn/introduction-to-javascript/)
+- [Introduction to React Native](https://www.codecademy.com/learn/learn-react-native)
+
+How our team operates: 
+- [Introduction to Sprints: Team Workflow](https://www.youtube.com/watch?v=9TycLR0TqFA)
+
+
 
 <br>
 <p align="right"><a href="#readme-top">-back to top-</a></p>
@@ -70,7 +76,7 @@ Follow these simple steps and/or watch the YouTube guides.
 
 ### Prerequisites
 
-These are the list of things you need for your local environment. You can start by installing <a href="https://code.visualstudio.com/">Visual Studio Code</a>, our most used code editor. 
+These are the list of things you need for your local environment. You will require a code editor like <a href="https://code.visualstudio.com/">Visual Studio Code</a> if you don't already have one. Otherwise, follow these simple steps and/or watch the YouTube guides to set up your local project:
 
 #### Windows
 <ol>
