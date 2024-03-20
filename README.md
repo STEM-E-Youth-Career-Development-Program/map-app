@@ -75,7 +75,7 @@ How our team operates:
 
 ### Prerequisites
 
-These are the list of things you need for your local environment. It's a good idea to have a code editor like <a href="https://code.visualstudio.com/">Visual Studio Code</a> Otherwise, follow these simple steps and/or watch the YouTube guides to set up your local project:
+These are the list of things you need for your local environment. It's a good idea to have a code editor like <a href="https://code.visualstudio.com/">Visual Studio Code.</a> Otherwise, follow these simple steps and/or watch the YouTube guides to set up your local project:
 
 #### Windows
 <ol>
