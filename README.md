@@ -41,8 +41,7 @@
 
 ## About The Project
 
-The STEME Youth Career Development
-Program's mapSTEM application tracks various events and activities in Science, Technology, Engineering, Math, and Entrepreneurship and makes it accessible and affordable for its users.
+The application will track [STEM-related](https://www.steme.org/events) events, making things accessible and affordable. 
 <br>
 <br>
 
@@ -76,7 +75,7 @@ How our team operates:
 
 ### Prerequisites
 
-These are the list of things you need for your local environment. You will require a code editor like <a href="https://code.visualstudio.com/">Visual Studio Code</a> if you don't already have one. Otherwise, follow these simple steps and/or watch the YouTube guides to set up your local project:
+These are the list of things you need for your local environment. It's a good idea to have a code editor like <a href="https://code.visualstudio.com/">Visual Studio Code</a> Otherwise, follow these simple steps and/or watch the YouTube guides to set up your local project:
 
 #### Windows
 <ol>
