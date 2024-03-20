@@ -62,7 +62,7 @@ Program's mapSTEM application tracks various events and activities in Science, T
 ## Getting Started
 
 Most of our packages and libraries require some knowledge in JavaScript. However, you don't need to worry because you can learn:
--  [Introduction to JavaScript](https://join.codecademy.com/learn/introduction-to-javascript/)
+-  [Introduction to JavaScript](https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures-v8/)
 - [Introduction to React Native](https://www.codecademy.com/learn/learn-react-native)
 
 How our team operates: 
