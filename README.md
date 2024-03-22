@@ -32,6 +32,7 @@
   - [ Prerequisites](#prerequisites)
     - [ Windows](#windows)
     - [ MacOS](#macos)
+  - [ Running the App](#running-the-app)
   - [ API Page](#api-page)
   - [ How to Contribute](#how-to-contribute)
 
