@@ -13,8 +13,36 @@ const height = Dimensions.get('window').height
 const EventDetails = (props) => {
 
   const { allDetails, distance } = props.route.params;
-  const base64Image = `data:image/jpeg;base64,${allDetails.imageData}`;
+  //const base64Image = `data:image/jpeg;base64,${allDetails.imageData}`;
   // console.log("check", allDetails)
+
+  const renderImage = () => {
+    if (!allDetails.imageData) {
+      return (
+        <ImageBackground
+          source={require('../assets/STEME.png')}
+          style={styles.eventImgBackground}
+        >
+          <View style={styles.overlayView} />
+          <Image style={styles.eventImg} source={require('../assets/STEME.png')} />
+        </ImageBackground>
+      );
+    } else {
+      return (
+        <ImageBackground
+          source={{ uri: `data:image/jpeg;base64,${allDetails.imageData}` }}
+          style={styles.eventImgBackground}
+        >
+          <View style={styles.overlayView} />
+          <Image
+            style={styles.eventImg}
+            source={{ uri: `data:image/jpeg;base64,${allDetails.imageData}` }}
+          />
+        </ImageBackground>
+      );
+    }
+  };
+  
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -45,26 +73,28 @@ const EventDetails = (props) => {
     }
   };
 
+
   return (
     <>
       <View style={{ paddingTop: Constants.statusBarHeight }}>
         <PageHeader header={allDetails.eventName} />
       </View>
       <ScrollView>
-        <ImageBackground source={{ uri: base64Image }} style={styles.eventImg}>
+      {renderImage() }
+        {/* <ImageBackground source={{ uri: base64Image }} style={styles.eventImg}>
           <View style={styles.overlayView} />
-        </ImageBackground>
+        </ImageBackground> */}
         <View style={styles.iconRow}>
-          {/* <View style={[styles.iconButtons, { right: 15 }]}>
+        {/* <View style={[styles.iconButtons, { right: 15 }]}>
             <Image  source={{ uri: `${allDetails.imageData}` }}
           style={styles.eventImg} />
           </View> */}
-          {allDetails.url && (
+         {allDetails.url && (
             <TouchableOpacity onPress={handleUrlPress} style={[styles.iconButtons, { right: 7 }]}>
               <Image source={require('../assets/earth.png')} style={{ width: 20, height: 20 }} />
             </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={handleShare} style={styles.iconButtons}>
+           <TouchableOpacity onPress={handleShare} style={styles.iconButtons}>
             <Image source={require('../assets/share.png')} style={{ width: 20, height: 20 }} />
           </TouchableOpacity>
         </View>
@@ -75,17 +105,25 @@ const EventDetails = (props) => {
         </View>
 
         {allDetails.url && (
-          <Text style={styles.more}>
-            For more information and registration, visit the{' '}
-            <TouchableOpacity onPress={handleUrlPress}>
-              <Text style={styles.underlineText}>Organizer's Website</Text>
-            </TouchableOpacity>
-          </Text>
+        <Text style={styles.more}>
+          For more information and registration, visit the{' '}
+          <TouchableOpacity onPress={handleUrlPress}>
+            <Text style={styles.underlineText}>Organizer's Website</Text>
+          </TouchableOpacity>
+        </Text>
         )}
-
+        
         <View style={styles.contentBackground}>
           <View style={{ marginLeft: '2.5%', marginTop: 12 }}>
             <Text style={{ fontWeight: 'bold', color: '#171766', fontSize: 16 }}>Event Details:</Text>
+
+            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+              {/* <MaterialCommunityIcons name='map-marker-outline' size={20} style={{ paddingRight: 10 }} /> */}
+              <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Eveent Name: </Text>
+              <Text style={{ color: '#999999', maxWidth: '70%' }} numberOfLines={2} ellipsizeMode='tail'>{allDetails.eventName}</Text>
+            </View>
+
+
             <View style={{ marginTop: 8, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
               <MaterialCommunityIcons name='calendar-month-outline' size={20} style={{ paddingRight: 10 }} />
               <Text style={{ fontWeight: '600', paddingRight: 25 }}>Date: </Text>
@@ -106,15 +144,11 @@ const EventDetails = (props) => {
               <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Distance: </Text>
               <Text style={{ color: '#999999' }}>{distance.toFixed(2)} mi</Text>
             </View>
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
-              <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 28 }}>Cost: </Text>
-              <Text style={{ color: '#999999' }}>$ {allDetails.cost}</Text>
-            </View>
+
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Subject: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.subject}</Text>
+              <Text style={{ color: '#999999', maxWidth: '70%' }} numberOfLines={2}>{allDetails.subject.join(', ')}</Text>
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
@@ -123,31 +157,28 @@ const EventDetails = (props) => {
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
+              <Text style={{ fontWeight: '600', paddingRight: 28 }}>Average Cost: </Text>
+              <Text style={{ color: '#999999' }}>${allDetails.cost}</Text>
+            </View>
+            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+              <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Grade Level: </Text>
               <Text style={{ color: '#999999' }}>{allDetails.gradeLevel}</Text>
             </View>
-
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 10 }}>More Details: </Text>
-              {/* requires user information. Example: userDetails.ageGroup <= allDetails.ageGroup */}
-              {/* displays 'eligible' or 'not eligible' */}
-              {allDetails ? (
-                <Text style={{ color: '#999999' }}>{'Eligibile'}</Text>
-                ) : (
-                <Text style={{ color: '#999999' }}>{'Not Eligible'}</Text>
-              )}
+              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Eligibility/Other: </Text>
+              <Text style={{ color: '#999999' }}>{allDetails.eligibility}</Text>
             </View>
-
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+            {/* <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Age Group: </Text>
               <Text style={{ color: '#999999' }}>{allDetails.ageGroup}</Text>
-            </View>
+            </View> */}
 
             <View style={{ marginVertical: 17 }}>
               <Text style={{ fontWeight: '600', fontSize: 16 }}>Description: </Text>
-              <Text style={{ color: '#999999', maxWidth: '70%', fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }} numberOfLines={2} ellipsizeMode='tail'>{allDetails.description}</Text>
+              <Text style={{ color: '#999999', maxWidth: '97%', textAlign: "justify" ,fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }}  ellipsizeMode='tail'>{allDetails.description}</Text>
             </View>
 
             {/* <View style={styles.line} />
@@ -194,7 +225,7 @@ const EventDetails = (props) => {
             <Text style={{ marginBottom: 20 }}>See More Reviews</Text> */}
 
           </View>
-
+          
         </View>
       </ScrollView>
     </>
@@ -241,7 +272,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10
 
   },
-
+  
   more: {
     marginVertical: 20,
     textAlign: 'center',

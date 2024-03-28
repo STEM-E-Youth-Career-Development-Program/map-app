@@ -14,7 +14,7 @@ function EventListScreen({ route, props, navigation }) {
   const { selectedSubjects, selectedCost, distance, eventType } = route.params || {};
 
   // console.log("check",eventType,  selectedSubjects, selectedCost)
-  console.log("check type and distance", eventType, selectedCost, selectedSubjects, distance)
+  //console.log("check type and distance", eventType, selectedCost, selectedSubjects, distance)
   const [searchQuery, setSearchQuery] = useState('');
   const [active, setActive] = useState(true);
   const [eventsAPI, setEvents] = useState([]);
@@ -34,17 +34,17 @@ function EventListScreen({ route, props, navigation }) {
     );
   };
 
-  // Render individual filter capsule
-  const renderFilter = (label, value) => {
+   // Render individual filter capsule
+   const renderFilter = (label, value) => {
     if (!value) return null;
-
+  
     let formattedValue = value;
     if (label === 'Distance') {
       formattedValue = `${value} mi`;
     } else if (label === 'Selected Cost') {
       formattedValue = `$${value}`;
     }
-
+  
     return (
       <View style={styles.filterCapsule}>
         {/* <Text style={styles.filterLabel}>{label}: </Text> */}
@@ -55,131 +55,121 @@ function EventListScreen({ route, props, navigation }) {
       </View>
     );
   };
-
+  
 
   // Function to remove a filter
   const removeFilter = (label) => {
     setSelectedFilters(selectedFilters.filter((filter) => filter.label !== label));
   };
 
-  // console.log('Current Location in Event List:', location);
 
 
   const handleSearch = (text) => {
     setSearchQuery(text);
   };
 
-  // useEffect(() => {
-  //   fetch(`https://mapstem-api.azurewebsites.net/api/Event?Subject=${selectedSubjects}&Cost=${selectedCost}`)
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       console.log("check data",data)
-  //       setEvents(data);
-  //       setLoading(false);
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error fetching data:', error);
-  //       setLoading(false);
-  //     });
-  // }, []);
 
+  // useEffect(() => {
+  //   // Fetch events based on selectedSubjects, selectedCost, eventType, and distance
+  //   if (selectedSubjects && selectedCost) {
+  //     fetch(`https://mapstem-api.azurewebsites.net/api/Event?Subject=${selectedSubjects}&Cost=${selectedCost}`)
+  //       .then((response) => {
+  //         if (!response.ok) {
+  //           throw new Error(`HTTP error! Status: ${response.status}`);
+  //         }
+  //         return response.json();
+  //       })
+  //       .then((data) => {
+  //         setEvents(data);
+  //         setLoading(false);
+  //       })
+  //       .catch((error) => {
+  //         console.error('Error fetching data:', error);
+  //         setLoading(false);
+  //       });
+  //   } else {
+  //     fetch('https://mapstem-api.azurewebsites.net/api/Event')
+  //       .then((response) => {
+  //         if (!response.ok) {
+  //           throw new Error(`HTTP error! Status: ${response.status}`);
+  //         }
+  //         return response.json();
+  //       })
+  //       .then((data) => {
+  //         setEvents(data);
+  //         setLoading(false);
+  //       })
+  //       .catch((error) => {
+  //         console.error('Error fetching data:', error);
+  //         setLoading(false);
+  //       });
+  //   }
+  // }, [selectedSubjects, selectedCost, eventType, distance]);
+
+  
   useEffect(() => {
-    // Fetch events based on selectedSubjects, selectedCost, eventType, and distance
-    if (selectedSubjects && selectedCost) {
-      fetch(`https://mapstem-api.azurewebsites.net/api/Event?Subject=${selectedSubjects}&Cost=${selectedCost}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setEvents(data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching data:', error);
-          setLoading(false);
-        });
-    } else {
-      fetch('https://mapstem-api.azurewebsites.net/api/Event')
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setEvents(data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error('Error fetching data:', error);
-          setLoading(false);
-        });
-    }
+    const fetchData = async () => {
+      try {
+        let url = 'https://mapstem-api.azurewebsites.net/api/Event';
+        if (selectedSubjects && selectedCost) {
+          url += `?Subject=${selectedSubjects}&Cost=${selectedCost}`;
+        }
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setEvents(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
+    };
+  
+    fetchData(); // Initial fetch
+  
+    const intervalId = setInterval(fetchData, 5000); // Fetch data every minute
+  
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
   }, [selectedSubjects, selectedCost, eventType, distance]);
 
-  // useEffect(() => {
-  //   if (loading) {
-  //     return;
-  //   }
-
-  //   const eventsWithDistance = Array.isArray(eventsAPI)
-  //     ? eventsAPI.map((event) => {
-  //       const eventDistance = calculateDistance(
-  //         location.latitude,
-  //         location.longitude,
-  //         event.latitude,
-  //         event.longitude
-  //       );
-  //       return { ...event, distance: eventDistance };
-  //     })
-  //     : [];
-
-  //   const filteredEvents = eventsWithDistance.filter((event) =>
-  //     event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) &&
-  //     ((active && event.eventStatus === 'Active') ||
-  //       (!active && event.eventStatus === 'Pending')) &&
-  //     (!eventType || event.eventType === eventType) && // Check eventType
-  //     (!distance || event.distance <= distance) // Check distance'
-  //   );
-
-  //   setFilteredData(filteredEvents);
-  // }, [searchQuery, active, loading, eventsAPI, location, eventType, distance]);
-
-
+  
   useEffect(() => {
     // Filter events based on searchQuery, active status, and location
     if (loading) {
       return; // Wait until data is loaded
     }
-
+  
     const eventsWithDistance = Array.isArray(eventsAPI)
       ? eventsAPI.map((event) => {
-        const eventDistance = calculateDistance(
-          location.latitude,
-          location.longitude,
-          event.latitude,
-          event.longitude
-        );
-        return { ...event, distance: eventDistance };
-      })
+          const eventDistance = calculateDistance(
+            location.latitude,
+            location.longitude,
+            event.latitude,
+            event.longitude
+          );
+          return { ...event, distance: eventDistance };
+        })
       : [];
-
-    const filteredEvents = eventsWithDistance.filter((event) =>
-      (event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (event.subject && event.subject.toLowerCase().includes(searchQuery.toLowerCase()))) &&
+  
+    const filteredEvents = eventsWithDistance.filter((event) => {
+      // Convert subject array to a string and lowercase for comparison
+      const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
+  
+      return (
+        event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        subjectString.includes(searchQuery.toLowerCase())
+      ) &&
       ((active && event.eventStatus === 'Active') ||
         (!active && event.eventStatus === 'Pending')) &&
       (!eventType || event.eventType === eventType) &&
-      (!distance || event.distance <= distance)
-    );
-
+      (!distance || event.distance <= distance);
+    });
+  
     setFilteredData(filteredEvents);
   }, [searchQuery, active, loading, eventsAPI, location, eventType, distance]);
-
-
+  
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 3958.8; // Earth radius in miles
     const dLat = toRadians(lat2 - lat1);
@@ -200,7 +190,7 @@ function EventListScreen({ route, props, navigation }) {
   return (
     <View style={styles.screen}>
       <PageHeader header="All Events" />
-      {renderFilterCapsules()}
+            {renderFilterCapsules()}
 
       <View style={styles.actpenContainer}>
         <Pressable
@@ -240,7 +230,7 @@ function EventListScreen({ route, props, navigation }) {
           </Text>
         </Pressable>
       </View>
-
+      
       <SearchBar
         value={searchQuery}
         onChangeText={handleSearch}
