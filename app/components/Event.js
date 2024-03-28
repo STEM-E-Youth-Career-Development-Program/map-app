@@ -83,7 +83,7 @@ function Event({
               <MaterialCommunityIcons name={'map-marker-outline'} size={12} style={{ alignSelf: 'center' }} />
               <Text style={{ fontSize: 11 }}>{distance.toFixed(2)} mi</Text>
             </View>
-            <Text style={{ fontSize: 11 }}> $ {cost}</Text>
+            <Text style={{ fontSize: 11 }}> ${cost}</Text>
             {/* <View style={{ flexDirection: 'row', marginHorizontal: 4 }}>
             <MaterialCommunityIcons name={'silverware-fork-knife'} size={12} style={{ alignSelf: 'center' }} />
             <Text style={{ fontSize: 11 }}> {meal}</Text>

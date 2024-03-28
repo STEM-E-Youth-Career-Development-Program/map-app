@@ -144,11 +144,7 @@ const EventDetails = (props) => {
               <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Distance: </Text>
               <Text style={{ color: '#999999' }}>{distance.toFixed(2)} mi</Text>
             </View>
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
-              <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 28 }}>Cost: </Text>
-              <Text style={{ color: '#999999' }}>$ {allDetails.cost}</Text>
-            </View>
+
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Subject: </Text>
@@ -161,19 +157,24 @@ const EventDetails = (props) => {
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
+              <Text style={{ fontWeight: '600', paddingRight: 28 }}>Average Cost: </Text>
+              <Text style={{ color: '#999999' }}>${allDetails.cost}</Text>
+            </View>
+            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+              <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Grade Level: </Text>
               <Text style={{ color: '#999999' }}>{allDetails.gradeLevel}</Text>
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Eligibility: </Text>
+              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Eligibility/Other: </Text>
               <Text style={{ color: '#999999' }}>{allDetails.eligibility}</Text>
             </View>
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+            {/* <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Age Group: </Text>
               <Text style={{ color: '#999999' }}>{allDetails.ageGroup}</Text>
-            </View>
+            </View> */}
 
             <View style={{ marginVertical: 17 }}>
               <Text style={{ fontWeight: '600', fontSize: 16 }}>Description: </Text>

@@ -41,7 +41,7 @@ const MapCard = ({ item, navigation, isSelected, distance }) => {
 
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingHorizontal: 15, marginTop: 5 }}>
-        <Text style={styles.text1}>Cost: <Text style={{ fontSize: height * 0.014, color: 'grey' }}>{item.cost}</Text></Text>
+        <Text style={styles.text1}>Cost: <Text style={{ fontSize: height * 0.014, color: 'grey' }}>${item.cost}</Text></Text>
         <Text style={styles.text1}>Distance:  
         {distance && (
         <Text style={{ fontSize: height * 0.014, color: 'grey' }}> {distance.toFixed(2)} mi</Text>

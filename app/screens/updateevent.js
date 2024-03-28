@@ -52,6 +52,7 @@ function UpdateEventScreen({ props, route }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
   const [mealIncludeDropdownOpen, setMealIncludeDropdownOpen] = useState(false);
+  const [gradeLevelDropdownOpen, setGradeLevelDropdownOpen] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [startOpen, setStartOpen] = useState(false);
@@ -451,7 +452,7 @@ function UpdateEventScreen({ props, route }) {
 
                   <AppFormField
                     name={"cost"}
-                    label="Cost (in dollars)"
+                    label="Average Cost (in dollars)"
                     isRequired={true}
                     onChangeText={handleChange('cost')}
                     onBlur={handleBlur('cost')}
@@ -598,23 +599,16 @@ function UpdateEventScreen({ props, route }) {
                     onBlur={handleBlur('companyName')}
                     value={values.companyName}
                   />
-                  <AppFormField name={"grade"} label="Grade Level"
-                    onChangeText={handleChange('gradeLevel')}
-                    onBlur={handleBlur('gradeLevel')}
-                    value={values.gradeLevel}
-                  />
-                  {/* <AppFormField
-                  name={"subject"}
-                  label="Subject"
-                  isRequired={true}
-                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
-                  onPress={() => setSubjectDropdownOpen(true)}
-                  onDropdown={true}
-                  onChangeText={handleChange('subject')}
-                  onBlur={handleBlur('subject')}
-                  value={values.subject}
-                /> */}
 
+                  <AppFormField
+                    name={"contact"}
+                    label="Contact Number"
+                    onChangeText={handleChange('contactNo')}
+                    onBlur={handleBlur('contactNo')}
+                    value={values.contactNo}
+                    keyboardType="numeric"
+
+                  />
                   <Text style={styles.heading}>Subject</Text>
                   <MultipleSelectList
                     style={[styles.dropdown, isFocus && { borderColor: "black" }]}
@@ -628,19 +622,43 @@ function UpdateEventScreen({ props, route }) {
                     selected={selected}
                   />
 
+                  {/* <AppFormField name={"grade"} label="Grade Level"
+                    onChangeText={handleChange('gradeLevel')}
+                    onBlur={handleBlur('gradeLevel')}
+                    value={values.gradeLevel}
+                  /> */}
+
                   <AppFormField
-                    name={"contact"}
-                    label="Contact Number"
-                    onChangeText={handleChange('contactNo')}
-                    onBlur={handleBlur('contactNo')}
-                    value={values.contactNo}
-                    keyboardType="numeric"
+                    name={"gradeLevel"}
+                    label="Grade Level"
+                    isRequired={false}
+                    icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                    onPress={() => setGradeLevelDropdownOpen(true)}
+                    onDropdown={true}
+                    onChangeText={handleChange('gradeLevel')}
+                    onBlur={handleBlur('gradeLevel')}
+                    value={values.gradeLevel}
 
                   />
+                  {/* <AppFormField
+                  name={"subject"}
+                  label="Subject"
+                  isRequired={true}
+                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                  onPress={() => setSubjectDropdownOpen(true)}
+                  onDropdown={true}
+                  onChangeText={handleChange('subject')}
+                  onBlur={handleBlur('subject')}
+                  value={values.subject}
+                /> */}
+
+
+
+
 
                   <AppFormField
                     name={"eligibility"}
-                    label="Eligibility"
+                    label="Eligibility / Other Notes"
                     multiline
                     numberOfLines={3}
                     onChangeText={handleChange('eligibility')}
@@ -648,15 +666,15 @@ function UpdateEventScreen({ props, route }) {
                     value={values.eligibility}
 
                   />
-                  <AppFormField name={"ageGroup"} label="Age Group"
+                  {/* <AppFormField name={"ageGroup"} label="Age Group"
                     onChangeText={handleChange('ageGroup')}
                     onBlur={handleBlur('ageGroup')}
                     value={values.ageGroup}
 
-                  />
+                  /> */}
                   <AppFormField
                     name={"mealInclude"}
-                    label="Meals Include"
+                    label="Meals Included"
                     isRequired={true}
                     icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
                     onPress={() => setMealIncludeDropdownOpen(true)}

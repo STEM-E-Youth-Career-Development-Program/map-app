@@ -45,13 +45,14 @@ const validationSchema = Yup.object().shape({
 
 
 
-function CreateEventScreen({props, route}) {
+function CreateEventScreen({ props, route }) {
 
 
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
   const [mealIncludeDropdownOpen, setMealIncludeDropdownOpen] = useState(false);
+  const [gradeLevelDropdownOpen, setGradeLevelDropdownOpen] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [startOpen, setStartOpen] = useState(false);
@@ -182,7 +183,8 @@ function CreateEventScreen({props, route}) {
 
   const handleSubmit = async (values) => {
     try {
-      // console.log("check form Data", selected);
+      console.log("check form Data", values);
+      console.log("check form Data", values.gradeLevel);
       const imageUri = formValues.eventImage ? formValues.eventImage.uri : null;
       const selectedSubjectsString = selected.join(';');
       console.log("hello", selectedSubjectsString)
@@ -323,9 +325,9 @@ function CreateEventScreen({props, route}) {
                 </View>
 
 
-                <AppFormField 
-                  name={"heading"} 
-                  label="Event Name" 
+                <AppFormField
+                  name={"heading"}
+                  label="Event Name"
                   isRequired={true}
                   onChangeText={handleChange('eventName')}
                   onBlur={handleBlur('eventName')}
@@ -348,7 +350,8 @@ function CreateEventScreen({props, route}) {
                   value={values.eventType}
                 />
 
-                <AppFormField name={"cost"} label="Cost (in dollars)" isRequired={true}
+                <AppFormField name={"cost"}
+                  label="Average Cost (in dollars)" isRequired={true}
                   onChangeText={handleChange('cost')}
                   onBlur={handleBlur('cost')}
                   value={values.cost}
@@ -494,22 +497,16 @@ function CreateEventScreen({props, route}) {
                   onBlur={handleBlur('companyName')}
                   value={values.companyName}
                 />
-                <AppFormField name={"grade"} label="Grade Level"
-                  onChangeText={handleChange('gradeLevel')}
-                  onBlur={handleBlur('gradeLevel')}
-                  value={values.gradeLevel}
+
+                <AppFormField
+                  name={"contact"}
+                  label="Contact Number"
+                  onChangeText={handleChange('contactNo')}
+                  onBlur={handleBlur('contactNo')}
+                  value={values.contactNo}
+                  keyboardType="numeric"
+
                 />
-                {/* <AppFormField
-                  name={"subject"}
-                  label="Subject"
-                  isRequired={true}
-                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
-                  onPress={() => setSubjectDropdownOpen(true)}
-                  onDropdown={true}
-                  onChangeText={handleChange('subject')}
-                  onBlur={handleBlur('subject')}
-                  value={values.subject}
-                /> */}
 
                 <Text style={styles.heading}>Subject</Text>
                 <MultipleSelectList
@@ -524,18 +521,46 @@ function CreateEventScreen({props, route}) {
                   selected={selected}
                 />
 
+                {/* <AppFormField name={"grade"} label="Grade Level"
+                  onChangeText={handleChange('gradeLevel')}
+                  onBlur={handleBlur('gradeLevel')}
+                  value={values.gradeLevel}
+                /> */}
+
                 <AppFormField
-                  name={"contact"}
-                  label="Contact Number"
-                  onChangeText={handleChange('contactNo')}
-                  onBlur={handleBlur('contactNo')}
-                  value={values.contactNo}
-                  keyboardType="numeric"
+                  name={"gradeLevel"}
+                  label="Grade Level"
+                  isRequired={false}
+                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                  onPress={() => setGradeLevelDropdownOpen(true)}
+                  onDropdown={true}
+                  onChangeText={handleChange('gradeLevel')}
+                  onBlur={handleBlur('gradeLevel')}
+                  value={values.gradeLevel}
 
                 />
+
+
+                {/* Elementary School, Middle School, High School, Undergraduate, Parent, Other */}
+
+                {/* <AppFormField
+                  name={"subject"}
+                  label="Subject"
+                  isRequired={true}
+                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                  onPress={() => setSubjectDropdownOpen(true)}
+                  onDropdown={true}
+                  onChangeText={handleChange('subject')}
+                  onBlur={handleBlur('subject')}
+                  value={values.subject}
+                /> */}
+
+
+
+
                 <AppFormField
                   name={"eligibility"}
-                  label="Eligibility"
+                  label="Eligibility / Other Notes"
                   multiline
                   numberOfLines={3}
                   onChangeText={handleChange('eligibility')}
@@ -543,15 +568,15 @@ function CreateEventScreen({props, route}) {
                   value={values.eligibility}
 
                 />
-                <AppFormField name={"ageGroup"} label="Age Group"
+                {/* <AppFormField name={"ageGroup"} label="Age Group"
                   onChangeText={handleChange('ageGroup')}
                   onBlur={handleBlur('ageGroup')}
                   value={values.ageGroup}
 
-                />
+                /> */}
                 <AppFormField
                   name={"mealInclude"}
-                  label="Meals Include"
+                  label="Meals Included"
                   isRequired={true}
                   icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
                   onPress={() => setMealIncludeDropdownOpen(true)}

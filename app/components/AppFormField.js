@@ -31,6 +31,16 @@ function AppFormField({
     { label: "Yes", value: "1" },
     { label: "No", value: "2" },
   ]);
+
+  const [gradeLevelDropdownItems] = useState([
+    { label: "Elementary School", value: "1" },
+    { label: "Middle School", value: "2" },
+    { label: "High School", value: "3" },
+    { label: "Undergraduate", value: "4" },
+    { label: "Parent", value: "5" },
+    { label: "Other", value: "6" },
+  ]);
+
   const [subjectDropdownItems, setSubjectDropdownItems] = useState([]);
 
 
@@ -94,8 +104,7 @@ function AppFormField({
               }}
             />
 
-          ) :
-            name === "mealInclude" ? (
+          ) : name === "mealInclude" ? (
               <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: "black" }]}
                 itemContainerStyle={{}}
@@ -107,6 +116,29 @@ function AppFormField({
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? "Select Meals" : "..."}
+                value={value !== null ? value : values[name]}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={(item) => {
+                  setValue(item.value); // Update local state
+                  setIsFocus(false);
+
+                  // Update Formik state with the selected value
+                  setFieldValue(name, item.label);
+                }}
+              />
+            ) :  name === "gradeLevel" ? (
+              <Dropdown
+                style={[styles.dropdown, isFocus && { borderColor: "black" }]}
+                itemContainerStyle={{}}
+                containerStyle={{ borderRadius: 16 }}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                data={gradeLevelDropdownItems}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? "Select Grade Level" : "..."}
                 value={value !== null ? value : values[name]}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
