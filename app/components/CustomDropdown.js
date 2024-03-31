@@ -12,7 +12,7 @@ const CustomDropdown = ({ label, data, value, onSelect }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { borderColor: '#ccc', borderWidth: 1 }]}>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.dropdownContainer}>
         <TouchableOpacity onPress={() => setOpen(!open)} style={styles.header}>
@@ -41,15 +41,18 @@ const CustomDropdown = ({ label, data, value, onSelect }) => {
 const styles = StyleSheet.create({
   container: {
     marginBottom: 20,
+    borderRadius: 10,
+    backgroundColor: '#fff',
   },
   label: {
     fontSize: 18,
-    color: '#333', // Match the color with surrounding text
+    color: '#333',
+    paddingHorizontal: 10,
+    paddingTop: 5,
   },
   dropdownContainer: {
     borderRadius: 10,
-    backgroundColor: '#fff',
-    elevation: 3,
+    overflow: 'hidden',
   },
   header: {
     borderRadius: 10,
