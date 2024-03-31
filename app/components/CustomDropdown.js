@@ -43,9 +43,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontWeight: 'bold',
-    marginBottom: 5,
     fontSize: 18,
+    color: '#333', // Match the color with surrounding text
   },
   dropdownContainer: {
     borderRadius: 10,
@@ -56,7 +55,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   dropdownHeader: {
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
