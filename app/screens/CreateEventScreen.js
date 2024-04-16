@@ -57,8 +57,8 @@ function CreateEventScreen({ props, route }) {
   const [endDate, setEndDate] = useState(new Date());
   const [startOpen, setStartOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
-  const [endTime, setEndTime] = useState(new Date());
-  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(null);
+  const [startTime, setStartTime] = useState(null);
   const [endTimeOpen, setEndTimeOpen] = useState(false);
   const [startTimeOpen, setStartTimeOpen] = useState(false);
   const [datePickerMode, setDatePickerMode] = useState("date");
@@ -428,7 +428,7 @@ function CreateEventScreen({ props, route }) {
 
                 <AppFormField
                   name={"startTime"}
-                  value={startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  value={startTime ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                   label="Start Time"
                   isRequired={true}
                   icon={
@@ -440,15 +440,15 @@ function CreateEventScreen({ props, route }) {
                     />
                   }
                 />
-
+                
                 {startTimeOpen && (
                   <DateTimePicker
-                    value={startTime}
+                    value={startTime || new Date()} // startTime if not null; current time if null
                     mode="time"
                     is24Hour={true}
                     display="default"
                     onChange={(event, selectedTime) => {
-                      onChangeStartTime(event, selectedTime);
+                      setStartTime(selectedTime); // Update startTime directly
                       setValues({ ...values, startTime: selectedTime }); // Update Formik state
                       setFormValues({ ...formValues, startTime: selectedTime });
                     }}
@@ -458,7 +458,7 @@ function CreateEventScreen({ props, route }) {
                 <AppFormField
                   name={"endTime"}
                   label="End Time"
-                  value={endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  value={endTime ? endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                   isRequired={true}
                   icon={
                     <MaterialIcons
@@ -472,12 +472,12 @@ function CreateEventScreen({ props, route }) {
 
                 {endTimeOpen && (
                   <DateTimePicker
-                    value={endTime}
+                    value={endTime || new Date()} // endTime if not null; current endTime if null
                     mode="time"
                     is24Hour={true}
                     display="default"
                     onChange={(event, selectedTime) => {
-                      onChangeEndTime(event, selectedTime);
+                      setEndTime(selectedTime); // update endTime
                       setValues({ ...values, endTime: selectedTime }); // Update Formik state
                       setFormValues({ ...formValues, endTime: selectedTime });
                     }}
