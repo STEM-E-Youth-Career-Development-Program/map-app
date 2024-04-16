@@ -19,6 +19,7 @@ const FilterScreen = ({ selectedSubjects, selectedCost }) => {
   // const [selected, setArea] = useState("");
   const [distance, setDistance] = useState(50);
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [listKey, setListKey] = useState(0);
   const [eventTypeDropdownItems] = useState([
     { label: "Virtual", value: "1" },
     { label: "Onsite", value: "2" }
@@ -79,7 +80,10 @@ const FilterScreen = ({ selectedSubjects, selectedCost }) => {
 
   const handleResetFilters = () => {
     // Reset all filter values to default
+    console.log("Resetting filters...");
     setSelected([]);
+    setListKey(prevKey => prevKey + 1);
+    console.log("Selected subjects after reset:", selected);
     setSelectedLocation("");
     setShowDistance(true);
     setDistance(50);
@@ -89,10 +93,6 @@ const FilterScreen = ({ selectedSubjects, selectedCost }) => {
   return (
     <Screen>
       <PageHeader header={"Filter & Sort"} />
-
-      <TouchableOpacity onPress={handleResetFilters} style={styles.resetButton}>
-        <Text style={styles.resetButtonText}>Reset Filters</Text>
-      </TouchableOpacity>
 
       <Text style={styles.heading}>Subject</Text>
       <View style={{ paddingHorizontal: 16, paddingTop: 15 }}>
@@ -105,6 +105,7 @@ const FilterScreen = ({ selectedSubjects, selectedCost }) => {
           searchPlaceholder="Select STEME Area"
           search={true}
           selected={selected}
+          key={listKey}
         />
       </View>
 
@@ -175,6 +176,16 @@ const FilterScreen = ({ selectedSubjects, selectedCost }) => {
           onPress={handlePress}
         />
       </View>
+
+      <View style={{ marginTop: 10 }}>
+        <SubmitButton
+          title={"Reset Filters"}
+          selectedSubjects={selected}
+          selectedCost={cost}
+          onPress={handleResetFilters}
+        />
+      </View>
+
     </Screen>
   );
 };
