@@ -53,8 +53,8 @@ function CreateEventScreen({ props, route }) {
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
   const [mealIncludeDropdownOpen, setMealIncludeDropdownOpen] = useState(false);
   const [gradeLevelDropdownOpen, setGradeLevelDropdownOpen] = useState(false);
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [startOpen, setStartOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
   const [endTime, setEndTime] = useState(null);
@@ -381,16 +381,16 @@ function CreateEventScreen({ props, route }) {
                       }}
                     />
                   }
-                  value={startDate.toLocaleDateString()}
+                  value={startDate? startDate.toLocaleDateString():''}
                 />
 
                 {startOpen && (
                   <DateTimePicker
-                    value={startDate}
+                    value={startDate||new Date()}
                     mode={datePickerMode}
                     display="default"
                     onChange={(event, selectedDate) => {
-                      onChangeStartDate(event, selectedDate);
+                      setStartDate(event, selectedDate);
                       setValues({ ...values, startDate: selectedDate });
                       setFormValues({ ...formValues, startDate: selectedDate });
                     }}
