@@ -388,6 +388,7 @@ function CreateEventScreen({ props, route }) {
 
                 {startOpen && (
                   <DateTimePicker
+                    value={startDate || new Date()}
                     mode={datePickerMode}
                     display="default"
                     onChange={(event, selectedDate) => {
@@ -417,6 +418,7 @@ function CreateEventScreen({ props, route }) {
 
                 {endOpen && (
                   <DateTimePicker
+                    value={endDate || new Date()}
                     mode="date"
                     is24Hour={true}
                     display="default"
@@ -447,6 +449,7 @@ function CreateEventScreen({ props, route }) {
                 
                 {startTimeOpen && (
                   <DateTimePicker
+                    value={startTime || new Date()}
                     mode="time"
                     is12Hour={true}
                     display="default"
@@ -477,6 +480,7 @@ function CreateEventScreen({ props, route }) {
 
                 {endTimeOpen && (
                   <DateTimePicker
+                    value={endTime || new Date()}
                     mode="time"
                     is24Hour={true}
                     display="default"
