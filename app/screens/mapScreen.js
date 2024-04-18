@@ -24,8 +24,8 @@ const MapScreen = (props) => {
     const [selectedIndex, setSelectedIndex] = useState(0)
     const [filteredEvents, setFilteredEvents] = useState([]);
     const [eventsCoordinates, setEventsCoordinates] = useState([]);
-    const radius = 5;
-
+    const radius = 2;
+    const filterDistanceValue = 50;
 
     const handleSearch = (text) => {
         setSearchQuery(text);
@@ -38,13 +38,13 @@ const MapScreen = (props) => {
                 Alert.alert('Permission denied', 'We need location permissions to get your location.');
                 return;
             }
-    
+
             let currentLocation = await Location.getCurrentPositionAsync({});
             setLocation(currentLocation.coords);
             fitToFrame(currentLocation.coords);
             createPolyline(selectedIndex, currentLocation.coords);
             filterEventsWithinRadius(currentLocation.coords, radius);
-    
+
             // Fetch data from the API
             fetch('https://mapstem-api.azurewebsites.net/api/Event')
                 .then((response) => response.json())
@@ -55,24 +55,21 @@ const MapScreen = (props) => {
                         latitude: parseFloat(event.latitude),
                         longitude: parseFloat(event.longitude),
                     }));
-    
-                    // Convert subject array to a string and lowercase for comparison
-                    const filteredEvents = onsiteEvents.filter((event) => {
+                    setEventsCoordinates(eventCoordinates);
+                    const filteredEvent = onsiteEvents.filter((event) => {
                         const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
                         return (
                             event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             subjectString.includes(searchQuery.toLowerCase())
                         );
                     });
-    
-                    setEventsCoordinates(eventCoordinates);
-                    setFilteredEvents(filteredEvents);
+                    setFilteredEvents(filteredEvent);
+                    // Convert subject array to a string and lowercase for comparison
+
                 })
                 .catch((error) => console.error('Error fetching data:', error));
         })();
     }, [searchQuery]);
-    
-
 
 
     const filterEventsWithinRadius = (userLocation) => {
@@ -86,7 +83,7 @@ const MapScreen = (props) => {
 
 
     const getDistance = (coord1, coord2) => {
-        const R = 3959; 
+        const R = 3959;
         const dLat = deg2rad(coord2.latitude - coord1.latitude);
         const dLon = deg2rad(coord2.longitude - coord1.longitude);
         const a =
@@ -130,101 +127,69 @@ const MapScreen = (props) => {
     }
 
 
-    // const createPolyline = (eventIndex, userLocation) => {
-    //     if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
-    //         const destination = eventsCoordinates[eventIndex].latitude + ',' + eventsCoordinates[eventIndex].longitude;
 
-    //         console.log("check", destination)
-    //         const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude + ',' + userLocation.longitude}&destination=${destination}&key=${MAP_API_KEY}`;
+    const createPolyline = (eventIndex, userLocation) => {
+        if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
+            const destination = eventsCoordinates[eventIndex];
+            if (destination && destination.latitude && destination.longitude) {
+                const destinationString = `${destination.latitude},${destination.longitude}`;
+                const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude},${userLocation.longitude}&destination=${destinationString}&key=${MAP_API_KEY}`;
 
-    //         fetch(apiUrl)
-    //             .then(response => response.json())
-    //             .then(data => {
-    //                 const points = data.routes[0].overview_polyline.points;
-    //                 const res = decodePolyline(points);
-    //                 setpolylineCoords(res);
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        const points = data.routes[0].overview_polyline.points;
+                        const res = decodePolyline(points);
+                        setpolylineCoords(res);
 
-    //                 if (mapRef) {
-    //                     mapRef?.current?.fitToCoordinates([
-    //                         { latitude: eventsCoordinates[eventIndex].latitude, longitude: eventsCoordinates[eventIndex].longitude },
-    //                         { latitude: userLocation.latitude, longitude: userLocation.longitude }
-    //                     ], { edgePadding: { top: 80, right: 20, bottom: 80, left: 80 }, animated: true });
-    //                 }
-    //             })
-    //             .catch(error => console.error(error));
-    //     } else {
-    //         // Handle the case when eventsCoordinates is empty or eventIndex is out of bounds
-    //         console.error('Invalid eventIndex or eventsCoordinates is empty');
-    //     }
-    // };
-
-
-const createPolyline = (eventIndex, userLocation) => {
-    if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
-        const destination = eventsCoordinates[eventIndex];
-        if (destination && destination.latitude && destination.longitude) {
-            const destinationString = `${destination.latitude},${destination.longitude}`;
-            const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude},${userLocation.longitude}&destination=${destinationString}&key=${MAP_API_KEY}`;
-    
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    const points = data.routes[0].overview_polyline.points;
-                    const res = decodePolyline(points);
-                    setpolylineCoords(res);
-    
-                    if (mapRef) {
-                        mapRef?.current?.fitToCoordinates([
-                            { latitude: destination.latitude, longitude: destination.longitude },
-                            { latitude: userLocation.latitude, longitude: userLocation.longitude }
-                        ], { edgePadding: { top: 80, right: 20, bottom: 80, left: 80 }, animated: true });
-                    }
-                })
-                .catch(error => console.error(error));
+                        if (mapRef) {
+                            mapRef?.current?.fitToCoordinates([
+                                { latitude: destination.latitude, longitude: destination.longitude },
+                                { latitude: userLocation.latitude, longitude: userLocation.longitude }
+                            ], { edgePadding: { top: 80, right: 20, bottom: 80, left: 80 }, animated: true });
+                        }
+                    })
+                    .catch(error => console.error(error));
+            } else {
+                console.error('Invalid destination coordinates');
+            }
         } else {
-            console.error('Invalid destination coordinates');
+            console.error('Invalid eventIndex or eventsCoordinates is empty');
         }
-    } else {
-        console.error('Invalid eventIndex or eventsCoordinates is empty');
-    }
-};
-
-    
-
-    
-    const _renderItem = ({ item, index }) => {
-        const distance = getDistance(location, eventsCoordinates[index]);
-        return <MapCard item={item} navigation={navigation} isSelected={selectedIndex === index} distance={distance} />;
     };
 
 
-    const onSnapFunc = (ind) => {
-        setSelectedIndex(ind)
-        createPolyline(ind, location)
-    }
 
-    // const onSnapFunc = (ind) => {
-    //     setSelectedIndex(ind);
-    //     createPolyline(ind, location); // Create the polyline for the selected event
-        
-    //     // Calculate the center between the current location and the selected event marker
-    //     const centerLat = (location.latitude + eventsCoordinates[ind].latitude) / 2;
-    //     const centerLng = (location.longitude + eventsCoordinates[ind].longitude) / 2;
+
+    const _renderItem = ({ item, index }) => {
+        const distance = getDistance(location, eventsCoordinates[index]);
+        if (distance <= filterDistanceValue) {
+            return <MapCard item={item} navigation={navigation} isSelected={selectedIndex === index} distance={distance} />;
+        } else {
+            return null; // Hide the MapCard if distance is greater than 3 miles
+        }
+    };
+
+    const onSnapFunc = (ind) => {
+        if (getDistance(location, eventsCoordinates[ind]) <= filterDistanceValue) {
+            setSelectedIndex(ind);
+            createPolyline(ind, location);
+        } else {
+            // Do not snap to the next item if the distance is greater than 3 miles
+            return;
+        }
     
-    //     // Set a fixed delta value to maintain the zoom level (adjust as needed)
-    //     const deltaValue = 1; // Adjust this value as needed
-    
-    //     // Adjust the map viewport to center between the two locations while maintaining the current zoom level
-    //     mapRef.current.animateToRegion({
-    //         latitude: centerLat,
-    //         longitude: centerLng,
-    //         latitudeDelta: deltaValue,
-    //         longitudeDelta: deltaValue,
-    //     });
-    // }
-    
-    
-    
+        if (carouselRef.current) {
+            carouselRef.current.snapToItem(ind);
+        }
+    };
+
+
+
+    const visibleEvents = filteredEvents.filter((event) => {
+        const distance = getDistance(location, { latitude: parseFloat(event.latitude), longitude: parseFloat(event.longitude) });
+        return distance <= filterDistanceValue;
+    });
 
     const getMarkerRotation = () => {
         return 180;
@@ -244,7 +209,7 @@ const createPolyline = (eventIndex, userLocation) => {
         let maxLat = location.latitude;
         let minLng = location.longitude;
         let maxLng = location.longitude;
-    
+
         // Find min and max coordinates among current location and event markers
         eventsCoordinates.forEach((marker) => {
             minLat = Math.min(minLat, marker.latitude);
@@ -252,13 +217,13 @@ const createPolyline = (eventIndex, userLocation) => {
             minLng = Math.min(minLng, marker.longitude);
             maxLng = Math.max(maxLng, marker.longitude);
         });
-    
+
         // Calculate center and delta for the region
         const latDelta = (maxLat - minLat) * 12.2; // Add some padding
         const lngDelta = (maxLng - minLng) * 12.2; // Add some padding
         const centerLat = (minLat + maxLat) / 2;
         const centerLng = (minLng + maxLng) / 2;
-    
+
         // Set the region of the map to fit both current location and event markers
         mapRef.current.fitToCoordinates(
             [
@@ -270,7 +235,7 @@ const createPolyline = (eventIndex, userLocation) => {
                 animated: true,
             }
         );
-    
+
         // Zoom out the map by adjusting the region
         mapRef.current.animateToRegion(
             {
@@ -282,7 +247,7 @@ const createPolyline = (eventIndex, userLocation) => {
             1000 // Animation duration
         );
     };
-    
+
     // Call this function once both location and eventsCoordinates are set
     useEffect(() => {
         if (location && eventsCoordinates.length > 0) {
@@ -290,108 +255,117 @@ const createPolyline = (eventIndex, userLocation) => {
         }
     }, [location, eventsCoordinates]);
 
-    
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
             <StatusBar backgroundColor='transparent' translucent />
             <View style={{ flex: 1, width: '100%', position: 'relative', }}>
-            {eventsData && 
-            <>
-                <MapView
-                    ref={mapRef}
-                    style={{ width: '100%', flex: 1, }}
-                    provider={PROVIDER_GOOGLE}
-                    // initialRegion={{
-                    //     latitude: location ? location.latitude : 37.78825,
-                    //     longitude: location ? location.longitude : -122.4324,
-                    //     latitudeDelta: 0.2,
-                    //     longitudeDelta: 0.2,
-                    // }}
-                >
-                    {location && (
-                        <Marker
-                            coordinate={{ latitude: location.latitude, longitude: location.longitude }}
-                            pinColor="blue"
-                            rotation={getMarkerRotation()}
-                        />
-                    )}
-                    {filteredEvents.map((coordinate, index) => (
-                        <Marker
-                            key={index}
-                            coordinate={coordinate}
-                            onPress={() => onEventMarkerPress(index)}
+                {eventsData &&
+                    <>
+                        <MapView
+                            ref={mapRef}
+                            style={{ width: '100%', flex: 1, }}
+                            provider={PROVIDER_GOOGLE}
+                        // initialRegion={{
+                        //     latitude: location ? location.latitude : 37.78825,
+                        //     longitude: location ? location.longitude : -122.4324,
+                        //     latitudeDelta: 0.2,
+                        //     longitudeDelta: 0.2,
+                        // }}
                         >
-                            <Image
-                                source={require('../assets/eventMarker.png')}
-                                style={{ width: selectedIndex == index ? 40 : 25, height: selectedIndex == index ? 40 : 25 }}
-                                resizeMode="contain"
-                            />
-                        </Marker>
-                    ))}
-                    {location && polylineCoords &&
-                        <Polyline
-                            coordinates={[
-                                { latitude: location.latitude, longitude: location.longitude },
-                                ...polylineCoords,
-                            ]}
-                            strokeColor='#000'
-                            strokeWidth={2.5}
-                        />
-                    }
-                    {/* Location Radius */}
-                    {location && (
-                        <Circle
-                            center={{ latitude: location.latitude, longitude: location.longitude }}
-                            radius={1609.34 * radius}
-                            strokeWidth={1}
-                            strokeColor="blue"
-                            fillColor="rgba(0, 128, 255, 0.2)"
-                        />
-                    )}
-                </MapView>
-                <View style={{ position: 'absolute', top: 0, width: '100%', zIndex: 1 }}>
-                    {!route?.params?.eventId ?
-                        <SearchBar
-                            value={searchQuery}
-                            onChangeText={handleSearch}
-                            placeholder="Search for event"
-                            onPressIcon={() => navigation.navigate('Events')}
-                            isList={false} />
-                        :
-                        <Pressable style={{ width: 50, height: 50, backgroundColor: '#fff', borderRadius: 50, marginVertical: 20, left: 25, shadowOpacity: 0.25, shadowRadius: 3.2, shadowOffset: { width: 2, height: 2 }, elevation: 5, justifyContent: 'center', alignItems: 'center' }} onPress={() => navigation.navigate('Events')}>
-                            <MaterialCommunityIcons name="arrow-left" size={29} />
-                        </Pressable>
+                            {location && (
+                                <Marker
+                                    coordinate={{ latitude: location.latitude, longitude: location.longitude }}
+                                    pinColor="blue"
+                                    rotation={getMarkerRotation()}
+                                />
+                            )}
+                            {filteredEvents.map((coordinate, index) => {
+                                const distance = getDistance(location, coordinate);
+                                if (distance <= filterDistanceValue) {
+                                    return (
+                                        <Marker
+                                            key={index}
+                                            coordinate={coordinate}
+                                            onPress={() => onEventMarkerPress(index)}
+                                        >
+                                            <Image
+                                                source={require('../assets/eventMarker.png')}
+                                                style={{ width: selectedIndex === index ? 40 : 25, height: selectedIndex === index ? 40 : 25 }}
+                                                resizeMode="contain"
+                                            />
+                                        </Marker>
+                                    );
+                                } else {
+                                    return null; // Hide the marker if distance is greater than 3 miles
+                                }
+                            })}
 
-                    }
-                    {location &&
-                        <TransportMode userLocation={location} destination={eventsCoordinates[selectedIndex]} />
-                    }
-                </View>
-                {location && !route?.params?.eventId &&
-                    <View style={{ position: 'absolute', bottom: 0, }}>
-                        <Carousel
-                            // ref={(c) => { this._carousel = c; }}
-                            // layoutCardOffset={9}
-                            ref={carouselRef}
-                            data={filteredEvents}
-                            renderItem={_renderItem}
-                            sliderWidth={Dimensions.get('screen').width}
-                            itemWidth={Dimensions.get('screen').width / 2.09}
-                            containerCustomStyle={{ flexGrow: 0, flex: 1, height: Dimensions.get('screen').height / 2.5, width: '100%', }}
-                            slideStyle={{ flex: 1, justifyContent: 'flex-end', marginHorizontal: 2.5 }}
-                            contentContainerCustomStyle={{ height: '100%', }}
-                            // sliderHeight={300}
-                            // itemHeight={300}
-                            inactiveSlideOpacity={1}
-                            inactiveSlideShift={28}
-                            inactiveSlideScale={0.9}
-                            firstItem={selectedIndex}
-                            onSnapToItem={onSnapFunc}
-                        />
-                    </View>
+                            {location && polylineCoords && (
+                                <Polyline
+                                    coordinates={[
+                                        { latitude: location.latitude, longitude: location.longitude },
+                                        ...polylineCoords,
+                                    ]}
+                                    strokeColor={getDistance(location, eventsCoordinates[selectedIndex]) <= filterDistanceValue ? "#000" : "transparent"}
+                                    strokeWidth={2.5}
+                                />
+                            )}
+
+                            {/* Location Radius */}
+                            {location && (
+                                <Circle
+                                    center={{ latitude: location.latitude, longitude: location.longitude }}
+                                    radius={1609.34 * radius}
+                                    strokeWidth={1}
+                                    strokeColor="blue"
+                                    fillColor="rgba(0, 128, 255, 0.2)"
+                                />
+                            )}
+                        </MapView>
+                        <View style={{ position: 'absolute', top: 0, width: '100%', zIndex: 1 }}>
+                            {!route?.params?.eventId ?
+                                <SearchBar
+                                    value={searchQuery}
+                                    onChangeText={handleSearch}
+                                    placeholder="Search for event"
+                                    onPressIcon={() => navigation.navigate('Events')}
+                                    isList={false} />
+                                :
+                                <Pressable style={{ width: 50, height: 50, backgroundColor: '#fff', borderRadius: 50, marginVertical: 20, left: 25, shadowOpacity: 0.25, shadowRadius: 3.2, shadowOffset: { width: 2, height: 2 }, elevation: 5, justifyContent: 'center', alignItems: 'center' }} onPress={() => navigation.navigate('Events')}>
+                                    <MaterialCommunityIcons name="arrow-left" size={29} />
+                                </Pressable>
+
+                            }
+                            {location &&
+                                <TransportMode userLocation={location} destination={eventsCoordinates[selectedIndex]} />
+                            }
+                        </View>
+                        {location && !route?.params?.eventId &&
+                            <View style={{ position: 'absolute', bottom: 0, }}>
+                                <Carousel
+                                    // ref={(c) => { this._carousel = c; }}
+                                    // layoutCardOffset={9}
+                                    ref={carouselRef}
+                                    data={visibleEvents}
+                                    renderItem={_renderItem}
+                                    sliderWidth={Dimensions.get('screen').width}
+                                    itemWidth={Dimensions.get('screen').width / 2.09}
+                                    containerCustomStyle={{ flexGrow: 0, flex: 1, height: Dimensions.get('screen').height / 2.5, width: '100%', }}
+                                    slideStyle={{ flex: 1, justifyContent: 'flex-end', marginHorizontal: 2.5 }}
+                                    contentContainerCustomStyle={{ height: '100%', }}
+                                    // sliderHeight={300}
+                                    // itemHeight={300}
+                                    inactiveSlideOpacity={1}
+                                    inactiveSlideShift={28}
+                                    inactiveSlideScale={0.9}
+                                    firstItem={selectedIndex}
+                                    onSnapToItem={onSnapFunc}
+                                />
+                            </View>
+                        }
+                    </>
                 }
-                </>
-            }
             </View>
 
         </SafeAreaView>

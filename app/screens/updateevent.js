@@ -18,6 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { MultipleSelectList } from "react-native-dropdown-select-list";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Dropdown } from "react-native-element-dropdown";
 
 const validationSchema = Yup.object().shape({
   heading: Yup.string()
@@ -46,8 +47,6 @@ const validationSchema = Yup.object().shape({
 
 
 function UpdateEventScreen({ props, route }) {
-
-
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
@@ -100,7 +99,6 @@ function UpdateEventScreen({ props, route }) {
   //console.log("check Event Id", eventId);
 
   console.log('Form Values:', formValues);
-
   useEffect(() => {
     const fetchEventDetails = async (eventId) => {
       try {
@@ -110,6 +108,7 @@ function UpdateEventScreen({ props, route }) {
           return;
         }
         const eventData = await response.json();
+        console.log("check API Response", eventData)
         const endDate = eventData.data.endDate ? new Date(eventData.data.endDate) : null;
         const formattedEndDate = endDate ? endDate.toLocaleDateString() : '';
         const startDate = eventData.data.startDate ? new Date(eventData.data.startDate) : null;
@@ -125,18 +124,18 @@ function UpdateEventScreen({ props, route }) {
           eventImage: eventData.data.eventImage || null,
           companyName: eventData.data.compmayName || '',
           eventName: eventData.data.eventName || '',
-          endTime: formattedEndTime || '', // Set formattedEndTime
+          endTime: eventData.data.endTime || '', // Set formattedEndTime
           endDate: formattedEndDate || '',
           subject: eventData.data.subject || '',
           gradeLevel: eventData.data.gradeLevel || '',
           eligibility: eventData.data.eligibility || '',
           cost: eventData.data.cost.toString() || '',
-          startTime: formattedStartTime || '', // Set formattedStartTime
+          startTime: eventData.data.startTime || '', // Set formattedStartTime
           startDate: formattedStartDate || '',
           eventType: eventData.data.eventType || '',
           address: eventData.data.address || '',
           description: eventData.data.description || '',
-          mealInclude: eventData.data.mealInclude || '',
+          mealInclude: eventData.data.mealIncluded || '',
           webURL: eventData.data.url || '',
         });
       } catch (error) {
@@ -372,6 +371,21 @@ function UpdateEventScreen({ props, route }) {
   };
 
 
+
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
+
+  // Assuming `formData` is already populated with the API response
+  useEffect(() => {
+    // Check if formData and formData.subject are defined before setting selectedSubjects
+    if (formValues && formValues.subject) {
+      // Set the selected subjects from the API response
+      setSelectedSubjects(formValues.subject);
+    }
+  }, [formValues]);
+
+
+
+  console.log("check ", selectedSubjects)
   return (
     <Screen>
       <KeyboardAwareScrollView
@@ -389,7 +403,7 @@ function UpdateEventScreen({ props, route }) {
             >
               {({ handleChange, handleBlur, handleSubmit, values, setValues }) => (
                 <View>
-                  <Text style={{ fontSize: 16 }}>Select Event Image</Text>
+                  {/* <Text style={{ fontSize: 16 }}>Select Event Image</Text>
                   <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
                     <TouchableOpacity
                       style={{
@@ -409,8 +423,6 @@ function UpdateEventScreen({ props, route }) {
                       <FontAwesome name="plus" size={20} color="black" style={{ marginRight: 10 }} />
 
                     </TouchableOpacity>
-
-                    {/* Display the selected image */}
                     {showeventImage && (
                       <View style={{ alignItems: 'center', marginTop: 10 }}>
                         <Text style={{ fontSize: 16 }}>Selected Image:</Text>
@@ -423,7 +435,7 @@ function UpdateEventScreen({ props, route }) {
                         </TouchableOpacity>
                       </View>
                     )}
-                  </View>
+                  </View> */}
 
 
                   <AppFormField
@@ -435,7 +447,20 @@ function UpdateEventScreen({ props, route }) {
                     value={values.eventName}
                     placeholder="Event Name"
                   />
+
                   <AppFormField
+                    name={"eventType"}
+                    label="Event Type"
+                    isRequired={true}
+                    onChangeText={handleChange('eventType')}
+                    onBlur={handleBlur('eventType')}
+                    value={values.eventType}
+                    placeholder="Event Type"
+                    editable={false}
+                    style={{ color: 'gray' }}
+                  />
+
+                  {/* <AppFormField
                     name={"eventType"}
                     label="Event Type"
                     isRequired={true}
@@ -448,7 +473,7 @@ function UpdateEventScreen({ props, route }) {
                     }}
                     onBlur={handleBlur('eventType')}
                     value={values.eventType}
-                  />
+                  /> */}
 
                   <AppFormField
                     name={"cost"}
@@ -469,6 +494,54 @@ function UpdateEventScreen({ props, route }) {
                   />
 
                   <AppFormField
+                    name={"startDate"}
+                    label="Start Date"
+                    isRequired={true}
+                    multiline
+                    numberOfLines={3}
+                    onChangeText={handleChange('startDate')}
+                    onBlur={handleBlur('startDate')}
+                    value={values.startDate}
+                    editable={false}
+                    style={{ color: 'gray' }}
+                  />
+                  <AppFormField
+                    name={"endDate"}
+                    label="End Date"
+                    isRequired={true}
+                    multiline
+                    numberOfLines={3}
+                    onChangeText={handleChange('endDate')}
+                    onBlur={handleBlur('endDate')}
+                    value={values.endDate}
+                    editable={false}
+                    style={{ color: 'gray' }}
+                  />
+                  <AppFormField
+                    name={"startTime"}
+                    label="Start Time"
+                    isRequired={true}
+                    multiline
+                    numberOfLines={3}
+                    onChangeText={handleChange('startTime')}
+                    onBlur={handleBlur('startTime')}
+                    value={values.startTime}
+                    editable={false}
+                    style={{ color: 'gray' }}
+                  />
+                  <AppFormField
+                    name={"endTime"}
+                    label="End Time"
+                    isRequired={true}
+                    multiline
+                    numberOfLines={3}
+                    onChangeText={handleChange('endTime')}
+                    onBlur={handleBlur('endTime')}
+                    value={values.endTime}
+                    editable={false}
+                    style={{ color: 'gray' }}
+                  />
+                  {/* <AppFormField
                     name={"startDate"}
                     label="Start Date"
                     isRequired={true}
@@ -497,9 +570,9 @@ function UpdateEventScreen({ props, route }) {
                         setFormValues({ ...formValues, startDate: selectedDate });
                       }}
                     />
-                  )}
+                  )} */}
 
-                  <AppFormField
+                  {/* <AppFormField
                     name={"endDate"}
                     label="End Date"
                     isRequired={true}
@@ -526,9 +599,9 @@ function UpdateEventScreen({ props, route }) {
                         setFormValues({ ...formValues, endDate: selectedDate });
                       }}
                     />
-                  )}
+                  )} */}
 
-                  <AppFormField
+                  {/* <AppFormField
                     name={"startTime"}
                     value={startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     label="Start Time"
@@ -584,7 +657,7 @@ function UpdateEventScreen({ props, route }) {
                         setFormValues({ ...formValues, endTime: selectedTime });
                       }}
                     />
-                  )}
+                  )} */}
 
                   <AppFormField name={"location"} label="Address" isRequired={true}
                     onChangeText={handleChange('address')}
@@ -609,7 +682,17 @@ function UpdateEventScreen({ props, route }) {
                     keyboardType="numeric"
 
                   />
-                  <Text style={styles.heading}>Subject</Text>
+                  <AppFormField
+                    name={"subject"}
+                    label="Subjects"
+                    onChangeText={handleChange('subject')}
+                    onBlur={handleBlur('subject')}
+                    value={selectedSubjects.join(', ')} 
+                    editable={false}
+                    style={{ color: 'gray' }}
+
+                  />
+                  {/* <Text style={styles.heading}>Subject</Text>
                   <MultipleSelectList
                     style={[styles.dropdown, isFocus && { borderColor: "black" }]}
                     setSelected={(val) => setSelected(val)}
@@ -620,15 +703,18 @@ function UpdateEventScreen({ props, route }) {
                     searchPlaceholder="Select Subjects"
                     search={true}
                     selected={selected}
-                  />
+                    value={values.subject}
+                  /> */}
 
-                  {/* <AppFormField name={"grade"} label="Grade Level"
+                  <AppFormField name={"grade"} label="Grade Level"
                     onChangeText={handleChange('gradeLevel')}
                     onBlur={handleBlur('gradeLevel')}
                     value={values.gradeLevel}
-                  /> */}
+                    editable={false}
+                    style={{ color: 'gray' }}
+                  />
 
-                  <AppFormField
+                  {/* <AppFormField
                     name={"gradeLevel"}
                     label="Grade Level"
                     isRequired={false}
@@ -639,7 +725,7 @@ function UpdateEventScreen({ props, route }) {
                     onBlur={handleBlur('gradeLevel')}
                     value={values.gradeLevel}
 
-                  />
+                  /> */}
                   {/* <AppFormField
                   name={"subject"}
                   label="Subject"
@@ -672,7 +758,17 @@ function UpdateEventScreen({ props, route }) {
                     value={values.ageGroup}
 
                   /> */}
-                  <AppFormField
+
+                  <AppFormField 
+                    name={"mealInclude"} 
+                    label="Meals Included"
+                    onChangeText={handleChange('mealInclude')}
+                    onBlur={handleBlur('mealInclude')}
+                    value={values.mealInclude}
+                    editable={false}
+                    style={{ color: 'gray' }}
+                  />
+                  {/* <AppFormField
                     name={"mealInclude"}
                     label="Meals Included"
                     isRequired={true}
@@ -683,7 +779,7 @@ function UpdateEventScreen({ props, route }) {
                     onBlur={handleBlur('mealInclude')}
                     value={values.mealInclude}
 
-                  />
+                  /> */}
 
                   <AppFormField name={"webURL"} label="Web URL"
                     onChangeText={handleChange('webURL')}
@@ -858,4 +954,32 @@ const styles = StyleSheet.create({
     width: "100%",
     alignSelf: "center",
   },
+
+  icon: {
+    marginRight: 5,
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: 14,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+
 });
