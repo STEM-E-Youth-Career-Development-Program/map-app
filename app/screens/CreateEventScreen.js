@@ -189,8 +189,10 @@ function CreateEventScreen({ props, route }) {
       const selectedSubjectsString = selected.join(';');
       console.log("hello", selectedSubjectsString)
       const { latitude, longitude } = await handleGeocode(values.address);
-      const formattedStartTime = values.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const formattedEndTime = values.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      // const formattedStartTime = values.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      // const formattedEndTime = values.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const formattedStartTime = values.startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const formattedEndTime = values.endTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
       // Create FormData object
       const formData = new FormData();
@@ -416,7 +418,7 @@ function CreateEventScreen({ props, route }) {
                   <DateTimePicker
                     value={endDate}
                     mode="date"
-                    is24Hour={true}
+                    is24Hour={false}
                     display="default"
                     onChange={(event, selectedDate) => {
                       onChangeEndDate(event, selectedDate);
@@ -428,7 +430,7 @@ function CreateEventScreen({ props, route }) {
 
                 <AppFormField
                   name={"startTime"}
-                  value={startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  value={startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
                   label="Start Time"
                   isRequired={true}
                   icon={
@@ -445,7 +447,7 @@ function CreateEventScreen({ props, route }) {
                   <DateTimePicker
                     value={startTime}
                     mode="time"
-                    is24Hour={true}
+                    is24Hour={false}
                     display="default"
                     onChange={(event, selectedTime) => {
                       onChangeStartTime(event, selectedTime);
@@ -458,7 +460,7 @@ function CreateEventScreen({ props, route }) {
                 <AppFormField
                   name={"endTime"}
                   label="End Time"
-                  value={endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  value={endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
                   isRequired={true}
                   icon={
                     <MaterialIcons
@@ -474,7 +476,7 @@ function CreateEventScreen({ props, route }) {
                   <DateTimePicker
                     value={endTime}
                     mode="time"
-                    is24Hour={true}
+                    // is24Hour={false}
                     display="default"
                     onChange={(event, selectedTime) => {
                       onChangeEndTime(event, selectedTime);

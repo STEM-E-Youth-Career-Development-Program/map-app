@@ -19,6 +19,7 @@ import * as Location from 'expo-location';
 import { MultipleSelectList } from "react-native-dropdown-select-list";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Dropdown } from "react-native-element-dropdown";
+import moment from 'moment';
 
 const validationSchema = Yup.object().shape({
   heading: Yup.string()
@@ -109,6 +110,8 @@ function UpdateEventScreen({ props, route }) {
         }
         const eventData = await response.json();
         console.log("check API Response", eventData)
+        const eventImageUri = eventData.data.imageData || '';
+
         const endDate = eventData.data.endDate ? new Date(eventData.data.endDate) : null;
         const formattedEndDate = endDate ? endDate.toLocaleDateString() : '';
         const startDate = eventData.data.startDate ? new Date(eventData.data.startDate) : null;
@@ -121,7 +124,7 @@ function UpdateEventScreen({ props, route }) {
           ...formValues,
           ageGroup: eventData.data.ageGroup || '',
           contactNo: eventData.data.contactNo || '',
-          eventImage: eventData.data.eventImage || null,
+          imageData: eventImageUri,
           companyName: eventData.data.compmayName || '',
           eventName: eventData.data.eventName || '',
           endTime: eventData.data.endTime || '', // Set formattedEndTime
@@ -202,11 +205,9 @@ function UpdateEventScreen({ props, route }) {
         const selectedImageUri = result.assets[0].uri;
         setFormValues({
           ...formValues,
-          eventImage: selectedImageUri,
-
+          imageData: selectedImageUri,
         });
-        // console.log('Event Image Path:', selectedImageUri);
-        setShowEventImage(selectedImageUri)
+        setShowEventImage(selectedImageUri);
       }
     } catch (error) {
       console.error('Error picking image', error);
@@ -236,8 +237,15 @@ function UpdateEventScreen({ props, route }) {
       const imageUri = formValues.eventImage ? formValues.eventImage.uri : null;
       const selectedSubjectsString = selected.join(';');
       const { latitude, longitude } = await handleGeocode(values.address);
-      const formattedStartTime = values.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const formattedEndTime = values.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const startTime = new Date(values.startTime);
+      const endTime = new Date(values.endTime);
+      const endDate = moment(values.endDate, 'DD/MM/YYYY');
+      const startDate = moment(values.startDate, 'DD/MM/YYYY');
+      // Format start and end times
+      const formattedStartTime = startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const formattedEndTime = endTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const formattedEndDate = endDate.toISOString();
+      const formattedStartDate = startDate.toISOString();
 
       const formData = new FormData();
       formData.append('id', eventId);
@@ -255,13 +263,13 @@ function UpdateEventScreen({ props, route }) {
       formData.append('CompmayName', values.companyName);
       formData.append('EventName', values.eventName);
       formData.append('EndTime', formattedEndTime);
-      formData.append('EndDate', values.endDate.toISOString());
+      formData.append('EndDate', formattedEndDate);
       formData.append('SubjectForSaving', selectedSubjectsString);
       formData.append('GradeLevel', values.gradeLevel);
       formData.append('Eligibility', values.eligibility);
       formData.append('Cost', values.cost);
       formData.append('StartTime', formattedStartTime);
-      formData.append('StartDate', values.startDate.toISOString());
+      formData.append('StartDate', formattedStartDate);
       formData.append('EventType', values.eventType);
       formData.append('Address', values.address);
       formData.append('Description', values.description);
@@ -423,11 +431,23 @@ function UpdateEventScreen({ props, route }) {
                       <FontAwesome name="plus" size={20} color="black" style={{ marginRight: 10 }} />
 
                     </TouchableOpacity>
+                    <View style={{ alignItems: 'center', marginTop: 10 }}>
+                        <Text style={{ fontSize: 16 }}>Selected Image:</Text>
+                        <Image
+                          // source={{ uri: showeventImage }}
+                          source={{ uri: `data:image/jpeg;base64,${values.imageData}` }}
+                          style={{ width: 200, height: 200, borderRadius: 10, marginTop: 10 }}
+                        />
+                        <TouchableOpacity onPress={handleRemoveImage} style={{ position: 'absolute', top: 5, right: 5 }}>
+                          <Text style={{ fontSize: 16, color: 'red' }}>X</Text>
+                        </TouchableOpacity>
+                      </View>
                     {showeventImage && (
                       <View style={{ alignItems: 'center', marginTop: 10 }}>
                         <Text style={{ fontSize: 16 }}>Selected Image:</Text>
                         <Image
                           source={{ uri: showeventImage }}
+                          // source={{ uri: `data:image/jpeg;base64,${values.imageData}` }}
                           style={{ width: 200, height: 200, borderRadius: 10, marginTop: 10 }}
                         />
                         <TouchableOpacity onPress={handleRemoveImage} style={{ position: 'absolute', top: 5, right: 5 }}>
@@ -437,6 +457,40 @@ function UpdateEventScreen({ props, route }) {
                     )}
                   </View> */}
 
+
+                  <Text style={{ fontSize: 16 }}>Select Event Image</Text>
+                  <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: '#ffffff',
+                        borderWidth: 1,
+                        borderColor: '#000',
+                        borderRadius: 10,
+                        paddingVertical: 30,
+                        paddingHorizontal: 20,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                      }}
+                      onPress={handleImagePicker}
+                    >
+                      <FontAwesome name="plus" size={20} color="black" style={{ marginRight: 10 }} />
+                    </TouchableOpacity>
+                    {formValues.imageData && (
+                      <View style={{ alignItems: 'center', marginTop: 10 }}>
+                        <Text style={{ fontSize: 16 }}>Current Image:</Text>
+                        <Image
+                          source={{ uri: `data:image/jpeg;base64,${formValues.imageData}` }}
+
+                          style={{ width: 200, height: 200, borderRadius: 10, marginTop: 10 }}
+                        />
+                        <TouchableOpacity onPress={handleRemoveImage} style={{ position: 'absolute', top: 5, right: 5 }}>
+                          <Text style={{ fontSize: 16, color: 'red' }}>X</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
 
                   <AppFormField
                     name={"eventName"}
@@ -687,7 +741,7 @@ function UpdateEventScreen({ props, route }) {
                     label="Subjects"
                     onChangeText={handleChange('subject')}
                     onBlur={handleBlur('subject')}
-                    value={selectedSubjects.join(', ')} 
+                    value={selectedSubjects.join(', ')}
                     editable={false}
                     style={{ color: 'gray' }}
 
@@ -759,8 +813,8 @@ function UpdateEventScreen({ props, route }) {
 
                   /> */}
 
-                  <AppFormField 
-                    name={"mealInclude"} 
+                  <AppFormField
+                    name={"mealInclude"}
                     label="Meals Included"
                     onChangeText={handleChange('mealInclude')}
                     onBlur={handleBlur('mealInclude')}
