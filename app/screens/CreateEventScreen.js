@@ -53,6 +53,9 @@ function CreateEventScreen({ props, route }) {
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
   const [mealIncludeDropdownOpen, setMealIncludeDropdownOpen] = useState(false);
   const [gradeLevelDropdownOpen, setGradeLevelDropdownOpen] = useState(false);
+
+
+  // initializes the start date variable and assigns it to an empty value
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [startOpen, setStartOpen] = useState(false);
@@ -264,7 +267,8 @@ function CreateEventScreen({ props, route }) {
         // Handle the error, you can parse response.json() for more details
       }
     } catch (error) {
-      console.error('Error creating event', error);
+      Alert.alert('Missing Information', 'Please fill out all required fields');
+      return;
     }
   };
 
@@ -351,11 +355,13 @@ function CreateEventScreen({ props, route }) {
                 />
 
                 <AppFormField name={"cost"}
-                  label="Average Cost (in dollars)" isRequired={true}
+                  label="Average Cost (in dollars)"
+                  isRequired={true}
                   onChangeText={handleChange('cost')}
                   onBlur={handleBlur('cost')}
                   value={values.cost}
                 />
+                
                 <AppFormField
                   name={"description"}
                   label="Description"
@@ -382,12 +388,14 @@ function CreateEventScreen({ props, route }) {
                     />
                   }
                   value={
+                    // checks if user has selected; if not, it commands
                     startDate ? startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Select a start date...'
                   }
                 />
 
                 {startOpen && (
                   <DateTimePicker
+                    // default value for picker
                     value={startDate || new Date()}
                     mode={datePickerMode}
                     display="default"
