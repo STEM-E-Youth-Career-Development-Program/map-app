@@ -8,7 +8,7 @@ import PageHeader from "../components/PageHeader";
 import Screen from "../components/Screen";
 import SubmitButton from "../components/SubmitButton";
 import { FontAwesome, EvilIcons, MaterialIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import React, { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -53,8 +53,8 @@ function CreateEventScreen({ props, route }) {
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
   const [mealIncludeDropdownOpen, setMealIncludeDropdownOpen] = useState(false);
   const [gradeLevelDropdownOpen, setGradeLevelDropdownOpen] = useState(false);
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [startOpen, setStartOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
   const [endTime, setEndTime] = useState(null);
@@ -409,17 +409,18 @@ function CreateEventScreen({ props, route }) {
                       onPress={() => setEndOpen(true)}
                     />
                   }
-                  value={endDate.toLocaleDateString()}
+                  value={endDate? endDate.toLocaleDateString():''}
                 />
 
                 {endOpen && (
                   <DateTimePicker
-                    value={endDate}
+                    value={endDate||new Date()}
                     mode="date"
                     is24Hour={true}
                     display="default"
                     onChange={(event, selectedDate) => {
-                      onChangeEndDate(event, selectedDate);
+                      setEndDate(event, selectedDate);
+                      
                       setValues({ ...values, endDate: selectedDate }); // Update Formik state
                       setFormValues({ ...formValues, endDate: selectedDate });
                     }}
