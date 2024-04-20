@@ -381,7 +381,7 @@ function CreateEventScreen({ props, route }) {
                       }}
                     />
                   }
-                  value={startDate? startDate.toLocaleDateString():''}
+                  value={startDate? startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }):''}
                 />
 
                 {startOpen && (
@@ -390,7 +390,7 @@ function CreateEventScreen({ props, route }) {
                     mode={datePickerMode}
                     display="default"
                     onChange={(event, selectedDate) => {
-                      setStartDate(event, selectedDate);
+                      setStartDate( selectedDate);
                       setValues({ ...values, startDate: selectedDate });
                       setFormValues({ ...formValues, startDate: selectedDate });
                     }}
@@ -409,7 +409,7 @@ function CreateEventScreen({ props, route }) {
                       onPress={() => setEndOpen(true)}
                     />
                   }
-                  value={endDate? endDate.toLocaleDateString():''}
+                  value={endDate? endDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }):''}
                 />
 
                 {endOpen && (
@@ -419,7 +419,7 @@ function CreateEventScreen({ props, route }) {
                     is24Hour={true}
                     display="default"
                     onChange={(event, selectedDate) => {
-                      setEndDate(event, selectedDate);
+                      setEndDate(selectedDate);
                       
                       setValues({ ...values, endDate: selectedDate }); // Update Formik state
                       setFormValues({ ...formValues, endDate: selectedDate });
