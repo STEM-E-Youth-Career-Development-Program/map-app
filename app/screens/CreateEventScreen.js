@@ -8,7 +8,7 @@ import PageHeader from "../components/PageHeader";
 import Screen from "../components/Screen";
 import SubmitButton from "../components/SubmitButton";
 import { FontAwesome, EvilIcons, MaterialIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
