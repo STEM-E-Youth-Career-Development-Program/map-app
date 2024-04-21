@@ -451,7 +451,7 @@ function CreateEventScreen({ props, route }) {
                     />
                   }
                   value={
-                    startTime ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : 'Select a start time...'
+                    startTime ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : ''
                   }
                 />
                 
