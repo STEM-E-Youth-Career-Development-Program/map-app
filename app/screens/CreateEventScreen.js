@@ -53,8 +53,11 @@ function CreateEventScreen({ props, route }) {
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
   const [mealIncludeDropdownOpen, setMealIncludeDropdownOpen] = useState(false);
   const [gradeLevelDropdownOpen, setGradeLevelDropdownOpen] = useState(false);
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+
+
+  // initializes the start date variable and assigns it to an empty value
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [startOpen, setStartOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
   const [endTime, setEndTime] = useState(null);
@@ -384,16 +387,20 @@ function CreateEventScreen({ props, route }) {
                       }}
                     />
                   }
-                  value={startDate.toLocaleDateString()}
+                  value={
+                    // checks if user has selected; if not, it commands
+                    startDate ? startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Select a start date...'
+                  }
                 />
 
                 {startOpen && (
                   <DateTimePicker
-                    value={startDate}
+                    // default value for picker
+                    value={startDate || new Date()}
                     mode={datePickerMode}
                     display="default"
                     onChange={(event, selectedDate) => {
-                      onChangeStartDate(event, selectedDate);
+                      setStartDate(selectedDate);
                       setValues({ ...values, startDate: selectedDate });
                       setFormValues({ ...formValues, startDate: selectedDate });
                     }}
@@ -412,17 +419,19 @@ function CreateEventScreen({ props, route }) {
                       onPress={() => setEndOpen(true)}
                     />
                   }
-                  value={endDate.toLocaleDateString()}
+                  value={
+                    endDate ? endDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Select an end date...'
+                }
                 />
 
                 {endOpen && (
                   <DateTimePicker
-                    value={endDate}
+                    value={endDate || new Date()}
                     mode="date"
                     is24Hour={true}
                     display="default"
                     onChange={(event, selectedDate) => {
-                      onChangeEndDate(event, selectedDate);
+                      setEndDate(selectedDate);
                       setValues({ ...values, endDate: selectedDate }); // Update Formik state
                       setFormValues({ ...formValues, endDate: selectedDate });
                     }}
@@ -442,7 +451,7 @@ function CreateEventScreen({ props, route }) {
                     />
                   }
                   value={
-                    startTime ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : 'Select a start time...'
+                    startTime ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : ''
                   }
                 />
                 
