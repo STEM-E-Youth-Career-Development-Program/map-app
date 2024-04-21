@@ -53,8 +53,8 @@ function CreateEventScreen({ props, route }) {
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
   const [mealIncludeDropdownOpen, setMealIncludeDropdownOpen] = useState(false);
   const [gradeLevelDropdownOpen, setGradeLevelDropdownOpen] = useState(false);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
   const [startOpen, setStartOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
   const [endTime, setEndTime] = useState(null);
@@ -264,7 +264,8 @@ function CreateEventScreen({ props, route }) {
         // Handle the error, you can parse response.json() for more details
       }
     } catch (error) {
-      console.error('Error creating event', error);
+      Alert.alert('Missing Information', 'Please fill out all required fields');
+      return;
     }
   };
 
@@ -351,11 +352,13 @@ function CreateEventScreen({ props, route }) {
                 />
 
                 <AppFormField name={"cost"}
-                  label="Average Cost (in dollars)" isRequired={true}
+                  label="Average Cost (in dollars)"
+                  isRequired={true}
                   onChangeText={handleChange('cost')}
                   onBlur={handleBlur('cost')}
                   value={values.cost}
                 />
+                
                 <AppFormField
                   name={"description"}
                   label="Description"
@@ -381,16 +384,16 @@ function CreateEventScreen({ props, route }) {
                       }}
                     />
                   }
-                  value={startDate? startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }):''}
+                  value={startDate.toLocaleDateString()}
                 />
 
                 {startOpen && (
                   <DateTimePicker
-                    value={startDate||new Date()}
+                    value={startDate}
                     mode={datePickerMode}
                     display="default"
                     onChange={(event, selectedDate) => {
-                      setStartDate( selectedDate);
+                      onChangeStartDate(event, selectedDate);
                       setValues({ ...values, startDate: selectedDate });
                       setFormValues({ ...formValues, startDate: selectedDate });
                     }}
@@ -409,18 +412,17 @@ function CreateEventScreen({ props, route }) {
                       onPress={() => setEndOpen(true)}
                     />
                   }
-                  value={endDate? endDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }):''}
+                  value={endDate.toLocaleDateString()}
                 />
 
                 {endOpen && (
                   <DateTimePicker
-                    value={endDate||new Date()}
+                    value={endDate}
                     mode="date"
                     is24Hour={true}
                     display="default"
                     onChange={(event, selectedDate) => {
-                      setEndDate(selectedDate);
-                      
+                      onChangeEndDate(event, selectedDate);
                       setValues({ ...values, endDate: selectedDate }); // Update Formik state
                       setFormValues({ ...formValues, endDate: selectedDate });
                     }}
@@ -429,7 +431,6 @@ function CreateEventScreen({ props, route }) {
 
                 <AppFormField
                   name={"startTime"}
-                  value={startTime ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                   label="Start Time"
                   isRequired={true}
                   icon={
@@ -440,13 +441,16 @@ function CreateEventScreen({ props, route }) {
                       onPress={() => setStartTimeOpen(true)}
                     />
                   }
+                  value={
+                    startTime ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : 'Select a start time...'
+                  }
                 />
                 
                 {startTimeOpen && (
                   <DateTimePicker
-                    value={startTime || new Date()} // startTime if not null; current time if null
+                    value={startTime || new Date()}
                     mode="time"
-                    is24Hour={true}
+                    is12Hour={true}
                     display="default"
                     onChange={(event, selectedTime) => {
                       setStartTime(selectedTime); // Update startTime directly
@@ -459,7 +463,6 @@ function CreateEventScreen({ props, route }) {
                 <AppFormField
                   name={"endTime"}
                   label="End Time"
-                  value={endTime ? endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                   isRequired={true}
                   icon={
                     <MaterialIcons
@@ -469,11 +472,14 @@ function CreateEventScreen({ props, route }) {
                       onPress={() => setEndTimeOpen(true)}
                     />
                   }
+                  value={
+                    endTime ? endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Select an end time...'
+                  }
                 />
 
                 {endTimeOpen && (
                   <DateTimePicker
-                    value={endTime || new Date()} // endTime if not null; current endTime if null
+                    value={endTime || new Date()}
                     mode="time"
                     is24Hour={true}
                     display="default"
