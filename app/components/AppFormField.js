@@ -95,10 +95,10 @@ function AppFormField({
               value={value !== null ? value : values[name]}
               onFocus={() => setIsFocus(true)}
               onBlur={() => setIsFocus(false)}
+              // onChange={(text) => setFieldValue(name, text)}
               onChange={(item) => {
                 setValue(item.value); // Update local state
                 setIsFocus(false);
-
                 // Update Formik state with the selected value
                 setFieldValue(name, item.label);
               }}
