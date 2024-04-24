@@ -266,7 +266,8 @@ function CreateEventScreen({ props, route }) {
         // Handle the error, you can parse response.json() for more details
       }
     } catch (error) {
-      console.error('Error creating event', error);
+      Alert.alert('Missing Information', 'Please fill out all required fields');
+      //console.error('Error creating event', error);
     }
   };
 

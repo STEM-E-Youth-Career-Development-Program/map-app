@@ -303,7 +303,8 @@ function UpdateEventScreen({ props, route }) {
         console.error('Failed to update event');
       }
     } catch (error) {
-      console.error('Error updating event', error);
+      // console.error('Error updating event', error);
+      Alert.alert('Missing Information', 'Please fill out all required fields');
     }
   };
   // Activate Event Handle
