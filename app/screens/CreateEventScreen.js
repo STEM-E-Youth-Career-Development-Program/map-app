@@ -183,11 +183,11 @@ function CreateEventScreen({ props, route }) {
 
   const handleSubmit = async (values) => {
     try {
-      console.log("check form Data", values);
-      console.log("check form Data", values.gradeLevel);
+      // console.log("check form Data", values);
+      // console.log("check form Data", values.gradeLevel);
       const imageUri = formValues.eventImage ? formValues.eventImage.uri : null;
       const selectedSubjectsString = selected.join(';');
-      console.log("hello", selectedSubjectsString)
+      // console.log("hello", selectedSubjectsString)
       const { latitude, longitude } = await handleGeocode(values.address);
       // const formattedStartTime = values.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       // const formattedEndTime = values.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -229,7 +229,7 @@ function CreateEventScreen({ props, route }) {
       formData.append('Url', values.webURL);
       formData.append("Latitude", latitude);
       formData.append("Longitude", longitude);
-      console.log('Before fetch');
+      // console.log('Before fetch');
       // Make the API call to upload the image
       const response = await fetch('https://mapstem-api.azurewebsites.net/api/Event', {
         method: 'POST',
@@ -239,16 +239,16 @@ function CreateEventScreen({ props, route }) {
         body: formData,
 
       });
-      console.log('After fetch');
+      // console.log('After fetch');
 
       // Log the response status and content
-      console.log('Response Status:', response.status);
+      // console.log('Response Status:', response.status);
       const responseText = await response.text();
       // console.log('Response Content:', responseText);
 
       // Check if the request was successful
       if (response.ok) {
-        console.log('Event created successfully');
+        // console.log('Event created successfully');
         // Show success message
         Alert.alert(
           'Success',

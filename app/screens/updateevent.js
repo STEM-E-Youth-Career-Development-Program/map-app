@@ -67,6 +67,7 @@ function UpdateEventScreen({ props, route }) {
   const [isFocus, setIsFocus] = useState(false);
   const [selected, setSelected] = useState([]);
   const navigation = useNavigation();
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
   // const route = useRoute();
 
   const onChangeStartTime = (event, selectedTime) => {
@@ -99,7 +100,7 @@ function UpdateEventScreen({ props, route }) {
   const { eventId } = route.params;
   //console.log("check Event Id", eventId);
 
-  console.log('Form Values:', formValues);
+  // console.log('Form Values:', formValues);
   useEffect(() => {
     const fetchEventDetails = async (eventId) => {
       try {
@@ -109,7 +110,7 @@ function UpdateEventScreen({ props, route }) {
           return;
         }
         const eventData = await response.json();
-        console.log("check API Response", eventData)
+        // console.log("check API Response", eventData)
         const eventImageUri = eventData.data.imageData || '';
 
         const endDate = eventData.data.endDate ? new Date(eventData.data.endDate) : null;
@@ -223,9 +224,9 @@ function UpdateEventScreen({ props, route }) {
   // Update Event Handle 
   const handleSubmit = async (values) => {
     try {
-      console.log("check submission", values)
+      // console.log("check submission", values)
       const userData = await AsyncStorage.getItem('userData');
-      console.log("check user data", userData)
+      // console.log("check user data", userData)
       const userDataObject = JSON.parse(userData);
       const token = userDataObject.data;
       if (!token) {
@@ -235,7 +236,7 @@ function UpdateEventScreen({ props, route }) {
 
       const { eventId } = route.params;
       const imageUri = formValues.eventImage ? formValues.eventImage.uri : null;
-      const selectedSubjectsString = selected.join(';');
+      const selectedSubjectsString = selectedSubjects;
       const { latitude, longitude } = await handleGeocode(values.address);
       const startTime = new Date(values.startTime);
       const endTime = new Date(values.endTime);
@@ -262,13 +263,13 @@ function UpdateEventScreen({ props, route }) {
       }
       formData.append('CompmayName', values.companyName);
       formData.append('EventName', values.eventName);
-      formData.append('EndTime', formattedEndTime);
+      formData.append('EndTime', values.endTime);
       formData.append('EndDate', formattedEndDate);
       formData.append('SubjectForSaving', selectedSubjectsString);
       formData.append('GradeLevel', values.gradeLevel);
       formData.append('Eligibility', values.eligibility);
       formData.append('Cost', values.cost);
-      formData.append('StartTime', formattedStartTime);
+      formData.append('StartTime', values.startTime);
       formData.append('StartDate', formattedStartDate);
       formData.append('EventType', values.eventType);
       formData.append('Address', values.address);
@@ -277,7 +278,7 @@ function UpdateEventScreen({ props, route }) {
       formData.append('Url', values.webURL);
       formData.append("Latitude", latitude);
       formData.append("Longitude", longitude);
-      console.log('Before fetch', formData);
+      // console.log('Before fetch', formData);
       const response = await fetch('https://mapstem-api.azurewebsites.net/api/Event', {
         method: 'PUT',
         headers: {
@@ -287,11 +288,11 @@ function UpdateEventScreen({ props, route }) {
         body: formData,
 
       });
-      console.log('After fetch');
-      console.log('Response Status:', response.status);
+      // console.log('After fetch');
+      // console.log('Response Status:', response.status);
       const responseText = await response.text();
       if (response.ok) {
-        console.log('Event updated successfully');
+        // console.log('Event updated successfully');
         // Show success message
         Alert.alert(
           'Success',
@@ -329,7 +330,7 @@ function UpdateEventScreen({ props, route }) {
       });
 
       if (response.ok) {
-        console.log('Event activated successfully');
+        // console.log('Event activated successfully');
         Alert.alert(
           'Success',
           'Event activated successfully',
@@ -364,7 +365,7 @@ function UpdateEventScreen({ props, route }) {
       });
 
       if (response.ok) {
-        console.log('Event deleted successfully');
+        // console.log('Event deleted successfully');
         Alert.alert(
           'Success',
           'Event deleted successfully',
@@ -381,7 +382,7 @@ function UpdateEventScreen({ props, route }) {
 
 
 
-  const [selectedSubjects, setSelectedSubjects] = useState([]);
+  
 
   // Assuming `formData` is already populated with the API response
   useEffect(() => {
@@ -394,7 +395,7 @@ function UpdateEventScreen({ props, route }) {
 
 
 
-  console.log("check ", selectedSubjects)
+  // console.log("check ", selectedSubjects)
   return (
     <Screen>
       <KeyboardAwareScrollView
