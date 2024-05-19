@@ -70,14 +70,14 @@ function CreateEventScreen({ props, route }) {
   // const route = useRoute();
 
   const onChangeStartTime = (event, selectedTime) => {
-    // setStartTimeOpen(false);
+    setStartTimeOpen(false);
     if (selectedTime !== undefined) {
       setStartTime(selectedTime);
     }
   };
 
   const onChangeEndTime = (event, selectedTime) => {
-    // setEndTimeOpen(false);
+    setEndTimeOpen(false);
     if (selectedTime !== undefined) {
       setEndTime(selectedTime);
     }
@@ -85,12 +85,12 @@ function CreateEventScreen({ props, route }) {
   const onChangeStartDate = (event, selectedDate) => {
     const currentDate = selectedDate || startDate;
     setStartDate(currentDate);
-    // setStartOpen(false);
+    setStartOpen(false);
   };
   const onChangeEndDate = (event, selectedDate) => {
     const currentDate = selectedDate || endDate;
     setEndDate(currentDate);
-    // setEndOpen(false);
+    setEndOpen(false);
   };
 
 
@@ -483,6 +483,7 @@ function CreateEventScreen({ props, route }) {
                       onChangeEndTime(event, selectedTime);
                       setValues({ ...values, endTime: selectedTime }); // Update Formik state
                       setFormValues({ ...formValues, endTime: selectedTime });
+                      
                     }}
                   />
                 )}
