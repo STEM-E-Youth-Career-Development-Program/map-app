@@ -192,7 +192,7 @@ function CreateEventScreen({ props, route }) {
       // const formattedStartTime = values.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       // const formattedEndTime = values.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const formattedStartTime = values.startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-    const formattedEndTime = values.endTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const formattedEndTime = values.endTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
       // Create FormData object
       const formData = new FormData();
@@ -361,7 +361,7 @@ function CreateEventScreen({ props, route }) {
                 />
                 <AppFormField
                   name={"description"}
-                  label="Description"
+                  label="Description" isRequired={true}
                   multiline
                   numberOfLines={3}
                   onChangeText={handleChange('description')}
@@ -483,7 +483,7 @@ function CreateEventScreen({ props, route }) {
                       onChangeEndTime(event, selectedTime);
                       setValues({ ...values, endTime: selectedTime }); // Update Formik state
                       setFormValues({ ...formValues, endTime: selectedTime });
-                      
+
                     }}
                   />
                 )}

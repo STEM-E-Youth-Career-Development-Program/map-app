@@ -25,7 +25,7 @@ const MapScreen = (props) => {
     const [filteredEvents, setFilteredEvents] = useState([]);
     const [eventsCoordinates, setEventsCoordinates] = useState([]);
     const radius = 2;
-    const filterDistanceValue = 50;
+    const filterDistanceValue = 1500;
 
     const handleSearch = (text) => {
         setSearchQuery(text);
@@ -38,7 +38,18 @@ const MapScreen = (props) => {
                 Alert.alert('Permission denied', 'We need location permissions to get your location.');
                 return;
             }
-
+            // testing android code fix
+            try {
+                const currentLocation = await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.Highest,
+                    maximumAge: 10000,
+                    timeout: 5000
+                });
+                setLocation(currentLocation);
+            } catch (error) {
+                console.log('Error getting current location:', error);
+            }
+            // end of testing
             let currentLocation = await Location.getCurrentPositionAsync({});
             setLocation(currentLocation.coords);
             fitToFrame(currentLocation.coords);
@@ -51,6 +62,7 @@ const MapScreen = (props) => {
                 .then((data) => {
                     const onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
                     seteventsData(onsiteEvents)
+                    console.log("testing", onsiteEvents);
                     const eventCoordinates = onsiteEvents.map((event) => ({
                         latitude: parseFloat(event.latitude),
                         longitude: parseFloat(event.longitude),
@@ -178,7 +190,7 @@ const MapScreen = (props) => {
             // Do not snap to the next item if the distance is greater than 3 miles
             return;
         }
-    
+
         if (carouselRef.current) {
             carouselRef.current.snapToItem(ind);
         }
