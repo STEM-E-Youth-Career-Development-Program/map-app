@@ -25,7 +25,7 @@ const MapScreen = (props) => {
     const [filteredEvents, setFilteredEvents] = useState([]);
     const [eventsCoordinates, setEventsCoordinates] = useState([]);
     const radius = 2;
-    const filterDistanceValue = 1500;
+    const filterDistanceValue = 50;
 
     const handleSearch = (text) => {
         setSearchQuery(text);
