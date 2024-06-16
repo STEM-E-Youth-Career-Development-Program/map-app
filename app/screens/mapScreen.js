@@ -30,7 +30,7 @@ const MapScreen = (props) => {
     const handleSearch = (text) => {
         setSearchQuery(text);
     };
-
+    
     useEffect(() => {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
@@ -38,39 +38,53 @@ const MapScreen = (props) => {
                 Alert.alert('Permission denied', 'We need location permissions to get your location.');
                 return;
             }
-
-            let currentLocation = await Location.getCurrentPositionAsync({});
-            setLocation(currentLocation.coords);
-            fitToFrame(currentLocation.coords);
-            createPolyline(selectedIndex, currentLocation.coords);
-            filterEventsWithinRadius(currentLocation.coords, radius);
-
+            try {
+                const currentLocation = await Location.getCurrentPositionAsync({
+                    accuracy: Location.Accuracy.Highest,
+                    maximumAge: 10000,
+                    timeout: 5000
+                });
+                setLocation(currentLocation);
+            } catch (error) {
+                console.log('Error getting current location:', error);
+            }
+            
             // Fetch data from the API
-            fetch('https://mapstem-api.azurewebsites.net/api/Event')
-                .then((response) => response.json())
-                .then((data) => {
-                    const onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
-                    seteventsData(onsiteEvents)
-                    const eventCoordinates = onsiteEvents.map((event) => ({
-                        latitude: parseFloat(event.latitude),
-                        longitude: parseFloat(event.longitude),
-                    }));
-                    setEventsCoordinates(eventCoordinates);
-                    const filteredEvent = onsiteEvents.filter((event) => {
-                        const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
-                        return (
-                            event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            subjectString.includes(searchQuery.toLowerCase())
-                        );
-                    });
-                    setFilteredEvents(filteredEvent);
-                    // Convert subject array to a string and lowercase for comparison
-
-                })
-                .catch((error) => console.error('Error fetching data:', error));
+            try {
+                const response = await fetch('https://mapstem-api.azurewebsites.net/api/Event');
+                const data = await response.json();
+                const onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
+                seteventsData(onsiteEvents)
+                console.log("onsiteEvents:" + onsiteEvents);
+                const eventCoordinates = onsiteEvents.map((event) => ({
+                    latitude: parseFloat(event.latitude),
+                    longitude: parseFloat(event.longitude),
+                }));
+                setEventsCoordinates(eventCoordinates);
+                const filteredEvent = onsiteEvents.filter((event) => {
+                    const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
+                    return (
+                        event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        subjectString.includes(searchQuery.toLowerCase())
+                    );
+                });
+                setFilteredEvents(filteredEvent);
+                // Convert subject array to a string and lowercase for comparison
+                
+                if(location && eventsCoordinates)
+                {
+                    createPolyline(selectedIndex, location);
+                    filterEventsWithinRadius(location, radius);
+                    fitToFrame(location);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
         })();
     }, [searchQuery]);
 
+    console.log(location);
+    console.log(eventsCoordinates);
 
     const filterEventsWithinRadius = (userLocation) => {
         const filtered = eventsCoordinates.filter((event) => {
@@ -84,8 +98,10 @@ const MapScreen = (props) => {
 
     const getDistance = (coord1, coord2) => {
         const R = 3959;
-        const dLat = deg2rad(coord2.latitude - coord1.latitude);
-        const dLon = deg2rad(coord2.longitude - coord1.longitude);
+        console.log("coord2 latitude:" + typeof(coord2.latitude));
+        console.log("coord2 longitude:" + typeof(coord2.longitude));
+        const dLat = deg2rad(coord2.latitude - coord1.coords.latitude);
+        const dLon = deg2rad(coord2.longitude - coord1.coords.longitude);
         const a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(deg2rad(coord1.latitude)) * Math.cos(deg2rad(coord2.latitude)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
@@ -120,8 +136,8 @@ const MapScreen = (props) => {
         }));
         if (mapRef) {
             mapRef?.current?.fitToCoordinates([...eventLocs, {
-                latitude: userLocation.latitude,
-                longitude: userLocation.longitude
+                latitude: userLocation.coords.latitude,
+                longitude: userLocation.coords.longitude
             }], { edgePadding: { top: 20, right: 20, bottom: 20, left: 20 }, animated: true })
         }
     }
@@ -129,11 +145,15 @@ const MapScreen = (props) => {
 
 
     const createPolyline = (eventIndex, userLocation) => {
+        console.log(userLocation);
         if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
+            // console.log("asiduasoidjoasjdojasiod" + eventsCoordinates[0]);
             const destination = eventsCoordinates[eventIndex];
+            // console.log("event coordinate:" + eventsCoordinates);
             if (destination && destination.latitude && destination.longitude) {
                 const destinationString = `${destination.latitude},${destination.longitude}`;
-                const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude},${userLocation.longitude}&destination=${destinationString}&key=${MAP_API_KEY}`;
+                // const latitudes = userLocation.map(location => location.latitude);
+                const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.coords.latitude},${userLocation.coords.longitude}&destination=${destinationString}&key=${MAP_API_KEY}`;
 
                 fetch(apiUrl)
                     .then(response => response.json())
@@ -145,7 +165,7 @@ const MapScreen = (props) => {
                         if (mapRef) {
                             mapRef?.current?.fitToCoordinates([
                                 { latitude: destination.latitude, longitude: destination.longitude },
-                                { latitude: userLocation.latitude, longitude: userLocation.longitude }
+                                { latitude: userLocation.coords.latitude, longitude: userLocation.coords.longitude }
                             ], { edgePadding: { top: 80, right: 20, bottom: 80, left: 80 }, animated: true });
                         }
                     })
@@ -205,10 +225,10 @@ const MapScreen = (props) => {
     };
 
     const fitMarkersOnMap = () => {
-        let minLat = location.latitude;
-        let maxLat = location.latitude;
-        let minLng = location.longitude;
-        let maxLng = location.longitude;
+        let minLat = location.coords.latitude;
+        let maxLat = location.coords.latitude;
+        let minLng = location.coords.longitude;
+        let maxLng = location.coords.longitude;
 
         // Find min and max coordinates among current location and event markers
         eventsCoordinates.forEach((marker) => {
@@ -275,7 +295,7 @@ const MapScreen = (props) => {
                         >
                             {location && (
                                 <Marker
-                                    coordinate={{ latitude: location.latitude, longitude: location.longitude }}
+                                    coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
                                     pinColor="blue"
                                     rotation={getMarkerRotation()}
                                 />
@@ -304,7 +324,7 @@ const MapScreen = (props) => {
                             {location && polylineCoords && (
                                 <Polyline
                                     coordinates={[
-                                        { latitude: location.latitude, longitude: location.longitude },
+                                        { latitude: location.coords.latitude, longitude: location.coords.longitude },
                                         ...polylineCoords,
                                     ]}
                                     strokeColor={getDistance(location, eventsCoordinates[selectedIndex]) <= filterDistanceValue ? "#000" : "transparent"}
@@ -315,7 +335,7 @@ const MapScreen = (props) => {
                             {/* Location Radius */}
                             {location && (
                                 <Circle
-                                    center={{ latitude: location.latitude, longitude: location.longitude }}
+                                    center={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
                                     radius={1609.34 * radius}
                                     strokeWidth={1}
                                     strokeColor="blue"
