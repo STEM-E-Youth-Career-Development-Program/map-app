@@ -1,14 +1,21 @@
 {
   "expo": {
-    "name": "map-app",
+    "name": "mapSTEM", // renamed to mapSTEM for app release
     "slug": "map-app",
     "version": "1.0.0",
+    "ios": {
+      "buildNumber": "2" // Increment this build number
+    },
     "orientation": "portrait",
+    "icon": "./app/assets/map_icon.png",
     "userInterfaceStyle": "light",
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+    "permissions": [
+      "ACCESS_FINE_LOCATION",
+      "ACCESS_COARSE_LOCATION"
+    ],
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -16,7 +23,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.demo.mapapp",
       "config": {
-          "googleMapsApiKey": "AIzaSyABw1Zlew8uwDkqokOuy9d7JWo9k4Ykj80"
+        "googleMapsApiKey": "AIzaSyABw1Zlew8uwDkqokOuy9d7JWo9k4Ykj80"
       }
     },
     "android": {
@@ -25,9 +32,14 @@
       },
       "package": "com.demo.mapapp",
       "config": {
-          "googleMaps": {
-              "apiKey": "AIzaSyABw1Zlew8uwDkqokOuy9d7JWo9k4Ykj80"
-          } 
+        "googleMaps": {
+          "apiKey": "AIzaSyABw1Zlew8uwDkqokOuy9d7JWo9k4Ykj80"
+        }
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "9554c499-9949-4dcb-95b7-f46156cc5a97"
       }
     }
   }

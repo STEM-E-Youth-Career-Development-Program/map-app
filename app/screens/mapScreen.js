@@ -41,9 +41,9 @@ const MapScreen = (props) => {
             // testing android code fix
             try {
                 const currentLocation = await Location.getCurrentPositionAsync({
-                    accuracy: Location.Accuracy.Highest,
-                    maximumAge: 10000,
-                    timeout: 5000
+                    //accuracy: Location.Accuracy.Highest,
+                    //maximumAge: 10000,
+                    //timeout: 5000
                 });
                 setLocation(currentLocation);
             } catch (error) {
@@ -64,9 +64,15 @@ const MapScreen = (props) => {
                     seteventsData(onsiteEvents)
                     console.log("testing", onsiteEvents);
                     const eventCoordinates = onsiteEvents.map((event) => ({
-                        latitude: parseFloat(event.latitude),
-                        longitude: parseFloat(event.longitude),
+                        latitude: parseFloat(event.latitude) || 29.759141,
+                        longitude: parseFloat(event.longitude) || -95.370310,
                     }));
+
+                    // Print out the coordinates
+                    eventCoordinates.forEach(coord => {
+                        console.log(`Latitude: ${coord.latitude}, Longitude: ${coord.longitude}`);
+                    });
+
                     setEventsCoordinates(eventCoordinates);
                     const filteredEvent = onsiteEvents.filter((event) => {
                         const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
