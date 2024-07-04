@@ -27,9 +27,20 @@ const FilterScreen = ({ selectedSubjects, selectedCost }) => {
 
   const [showDistance, setShowDistance] = useState(true);
 
+  // const handleEventTypeChange = (item) => {
+  //   setSelectedLocation(item.label);
+  //   setShowDistance(item.label === "Onsite");
+  // };
+
   const handleEventTypeChange = (item) => {
     setSelectedLocation(item.label);
-    setShowDistance(item.label === "Onsite");
+    if (item.label === "Virtual") {
+      setDistance(100);
+      setShowDistance(false);
+    } else {
+      setDistance(50);
+      setShowDistance(true);
+    }
   };
 
   var distanceText = "Within " + distance + " miles";
@@ -118,7 +129,7 @@ const FilterScreen = ({ selectedSubjects, selectedCost }) => {
         placeholder="Select Event Type"
         // value={selectedLocation}
         // onChange={(item) => setSelectedLocation(item.label)}
-        value={selectedLocation}
+        // value={selectedLocation}
         onChange={handleEventTypeChange}
       />
 

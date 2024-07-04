@@ -62,7 +62,7 @@ const MapScreen = (props) => {
                 .then((data) => {
                     const onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
                     seteventsData(onsiteEvents)
-                    console.log("testing", onsiteEvents);
+                    // console.log("testing", onsiteEvents);
                     const eventCoordinates = onsiteEvents.map((event) => ({
                         latitude: parseFloat(event.latitude) || 29.759141,
                         longitude: parseFloat(event.longitude) || -95.370310,
@@ -70,7 +70,7 @@ const MapScreen = (props) => {
 
                     // Print out the coordinates
                     eventCoordinates.forEach(coord => {
-                        console.log(`Latitude: ${coord.latitude}, Longitude: ${coord.longitude}`);
+                        // console.log(`Latitude: ${coord.latitude}, Longitude: ${coord.longitude}`);
                     });
 
                     setEventsCoordinates(eventCoordinates);
@@ -93,7 +93,7 @@ const MapScreen = (props) => {
     const filterEventsWithinRadius = (userLocation) => {
         const filtered = eventsCoordinates.filter((event) => {
             const distance = getDistance(userLocation, event);
-            console.log(`Distance for event: ${distance} miles`);
+            // console.log(`Distance for event: ${distance} miles`);
             return distance <= radius;
         });
         setFilteredEvents(filtered);

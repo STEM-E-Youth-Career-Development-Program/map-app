@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, Text, Pressable, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, FlatList, Text, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
 import SearchBar from '../components/SearchBar';
 import Event from '../components/Event';
 import PageHeader from '../components/PageHeader';
@@ -73,37 +73,33 @@ function EventListScreen({ route, navigation }) {
     return `${baseUrl}?${query}`;
   };
 
-  useEffect(() => {
-    console.log('Selected Subjects:', selectedSubjects);
-    console.log('Selected Cost:', selectedCost);
-    console.log('Distance:', distance);
-    console.log('Event Type:', eventType);
 
-    const fetchData = async () => {
-      try {
-        const url = buildUrl('https://mapstem-api.azurewebsites.net/api/Event', {
-          Subject: selectedSubjects,
-          Cost: selectedCost,
-          Distance: distance,
-          EventType: eventType,
-        });
-        console.log('Fetching data from URL:', url);
+  const fetchData = async () => {
+    try {
+      const url = buildUrl('https://mapstem-api.azurewebsites.net/api/Event', {
+        Subject: selectedSubjects,
+        Cost: selectedCost,
+        Distance: distance,
+        EventType: eventType,
+      });
+      // console.log('Fetching data from URL:', url);
 
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('API response data:', data);
-        setEvents(data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setLoading(false);
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-    };
 
+      const data = await response.json();
+      console.log('API response data:', data.length);
+      setEvents(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [selectedSubjects, selectedCost, eventType, distance]);
 
@@ -120,16 +116,16 @@ function EventListScreen({ route, navigation }) {
           event.latitude,
           event.longitude
         );
-        console.log(`Event ID: ${event.id}, Distance: ${eventDistance}`);
+        // console.log(`Event ID: ${event.id}, Distance: ${eventDistance}`);
         return { ...event, distance: eventDistance };
       })
       : [];
 
-    console.log('Events with distance:', eventsWithDistance);
+    // console.log('Events with distance:', eventsWithDistance);
 
     const filteredEvents = eventsWithDistance.filter((event) => {
       const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
-    
+
       const matchesSearchQuery =
         event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         subjectString.includes(searchQuery.toLowerCase());
@@ -139,16 +135,16 @@ function EventListScreen({ route, navigation }) {
       const matchesEventType = !eventType || event.eventType === eventType;
       const matchesDistance = distance === 100 || !distance || event.distance <= distance;
 
-      console.log(`Event: ${event.eventName}`);
-      console.log(`Matches search query: ${matchesSearchQuery}`);
-      console.log(`Matches status: ${matchesStatus}`);
-      console.log(`Matches event type: ${matchesEventType}`);
-      console.log(`Matches distance: ${matchesDistance}`);
-    
+      // console.log(`Event: ${event.eventName}`);
+      // console.log(`Matches search query: ${matchesSearchQuery}`);
+      // console.log(`Matches status: ${matchesStatus}`);
+      // console.log(`Matches event type: ${matchesEventType}`);
+      // console.log(`Matches distance: ${matchesDistance}`);
+
       return matchesSearchQuery && matchesStatus && matchesEventType && matchesDistance;
     });
-    
-    console.log('Filtered events:', filteredEvents);
+
+    // console.log('Filtered events:', filteredEvents);
     setFilteredData(filteredEvents);
   }, [searchQuery, active, loading, eventsAPI, location, eventType, distance]);
 
@@ -174,85 +170,94 @@ function EventListScreen({ route, navigation }) {
       <PageHeader header="All Events" />
       {renderFilterCapsules()}
 
-      <View style={styles.actpenContainer}>
-        <Pressable
-          style={[
-            styles.actpen,
-            active
-              ? { borderBottomColor: 'black' }
-              : { borderBottomColor: '#999999' },
-          ]}
-          onPress={() => setActive(true)}
-        >
-          <Text
-            style={[
-              styles.actpentxt,
-              active ? { fontWeight: '700' } : { fontWeight: '400' },
-            ]}
-          >
-            Active
-          </Text>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.actpen,
-            !active
-              ? { borderBottomColor: 'black' }
-              : { borderBottomColor: '#999999' },
-          ]}
-          onPress={() => setActive(false)}
-        >
-          <Text
-            style={[
-              styles.actpentxt,
-              !active ? { fontWeight: '700' } : { fontWeight: '400' },
-            ]}
-          >
-            Pending
-          </Text>
-        </Pressable>
-      </View>
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#000" />
+        </View>
+      ) : (
+        <>
+          <View style={styles.actpenContainer}>
+            <Pressable
+              style={[
+                styles.actpen,
+                active
+                  ? { borderBottomColor: 'black' }
+                  : { borderBottomColor: '#999999' },
+              ]}
+              onPress={() => setActive(true)}
+            >
+              <Text
+                style={[
+                  styles.actpentxt,
+                  active ? { fontWeight: '700' } : { fontWeight: '400' },
+                ]}
+              >
+                Active
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.actpen,
+                !active
+                  ? { borderBottomColor: 'black' }
+                  : { borderBottomColor: '#999999' },
+              ]}
+              onPress={() => setActive(false)}
+            >
+              <Text
+                style={[
+                  styles.actpentxt,
+                  !active ? { fontWeight: '700' } : { fontWeight: '400' },
+                ]}
+              >
+                Pending
+              </Text>
+            </Pressable>
+          </View>
 
-      <SearchBar
-        value={searchQuery}
-        onChangeText={handleSearch}
-        placeholder="Search for event"
-        onPressIcon={() => navigation.navigate('Filter Events')}
-        isList={true}
-      />
-      <FlatList
-        data={filteredData}
-        keyExtractor={(event) => event.id.toString()}
-        renderItem={({ item }) => (
-          <Event
-            image={item.imageData}
-            heading={item.eventName}
-            type={item.eventType}
-            cost={item.cost}
-            description={item.description}
-            startDate={item.startDate}
-            endDate={item.endDate}
-            startTime={item.startTime}
-            endTime={item.endTime}
-            address={item.address}
-            companyname={item.companyName}
-            subject={item.subject}
-            contact={item.contactNo}
-            eligibility={item.eligibility}
-            gradeLevel={item.gradeLevel}
-            ageGroup={item.ageGroup}
-            meal={item.mealIncluded}
-            distance={item.distance}
-            navigation={navigation}
-            allDetails={item}
+          <SearchBar
+            value={searchQuery}
+            onChangeText={handleSearch}
+            placeholder="Search for event"
+            onPressIcon={() => navigation.navigate('Filter Events')}
+            isList={true}
           />
-        )}
-      />
 
-      <NextButton
-        title={'Add New Event'}
-        onPress={() => navigation.navigate('Create Event')}
-      />
+          <FlatList
+            data={filteredData}
+            keyExtractor={(event) => event.id.toString()}
+            renderItem={({ item }) => (
+              <Event
+                image={item.imageData}
+                heading={item.eventName}
+                type={item.eventType}
+                cost={item.cost}
+                description={item.description}
+                startDate={item.startDate}
+                endDate={item.endDate}
+                startTime={item.startTime}
+                endTime={item.endTime}
+                address={item.address}
+                companyname={item.companyName}
+                subject={item.subject}
+                contact={item.contactNo}
+                eligibility={item.eligibility}
+                gradeLevel={item.gradeLevel}
+                ageGroup={item.ageGroup}
+                meal={item.mealIncluded}
+                distance={item.distance}
+                navigation={navigation}
+                allDetails={item}
+              />
+            )}
+          />
+
+          <NextButton
+            title={'Add New Event'}
+            onPress={() => navigation.navigate('Create Event')}
+          />
+        </>
+      )}
     </View>
   );
 }

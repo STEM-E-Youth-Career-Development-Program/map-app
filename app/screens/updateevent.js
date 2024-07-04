@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { StyleSheet, View, Text, Platform, Image, TouchableOpacity, Button } from "react-native";
+import { StyleSheet, View, Text, Platform, Image, TouchableOpacity, Button, ActivityIndicator } from "react-native";
 import * as Yup from "yup";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import AppForm from "../components/AppForm";
@@ -68,6 +68,7 @@ function UpdateEventScreen({ props, route }) {
   const [selected, setSelected] = useState([]);
   const navigation = useNavigation();
   const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   // const route = useRoute();
 
   const onChangeStartTime = (event, selectedTime) => {
@@ -142,8 +143,10 @@ function UpdateEventScreen({ props, route }) {
           mealInclude: eventData.data.mealIncluded || '',
           webURL: eventData.data.url || '',
         });
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching event details:', error);
+        setLoading(false);
       }
     };
     fetchEventDetails(eventId);
@@ -223,6 +226,7 @@ function UpdateEventScreen({ props, route }) {
 
   // Update Event Handle 
   const handleSubmit = async (values) => {
+    setLoading(true);
     try {
       // console.log("check submission", values)
       const userData = await AsyncStorage.getItem('userData');
@@ -278,7 +282,7 @@ function UpdateEventScreen({ props, route }) {
       formData.append('Url', values.webURL);
       formData.append("Latitude", latitude);
       formData.append("Longitude", longitude);
-      // console.log('Before fetch', formData);
+      console.log('Before fetch', formData);
       const response = await fetch('https://mapstem-api.azurewebsites.net/api/Event', {
         method: 'PUT',
         headers: {
@@ -288,12 +292,13 @@ function UpdateEventScreen({ props, route }) {
         body: formData,
 
       });
-      // console.log('After fetch');
+      console.log('After fetch');
       // console.log('Response Status:', response.status);
       const responseText = await response.text();
       if (response.ok) {
         // console.log('Event updated successfully');
         // Show success message
+        setLoading(false);
         Alert.alert(
           'Success',
           'Event update successfully',
@@ -302,14 +307,19 @@ function UpdateEventScreen({ props, route }) {
         );
       } else {
         console.error('Failed to update event');
+       
       }
+      setLoading(false);
     } catch (error) {
       // console.error('Error updating event', error);
+      setLoading(false);
       Alert.alert('Missing Information', 'Please fill out all required fields');
+     
     }
   };
   // Activate Event Handle
   const handleActivate = async () => {
+    setLoading(true);
     try {
       const userData = await AsyncStorage.getItem('userData');
       const userDataObject = JSON.parse(userData);
@@ -331,21 +341,25 @@ function UpdateEventScreen({ props, route }) {
 
       if (response.ok) {
         // console.log('Event activated successfully');
+        setLoading(false);
         Alert.alert(
           'Success',
           'Event activated successfully',
           [{ text: 'OK', onPress: () => navigation.navigate('Events') }],
           { cancelable: false }
         );
+        setLoading(false);
       } else {
         console.error('Failed to activate event');
       }
+      setLoading(false);
     } catch (error) {
       console.error('Error activating event:', error);
     }
   };
   // Delete Event Handle
   const handleDelete = async () => {
+    setLoading(true);
     try {
       const userData = await AsyncStorage.getItem('userData');
       const userDataObject = JSON.parse(userData);
@@ -366,15 +380,18 @@ function UpdateEventScreen({ props, route }) {
 
       if (response.ok) {
         // console.log('Event deleted successfully');
+        setLoading(false);
         Alert.alert(
           'Success',
           'Event deleted successfully',
           [{ text: 'OK', onPress: () => navigation.navigate('Events') }],
           { cancelable: false }
         );
+        setLoading(false);
       } else {
         console.error('Failed to delete event');
       }
+      setLoading(false);
     } catch (error) {
       console.error('Error deleting event:', error);
     }
@@ -397,13 +414,19 @@ function UpdateEventScreen({ props, route }) {
 
   // console.log("check ", selectedSubjects)
   return (
-    <Screen>
+    <Screen style={styles.screen}>
       <KeyboardAwareScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         enableOnAndroid
         extraScrollHeight={Platform.OS === 'ios' ? 130 : 0}
       >
         <PageHeader header={"Update Event"} />
+        {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: "90%" }}>
+          <ActivityIndicator size="large" color="#000" />
+        </View>
+      ) : (
+        <>
         <View style={{ padding: 10, paddingBottom: 75 }}>
           {formValues &&
             <Formik
@@ -879,6 +902,7 @@ function UpdateEventScreen({ props, route }) {
                         backgroundColor: 'black', // Set background color instead of using LinearGradient
                       }}
                       onPress={handleSubmit}
+                      disabled={loading} 
                     >
                       <Text
                         style={{
@@ -974,8 +998,8 @@ function UpdateEventScreen({ props, route }) {
             </Formik>
           }
         </View>
-
-
+        </>
+      )}
       </KeyboardAwareScrollView>
     </Screen>
   );

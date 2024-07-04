@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { StyleSheet, View, Text, Platform, Image, TouchableOpacity, Button } from "react-native";
+import { StyleSheet, View, Text, Platform, Image, TouchableOpacity, Button, ActivityIndicator } from "react-native";
 import * as Yup from "yup";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import AppForm from "../components/AppForm";
@@ -67,6 +67,7 @@ function CreateEventScreen({ props, route }) {
   const [isFocus, setIsFocus] = useState(false);
   const [selected, setSelected] = useState([]);
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
   // const route = useRoute();
 
   const onChangeStartTime = (event, selectedTime) => {
@@ -182,6 +183,7 @@ function CreateEventScreen({ props, route }) {
 
 
   const handleSubmit = async (values) => {
+    setLoading(true);
     try {
       // console.log("check form Data", values);
       // console.log("check form Data", values.gradeLevel);
@@ -229,7 +231,7 @@ function CreateEventScreen({ props, route }) {
       formData.append('Url', values.webURL);
       formData.append("Latitude", latitude);
       formData.append("Longitude", longitude);
-      // console.log('Before fetch');
+      console.log('Before fetch');
       // Make the API call to upload the image
       const response = await fetch('https://mapstem-api.azurewebsites.net/api/Event', {
         method: 'POST',
@@ -239,7 +241,7 @@ function CreateEventScreen({ props, route }) {
         body: formData,
 
       });
-      // console.log('After fetch');
+      console.log('After fetch');
 
       // Log the response status and content
       // console.log('Response Status:', response.status);
@@ -248,6 +250,7 @@ function CreateEventScreen({ props, route }) {
 
       // Check if the request was successful
       if (response.ok) {
+        setLoading(false);
         // console.log('Event created successfully');
         // Show success message
         Alert.alert(
@@ -265,8 +268,10 @@ function CreateEventScreen({ props, route }) {
         console.error('Failed to create event');
         // Handle the error, you can parse response.json() for more details
       }
+      setLoading(false);
     } catch (error) {
       Alert.alert('Missing Information', 'Please fill out all required fields');
+      setLoading(false);
       //console.error('Error creating event', error);
     }
   };
@@ -283,271 +288,277 @@ function CreateEventScreen({ props, route }) {
         extraScrollHeight={Platform.OS === 'ios' ? 130 : 0}
       >
         <PageHeader header={"Create New Event"} />
-        <View style={{ padding: 10, paddingBottom: 75 }}>
-          <Formik
-            initialValues={formValues}
-            onSubmit={handleSubmit}
-          // validationSchema={validationSchema}
-          >
-            {({ handleChange, handleBlur, handleSubmit, values, setValues }) => (
-              <View>
-                <Text style={{ fontSize: 16 }}>Select Event Image</Text>
-                <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
-                  <TouchableOpacity
-                    style={{
-                      backgroundColor: '#ffffff',
-                      borderWidth: 1,
-                      borderColor: '#000',
-                      borderRadius: 10,
-                      paddingVertical: 30,
-                      paddingHorizontal: 20,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '100%',
-                    }}
-                    onPress={handleImagePicker}
-                  >
-                    <FontAwesome name="plus" size={20} color="black" style={{ marginRight: 10 }} />
+        {loading ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: "90%" }}>
+            <ActivityIndicator size="large" color="#000" />
+          </View>
+        ) : (
+          <>
+            <View style={{ padding: 10, paddingBottom: 75 }}>
+              <Formik
+                initialValues={formValues}
+                onSubmit={handleSubmit}
+              // validationSchema={validationSchema}
+              >
+                {({ handleChange, handleBlur, handleSubmit, values, setValues }) => (
+                  <View>
+                    <Text style={{ fontSize: 16 }}>Select Event Image</Text>
+                    <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: '#ffffff',
+                          borderWidth: 1,
+                          borderColor: '#000',
+                          borderRadius: 10,
+                          paddingVertical: 30,
+                          paddingHorizontal: 20,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '100%',
+                        }}
+                        onPress={handleImagePicker}
+                      >
+                        <FontAwesome name="plus" size={20} color="black" style={{ marginRight: 10 }} />
 
-                  </TouchableOpacity>
-
-                  {/* Display the selected image */}
-                  {showeventImage && (
-                    <View style={{ alignItems: 'center', marginTop: 10 }}>
-                      <Text style={{ fontSize: 16 }}>Selected Image:</Text>
-                      <Image
-                        source={{ uri: showeventImage }}
-                        style={{ width: 200, height: 200, borderRadius: 10, marginTop: 10 }}
-                      />
-                      <TouchableOpacity onPress={handleRemoveImage} style={{ position: 'absolute', top: 5, right: 5 }}>
-                        <Text style={{ fontSize: 16, color: 'red' }}>X</Text>
                       </TouchableOpacity>
+
+                      {/* Display the selected image */}
+                      {showeventImage && (
+                        <View style={{ alignItems: 'center', marginTop: 10 }}>
+                          <Text style={{ fontSize: 16 }}>Selected Image:</Text>
+                          <Image
+                            source={{ uri: showeventImage }}
+                            style={{ width: 200, height: 200, borderRadius: 10, marginTop: 10 }}
+                          />
+                          <TouchableOpacity onPress={handleRemoveImage} style={{ position: 'absolute', top: 5, right: 5 }}>
+                            <Text style={{ fontSize: 16, color: 'red' }}>X</Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
                     </View>
-                  )}
-                </View>
 
 
-                <AppFormField
-                  name={"heading"}
-                  label="Event Name"
-                  isRequired={true}
-                  onChangeText={handleChange('eventName')}
-                  onBlur={handleBlur('eventName')}
-                  value={values.eventName}
-                  placeholder="Event Name"
-                />
+                    <AppFormField
+                      name={"heading"}
+                      label="Event Name"
+                      isRequired={true}
+                      onChangeText={handleChange('eventName')}
+                      onBlur={handleBlur('eventName')}
+                      value={values.eventName}
+                      placeholder="Event Name"
+                    />
 
-                <AppFormField
-                  name={"eventType"}
-                  label="Event Type"
-                  isRequired={true}
-                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
-                  onPress={() => setDropdownOpen(true)}
-                  onDropdown={true}
-                  onChangeText={(value) => {
-                    handleChange('eventType')(value); // Update Formik state
-                    setFormValues({ ...formValues, eventType: value });
-                  }}
-                  onBlur={handleBlur('eventType')}
-                  value={values.eventType}
-                />
-
-                <AppFormField name={"cost"}
-                  label="Average Cost (in dollars)" isRequired={true}
-                  onChangeText={handleChange('cost')}
-                  onBlur={handleBlur('cost')}
-                  value={values.cost}
-                />
-                <AppFormField
-                  name={"description"}
-                  label="Description" isRequired={true}
-                  multiline
-                  numberOfLines={3}
-                  onChangeText={handleChange('description')}
-                  onBlur={handleBlur('description')}
-                  value={values.description}
-                />
-
-                <AppFormField
-                  name={"startDate"}
-                  label="Start Date"
-                  isRequired={true}
-                  icon={
-                    <EvilIcons
-                      name="calendar"
-                      color={"#999"}
-                      size={28}
-                      onPress={() => {
-                        setDatePickerMode("date");
-                        setStartOpen(true);
+                    <AppFormField
+                      name={"eventType"}
+                      label="Event Type"
+                      isRequired={true}
+                      icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                      onPress={() => setDropdownOpen(true)}
+                      onDropdown={true}
+                      onChangeText={(value) => {
+                        handleChange('eventType')(value); // Update Formik state
+                        setFormValues({ ...formValues, eventType: value });
                       }}
+                      onBlur={handleBlur('eventType')}
+                      value={values.eventType}
                     />
-                  }
-                  value={startDate.toLocaleDateString()}
-                />
 
-                {startOpen && (
-                  <DateTimePicker
-                    value={startDate}
-                    mode={datePickerMode}
-                    display="default"
-                    onChange={(event, selectedDate) => {
-                      onChangeStartDate(event, selectedDate);
-                      setValues({ ...values, startDate: selectedDate });
-                      setFormValues({ ...formValues, startDate: selectedDate });
-                    }}
-                  />
-                )}
-
-                <AppFormField
-                  name={"endDate"}
-                  label="End Date"
-                  isRequired={true}
-                  icon={
-                    <EvilIcons
-                      name="calendar"
-                      color={"#999"}
-                      size={28}
-                      onPress={() => setEndOpen(true)}
+                    <AppFormField name={"cost"}
+                      label="Average Cost (in dollars)" isRequired={true}
+                      onChangeText={handleChange('cost')}
+                      onBlur={handleBlur('cost')}
+                      value={values.cost}
                     />
-                  }
-                  value={endDate.toLocaleDateString()}
-                />
-
-                {endOpen && (
-                  <DateTimePicker
-                    value={endDate}
-                    mode="date"
-                    is24Hour={false}
-                    display="default"
-                    onChange={(event, selectedDate) => {
-                      onChangeEndDate(event, selectedDate);
-                      setValues({ ...values, endDate: selectedDate }); // Update Formik state
-                      setFormValues({ ...formValues, endDate: selectedDate });
-                    }}
-                  />
-                )}
-
-                <AppFormField
-                  name={"startTime"}
-                  value={startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
-                  label="Start Time"
-                  isRequired={true}
-                  icon={
-                    <MaterialIcons
-                      name="access-time"
-                      color={"#999"}
-                      size={25}
-                      onPress={() => setStartTimeOpen(true)}
+                    <AppFormField
+                      name={"description"}
+                      label="Description" isRequired={true}
+                      multiline
+                      numberOfLines={3}
+                      onChangeText={handleChange('description')}
+                      onBlur={handleBlur('description')}
+                      value={values.description}
                     />
-                  }
-                />
 
-                {startTimeOpen && (
-                  <DateTimePicker
-                    value={startTime}
-                    mode="time"
-                    is24Hour={false}
-                    display="default"
-                    onChange={(event, selectedTime) => {
-                      onChangeStartTime(event, selectedTime);
-                      setValues({ ...values, startTime: selectedTime }); // Update Formik state
-                      setFormValues({ ...formValues, startTime: selectedTime });
-                    }}
-                  />
-                )}
-
-                <AppFormField
-                  name={"endTime"}
-                  label="End Time"
-                  value={endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
-                  isRequired={true}
-                  icon={
-                    <MaterialIcons
-                      name="access-time"
-                      color={"#999"}
-                      size={25}
-                      onPress={() => setEndTimeOpen(true)}
+                    <AppFormField
+                      name={"startDate"}
+                      label="Start Date"
+                      isRequired={true}
+                      icon={
+                        <EvilIcons
+                          name="calendar"
+                          color={"#999"}
+                          size={28}
+                          onPress={() => {
+                            setDatePickerMode("date");
+                            setStartOpen(true);
+                          }}
+                        />
+                      }
+                      value={startDate.toLocaleDateString()}
                     />
-                  }
-                />
 
-                {endTimeOpen && (
-                  <DateTimePicker
-                    value={endTime}
-                    mode="time"
-                    // is24Hour={false}
-                    display="default"
-                    onChange={(event, selectedTime) => {
-                      onChangeEndTime(event, selectedTime);
-                      setValues({ ...values, endTime: selectedTime }); // Update Formik state
-                      setFormValues({ ...formValues, endTime: selectedTime });
+                    {startOpen && (
+                      <DateTimePicker
+                        value={startDate}
+                        mode={datePickerMode}
+                        display="default"
+                        onChange={(event, selectedDate) => {
+                          onChangeStartDate(event, selectedDate);
+                          setValues({ ...values, startDate: selectedDate });
+                          setFormValues({ ...formValues, startDate: selectedDate });
+                        }}
+                      />
+                    )}
 
-                    }}
-                  />
-                )}
+                    <AppFormField
+                      name={"endDate"}
+                      label="End Date"
+                      isRequired={true}
+                      icon={
+                        <EvilIcons
+                          name="calendar"
+                          color={"#999"}
+                          size={28}
+                          onPress={() => setEndOpen(true)}
+                        />
+                      }
+                      value={endDate.toLocaleDateString()}
+                    />
 
-                <AppFormField name={"location"} label="Address" isRequired={true}
-                  onChangeText={handleChange('address')}
-                  onBlur={handleBlur('address')}
-                  value={values.address}
-                />
-                <AppFormField
-                  name={"company"}
-                  label="Host/Company Name"
-                  isRequired={true}
-                  onChangeText={handleChange('companyName')}
-                  onBlur={handleBlur('companyName')}
-                  value={values.companyName}
-                />
+                    {endOpen && (
+                      <DateTimePicker
+                        value={endDate}
+                        mode="date"
+                        is24Hour={false}
+                        display="default"
+                        onChange={(event, selectedDate) => {
+                          onChangeEndDate(event, selectedDate);
+                          setValues({ ...values, endDate: selectedDate }); // Update Formik state
+                          setFormValues({ ...formValues, endDate: selectedDate });
+                        }}
+                      />
+                    )}
 
-                <AppFormField
-                  name={"contact"}
-                  label="Contact Number"
-                  onChangeText={handleChange('contactNo')}
-                  onBlur={handleBlur('contactNo')}
-                  value={values.contactNo}
-                  keyboardType="numeric"
+                    <AppFormField
+                      name={"startTime"}
+                      value={startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                      label="Start Time"
+                      isRequired={true}
+                      icon={
+                        <MaterialIcons
+                          name="access-time"
+                          color={"#999"}
+                          size={25}
+                          onPress={() => setStartTimeOpen(true)}
+                        />
+                      }
+                    />
 
-                />
+                    {startTimeOpen && (
+                      <DateTimePicker
+                        value={startTime}
+                        mode="time"
+                        is24Hour={false}
+                        display="default"
+                        onChange={(event, selectedTime) => {
+                          onChangeStartTime(event, selectedTime);
+                          setValues({ ...values, startTime: selectedTime }); // Update Formik state
+                          setFormValues({ ...formValues, startTime: selectedTime });
+                        }}
+                      />
+                    )}
 
-                <Text style={styles.heading}>Subject</Text>
-                <MultipleSelectList
-                  style={[styles.dropdown, isFocus && { borderColor: "black" }]}
-                  setSelected={(val) => setSelected(val)}
-                  data={labelsName}
-                  save="value"
-                  label="Categories"
-                  placeholder="Select Subjects"
-                  searchPlaceholder="Select Subjects"
-                  search={true}
-                  selected={selected}
-                />
+                    <AppFormField
+                      name={"endTime"}
+                      label="End Time"
+                      value={endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                      isRequired={true}
+                      icon={
+                        <MaterialIcons
+                          name="access-time"
+                          color={"#999"}
+                          size={25}
+                          onPress={() => setEndTimeOpen(true)}
+                        />
+                      }
+                    />
 
-                {/* <AppFormField name={"grade"} label="Grade Level"
+                    {endTimeOpen && (
+                      <DateTimePicker
+                        value={endTime}
+                        mode="time"
+                        // is24Hour={false}
+                        display="default"
+                        onChange={(event, selectedTime) => {
+                          onChangeEndTime(event, selectedTime);
+                          setValues({ ...values, endTime: selectedTime }); // Update Formik state
+                          setFormValues({ ...formValues, endTime: selectedTime });
+
+                        }}
+                      />
+                    )}
+
+                    <AppFormField name={"location"} label="Address" isRequired={true}
+                      onChangeText={handleChange('address')}
+                      onBlur={handleBlur('address')}
+                      value={values.address}
+                    />
+                    <AppFormField
+                      name={"company"}
+                      label="Host/Company Name"
+                      isRequired={true}
+                      onChangeText={handleChange('companyName')}
+                      onBlur={handleBlur('companyName')}
+                      value={values.companyName}
+                    />
+
+                    <AppFormField
+                      name={"contact"}
+                      label="Contact Number"
+                      onChangeText={handleChange('contactNo')}
+                      onBlur={handleBlur('contactNo')}
+                      value={values.contactNo}
+                      keyboardType="numeric"
+
+                    />
+
+                    <Text style={styles.heading}>Subject</Text>
+                    <MultipleSelectList
+                      style={[styles.dropdown, isFocus && { borderColor: "black" }]}
+                      setSelected={(val) => setSelected(val)}
+                      data={labelsName}
+                      save="value"
+                      label="Categories"
+                      placeholder="Select Subjects"
+                      searchPlaceholder="Select Subjects"
+                      search={true}
+                      selected={selected}
+                    />
+
+                    {/* <AppFormField name={"grade"} label="Grade Level"
                   onChangeText={handleChange('gradeLevel')}
                   onBlur={handleBlur('gradeLevel')}
                   value={values.gradeLevel}
                 /> */}
 
-                <AppFormField
-                  name={"gradeLevel"}
-                  label="Grade Level"
-                  isRequired={false}
-                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
-                  onPress={() => setGradeLevelDropdownOpen(true)}
-                  onDropdown={true}
-                  onChangeText={handleChange('gradeLevel')}
-                  onBlur={handleBlur('gradeLevel')}
-                  value={values.gradeLevel}
+                    <AppFormField
+                      name={"gradeLevel"}
+                      label="Grade Level"
+                      isRequired={false}
+                      icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                      onPress={() => setGradeLevelDropdownOpen(true)}
+                      onDropdown={true}
+                      onChangeText={handleChange('gradeLevel')}
+                      onBlur={handleBlur('gradeLevel')}
+                      value={values.gradeLevel}
 
-                />
+                    />
 
 
-                {/* Elementary School, Middle School, High School, Undergraduate, Parent, Other */}
+                    {/* Elementary School, Middle School, High School, Undergraduate, Parent, Other */}
 
-                {/* <AppFormField
+                    {/* <AppFormField
                   name={"subject"}
                   label="Subject"
                   isRequired={true}
@@ -562,57 +573,57 @@ function CreateEventScreen({ props, route }) {
 
 
 
-                <AppFormField
-                  name={"eligibility"}
-                  label="Eligibility / Other Notes"
-                  multiline
-                  numberOfLines={3}
-                  onChangeText={handleChange('eligibility')}
-                  onBlur={handleBlur('eligibility')}
-                  value={values.eligibility}
+                    <AppFormField
+                      name={"eligibility"}
+                      label="Eligibility / Other Notes"
+                      multiline
+                      numberOfLines={3}
+                      onChangeText={handleChange('eligibility')}
+                      onBlur={handleBlur('eligibility')}
+                      value={values.eligibility}
 
-                />
-                {/* <AppFormField name={"ageGroup"} label="Age Group"
+                    />
+                    {/* <AppFormField name={"ageGroup"} label="Age Group"
                   onChangeText={handleChange('ageGroup')}
                   onBlur={handleBlur('ageGroup')}
                   value={values.ageGroup}
 
                 /> */}
-                <AppFormField
-                  name={"mealInclude"}
-                  label="Meals Included"
-                  isRequired={true}
-                  icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
-                  onPress={() => setMealIncludeDropdownOpen(true)}
-                  onDropdown={true}
-                  onChangeText={handleChange('mealInclude')}
-                  onBlur={handleBlur('mealInclude')}
-                  value={values.mealInclude}
+                    <AppFormField
+                      name={"mealInclude"}
+                      label="Meals Included"
+                      isRequired={true}
+                      icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                      onPress={() => setMealIncludeDropdownOpen(true)}
+                      onDropdown={true}
+                      onChangeText={handleChange('mealInclude')}
+                      onBlur={handleBlur('mealInclude')}
+                      value={values.mealInclude}
 
-                />
+                    />
 
-                <AppFormField name={"webURL"} label="Web URL"
-                  onChangeText={handleChange('webURL')}
-                  onBlur={handleBlur('webURL')}
-                  value={values.webURL}
+                    <AppFormField name={"webURL"} label="Web URL"
+                      onChangeText={handleChange('webURL')}
+                      onBlur={handleBlur('webURL')}
+                      value={values.webURL}
 
-                />
+                    />
 
 
-                <LinearGradient
-                  colors={['black', '#5A5A5A']}
-                  style={{
-                    alignItems: 'center',
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                    width: '95%',
-                    height: 60,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                  locations={[0.1, 0.9]}
-                >
-                  {/* <Button
+                    <LinearGradient
+                      colors={['black', '#5A5A5A']}
+                      style={{
+                        alignItems: 'center',
+                        alignSelf: 'center',
+                        justifyContent: 'center',
+                        width: '95%',
+                        height: 60,
+                        borderRadius: 10,
+                        marginVertical: 10,
+                      }}
+                      locations={[0.1, 0.9]}
+                    >
+                      {/* <Button
                     style={{
                       color: 'white',
                       fontSize: 25,
@@ -621,35 +632,36 @@ function CreateEventScreen({ props, route }) {
                     onPress={handleSubmit}
                     title="Submit For Approval"
                   /> */}
-                  <TouchableOpacity
-                    style={{
-                      alignItems: 'center',
-                      alignSelf: 'center',
-                      justifyContent: 'center',
-                      width: '95%',
-                      height: 60,
-                      borderRadius: 10,
-                      marginVertical: 10,
-                      backgroundColor: 'black', // Set background color instead of using LinearGradient
-                    }}
-                    onPress={handleSubmit}
-                  >
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: 25,
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      Submit For Approval
-                    </Text>
-                  </TouchableOpacity>
-                </LinearGradient>
-              </View>
-            )}
-          </Formik>
-        </View>
-
+                      <TouchableOpacity
+                        style={{
+                          alignItems: 'center',
+                          alignSelf: 'center',
+                          justifyContent: 'center',
+                          width: '95%',
+                          height: 60,
+                          borderRadius: 10,
+                          marginVertical: 10,
+                          backgroundColor: 'black', // Set background color instead of using LinearGradient
+                        }}
+                        onPress={handleSubmit}
+                      >
+                        <Text
+                          style={{
+                            color: 'white',
+                            fontSize: 25,
+                            fontWeight: 'bold',
+                          }}
+                        >
+                          Submit For Approval
+                        </Text>
+                      </TouchableOpacity>
+                    </LinearGradient>
+                  </View>
+                )}
+              </Formik>
+            </View>
+          </>
+        )}
 
       </KeyboardAwareScrollView>
     </Screen>

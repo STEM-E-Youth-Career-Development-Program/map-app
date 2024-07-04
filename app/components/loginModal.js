@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Modal, Pressable, Text, StyleSheet, TouchableOpacity, AppState, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Modal, Pressable, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { Formik } from 'formik';
 import AppFormField from "../components/AppFormField";
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,85 +7,53 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
 const LoginModal = ({ isVisible, onClose }) => {
-
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
 
   const [formValues, setFormValues] = useState({
     username: '',
     password: ''
   });
 
-  // const handleSubmit = async (values) => {
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append('Username', values.username);
-  //     formData.append('Password', values.password);
-
-  //     const response = await fetch('https://mapstem-api.azurewebsites.net/api/Auth/login', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data',
-  //       },
-  //       body: formData,
-  //     });
-
-  //     console.log('Response Status:', response.status);
-  //     const responseData = await response.json();
-
-  //     if (responseData.statusCode === 200) {
-  //       console.log('Login successful:');
-  //       // Store response data in local storage
-  //       await AsyncStorage.setItem('userData', JSON.stringify(responseData));
-
-  //       console.log('Login storage:', AsyncStorage);
-  //     } else {
-  //       const errorData = await response.json();
-  //       console.error('Login Failed:', errorData.message || 'Unknown error');
-  //       // Show error message to the user
-  //       // setError('Login failed: ' + (errorData.message || 'Unknown error'));
-  //     }
-  //   } catch (error) {
-  //     console.error('Error:', error);
-  //     // Show error message to the user
-  //     // setError('Login failed: ' + error.message);
-  //   }
-  // };
-
   const handleSubmit = async (values) => {
+    setLoading(true);
     try {
-        const formData = new FormData();
-        formData.append('Username', values.username);
-        formData.append('Password', values.password);
+      const formData = new FormData();
+      formData.append('Username', values.username);
+      formData.append('Password', values.password);
 
-        const response = await fetch('https://mapstem-api.azurewebsites.net/api/Auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-            body: formData,
-        });
+      const response = await fetch('https://mapstem-api.azurewebsites.net/api/Auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
 
+      const responseData = await response.json();
+      console.log('API Response:', responseData);
 
-        const responseData = await response.json();
-        console.log('API Response:', responseData);
-        if (responseData.statusCode === 200 ) { 
-          console.log('Login successful:');
-          await AsyncStorage.setItem('userData', JSON.stringify(responseData));
-          console.log('Login storage:', AsyncStorage); // Log AsyncStorage
-          const userData = await AsyncStorage.getItem('userData');
-          console.log('Retrieved User Data:', userData); // Log retrieved data
-            // navigation.navigate('Events')
-        } else {
-            Alert.alert('Login Failed', 'Invalid username or password. Please try again.');
-        }
+      if (responseData.statusCode === 200) {
+        console.log('Login successful:');
+        await AsyncStorage.setItem('userData', JSON.stringify(responseData));
+        console.log('Login storage:', AsyncStorage);
+        const userData = await AsyncStorage.getItem('userData');
+        console.log('Retrieved User Data:', userData);
+
+        Alert.alert('Login Successful', 'You have logged in successfully.', [
+          { text: 'OK', onPress: onClose }
+        ]);
+      } else {
+        Alert.alert('Login Failed', 'Invalid username or password. Please try again.');
+      }
     } catch (error) {
-        console.error('Error:', error);
-        Alert.alert('Error', 'Login failed: ' + error.message);
+      console.error('Error:', error);
+      Alert.alert('Error', 'Login failed: ' + error.message);
+    } finally {
+      setLoading(false); // set loading to false when the request is complete
     }
-};
+  };
 
-
-  
   return (
     <Modal
       animationType='none'
@@ -108,60 +76,46 @@ const LoginModal = ({ isVisible, onClose }) => {
           <Formik
             initialValues={formValues}
             onSubmit={handleSubmit}
-          // validationSchema={validationSchema}
           >
-            {({ handleChange, handleBlur, handleSubmit, values, setValues }) => (
+            {({ handleChange, handleBlur, handleSubmit, values }) => (
               <View>
-                <AppFormField name={"username"} label="User Name" isRequired={true}
+                <AppFormField
+                  name={"username"}
+                  label="User Name"
+                  isRequired={true}
                   onChangeText={handleChange('username')}
                   onBlur={handleBlur('username')}
                   value={values.username}
                   placeholder="User Name"
                 />
-                <AppFormField name={"password"} label="Password" isRequired={true}
+                <AppFormField
+                  name={"password"}
+                  label="Password"
+                  isRequired={true}
                   onChangeText={handleChange('password')}
                   onBlur={handleBlur('password')}
                   value={values.password}
                   placeholder="Password"
                   secureTextEntry
                 />
-                <LinearGradient
-                  colors={['black', '#5A5A5A']}
-                  style={{
-                    alignItems: 'center',
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                    width: '95%',
-                    height: 60,
-                    borderRadius: 10,
-                    marginVertical: 10,
-                  }}
-                  locations={[0.1, 0.9]}
-                >
-                  <TouchableOpacity
-                    style={{
-                      alignItems: 'center',
-                      alignSelf: 'center',
-                      justifyContent: 'center',
-                      width: '95%',
-                      height: 60,
-                      borderRadius: 10,
-                      marginVertical: 10,
-                      backgroundColor: 'black',
-                    }}
-                    onPress={handleSubmit}
+                {loading ? (
+                    <ActivityIndicator size="large" color="#000" />
+                ) : (
+                  <LinearGradient
+                    colors={['black', '#5A5A5A']}
+                    style={styles.gradient}
+                    locations={[0.1, 0.9]}
                   >
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: 25,
-                        fontWeight: 'bold',
-                      }}
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={handleSubmit}
                     >
-                      Login
-                    </Text>
-                  </TouchableOpacity>
-                </LinearGradient>
+                      <Text style={styles.buttonText}>
+                        Login
+                      </Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
+                )}
               </View>
             )}
           </Formik>
@@ -169,8 +123,7 @@ const LoginModal = ({ isVisible, onClose }) => {
       </View>
     </Modal>
   );
-}
-
+};
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -184,7 +137,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 20,
     padding: 30,
-    // alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -194,32 +146,15 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5
   },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2
-  },
   buttonClose: {
     color: "#999999",
     paddingHorizontal: 10,
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center"
-  },
-  modalText: {
-    marginBottom: 10,
-    textAlign: "justify",
-    fontSize: 16,
-    lineHeight: 22
   },
   titleContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
   },
-
   titleText: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -227,6 +162,30 @@ const styles = StyleSheet.create({
   textStyle: {
     color: "grey",
     fontSize: 20,
+  },
+  gradient: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: '95%',
+    height: 60,
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+  button: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: '95%',
+    height: 60,
+    borderRadius: 10,
+    marginVertical: 10,
+    backgroundColor: 'black',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 25,
+    fontWeight: 'bold',
   }
 });
 
