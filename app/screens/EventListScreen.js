@@ -10,25 +10,50 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 function EventListScreen({ route, navigation }) {
   const { location } = useLocation();
-  const { selectedSubjects = [], selectedCost = '', distance = '', eventType = '' } = route.params || {};
+  const { params  } = route;
   const [searchQuery, setSearchQuery] = useState('');
   const [active, setActive] = useState(true);
   const [eventsAPI, setEvents] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    selectedSubjects,
-    selectedCost,
-    distance,
-    eventType,
-  });
+  const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState(null);
 
-  const renderFilterCapsules = () => (
+
+  useEffect(()=>{
+    console.log("::Setting filters")
+    if(params){
+      const {selectedSubjects, selectedCost , distance , eventType} = params;
+      setFilters((prevState)=>({
+        ...prevState,
+        selectedCost,
+        selectedSubjects,
+        distance,
+        eventType
+      }))
+    }else{
+      setFilters(prevState=>({
+        ...prevState,
+          selectedSubjects:[],
+          selectedCost:"",
+          distance:"",
+          eventType:"",
+      }))
+    }
+  },[params])
+
+
+  useEffect(()=>{
+    console.debug({
+      location, params, searchQuery, active, loading, filters
+    })
+  },[location, params, searchQuery, active, loading, filters])
+
+  const renderFilterCapsules = () => !filters?null:(
     <View style={styles.filterCapsulesContainer}>
-      {renderFilter('Event Type', eventType)}
-      {renderFilter('Selected Cost', selectedCost)}
-      {renderFilter('Selected Subjects', selectedSubjects)}
-      {renderFilter('Distance', distance)}
+      {renderFilter('Event Type', filters.eventType)}
+      {renderFilter('Selected Cost', filters.selectedCost)}
+      {renderFilter('Selected Subjects', filters.selectedSubjects)}
+      {renderFilter('Distance', filters.distance)}
     </View>
   );
 
@@ -76,12 +101,8 @@ function EventListScreen({ route, navigation }) {
 
   const fetchData = async () => {
     try {
-      const url = buildUrl('https://mapstem-api.azurewebsites.net/api/Event', {
-        Subject: selectedSubjects,
-        Cost: selectedCost,
-        Distance: distance,
-        EventType: eventType,
-      });
+      setLoading(true);
+      const url = buildUrl('https://mapstem-api.azurewebsites.net/api/Event', filters);
       // console.log('Fetching data from URL:', url);
 
       const response = await fetch(url);
@@ -100,8 +121,16 @@ function EventListScreen({ route, navigation }) {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [selectedSubjects, selectedCost, eventType, distance]);
+    console.log(
+        
+      "outside",{filters,loading})
+    if(filters){
+      console.log(
+        
+        "inside",{filters,loading})
+      fetchData()
+    };
+  }, [filters]);
 
   useEffect(() => {
     if (loading) {
@@ -124,6 +153,7 @@ function EventListScreen({ route, navigation }) {
     // console.log('Events with distance:', eventsWithDistance);
 
     const filteredEvents = eventsWithDistance.filter((event) => {
+      const {eventType, distance} = filters;
       const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
 
       const matchesSearchQuery =
@@ -146,7 +176,7 @@ function EventListScreen({ route, navigation }) {
 
     // console.log('Filtered events:', filteredEvents);
     setFilteredData(filteredEvents);
-  }, [searchQuery, active, loading, eventsAPI, location, eventType, distance]);
+  }, [searchQuery, active, loading, eventsAPI, location, filters]);
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 3958.8; // Earth radius in miles
