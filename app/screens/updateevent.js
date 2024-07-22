@@ -301,7 +301,7 @@ function UpdateEventScreen({ props, route }) {
         setLoading(false);
         Alert.alert(
           'Success',
-          'Event update successfully',
+          'Event update successfully!',
           [{ text: 'OK', onPress: () => navigation.navigate('Events') }],
           { cancelable: false }
         );
