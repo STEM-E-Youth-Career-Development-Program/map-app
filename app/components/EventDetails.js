@@ -50,8 +50,27 @@ const EventDetails = (props) => {
   };
 
   const handleUrlPress = () => {
-    Linking.openURL(allDetails.url);
+    let url = allDetails.url;
+    
+    // Ensure the URL has the correct protocol
+    if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+      if (url.startsWith('www.')) {
+        url = 'http://' + url; // You can use 'https://' if you prefer
+      } else {
+        url = 'http://www.' + url; // You can use 'https://' if you prefer
+      }
+    }
+  
+    if (url) {
+      Linking.openURL(url).catch((err) => {
+        console.error('Failed to open URL:', err);
+      });
+    } else {
+      console.error('Invalid URL:', url);
+    }
   };
+  
+  
 
   const handleShare = async () => {
     try {
@@ -119,7 +138,7 @@ const EventDetails = (props) => {
 
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               {/* <MaterialCommunityIcons name='map-marker-outline' size={20} style={{ paddingRight: 10 }} /> */}
-              <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Eveent Name: </Text>
+              <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Event Name: </Text>
               <Text style={{ color: '#999999', maxWidth: '70%' }} numberOfLines={2} ellipsizeMode='tail'>{allDetails.eventName}</Text>
             </View>
 

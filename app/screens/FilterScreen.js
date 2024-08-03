@@ -112,8 +112,8 @@ const FilterScreen = ({ selectedSubjects, selectedCost }) => {
           data={transformedData}
           save="id"
           label="Categories"
-          placeholder="Select STEME Area"
-          searchPlaceholder="Select STEME Area"
+          placeholder="Select Subject"
+          searchPlaceholder="Select Subject"
           search={true}
           selected={selected}
           key={listKey}

@@ -33,12 +33,11 @@ function AppFormField({
   ]);
 
   const [gradeLevelDropdownItems] = useState([
-    { label: "Elementary School", value: "1" },
-    { label: "Middle School", value: "2" },
-    { label: "High School", value: "3" },
-    { label: "Undergraduate", value: "4" },
+    { label: "Elementary School (k-5)", value: "1" },
+    { label: "Middle School (6-8)", value: "2" },
+    { label: "High School (9-12)", value: "3" },
+    { label: "Undergraduate (13+)", value: "4" },
     { label: "Parent", value: "5" },
-    { label: "Other", value: "6" },
   ]);
 
   const [subjectDropdownItems, setSubjectDropdownItems] = useState([]);

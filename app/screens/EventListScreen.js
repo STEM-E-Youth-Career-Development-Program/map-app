@@ -275,6 +275,7 @@ function EventListScreen({ route, navigation }) {
                 gradeLevel={item.gradeLevel}
                 ageGroup={item.ageGroup}
                 meal={item.mealIncluded}
+                url={item.url}
                 distance={item.distance}
                 navigation={navigation}
                 allDetails={item}

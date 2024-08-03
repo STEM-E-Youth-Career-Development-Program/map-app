@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline, Circle } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { View, StatusBar, SafeAreaView, Alert, Image, Dimensions, Pressable } from 'react-native';
+import { View, StatusBar, SafeAreaView, Alert, Image, Dimensions, Pressable, TouchableWithoutFeedback, Keyboard, Linking } from 'react-native';
 import MapCard from '../components/MapCards';
 import SearchBar from '../components/SearchBar';
 import Carousel from 'react-native-snap-carousel';
@@ -90,13 +90,27 @@ const MapScreen = (props) => {
     }, [searchQuery]);
 
 
+    // const filterEventsWithinRadius = (userLocation) => {
+    //     const filtered = eventsCoordinates.filter((event) => {
+    //         const distance = getDistance(userLocation, event);
+    //         // console.log(`Distance for event: ${distance} miles`);
+    //         return distance <= radius;
+    //     });
+    //     setFilteredEvents(filtered);
+    // };
+
+
     const filterEventsWithinRadius = (userLocation) => {
-        const filtered = eventsCoordinates.filter((event) => {
-            const distance = getDistance(userLocation, event);
-            // console.log(`Distance for event: ${distance} miles`);
-            return distance <= radius;
-        });
-        setFilteredEvents(filtered);
+        const distances = eventsCoordinates.map((event) => ({
+            distance: getDistance(userLocation, event),
+            event,
+        }));
+
+        distances.sort((a, b) => a.distance - b.distance);
+
+        const nearestEvents = distances.slice(0, 5).map((item) => item.event);
+
+        setFilteredEvents(nearestEvents);
     };
 
 
@@ -222,13 +236,62 @@ const MapScreen = (props) => {
         }
     };
 
+    // const fitMarkersOnMap = () => {
+    //     let minLat = location.latitude;
+    //     let maxLat = location.latitude;
+    //     let minLng = location.longitude;
+    //     let maxLng = location.longitude;
+
+    //     // Find min and max coordinates among current location and event markers
+    //     eventsCoordinates.forEach((marker) => {
+    //         minLat = Math.min(minLat, marker.latitude);
+    //         maxLat = Math.max(maxLat, marker.latitude);
+    //         minLng = Math.min(minLng, marker.longitude);
+    //         maxLng = Math.max(maxLng, marker.longitude);
+    //     });
+
+    //     // Calculate center and delta for the region
+    //     const latDelta = (maxLat - minLat) * 12.2; // Add some padding
+    //     const lngDelta = (maxLng - minLng) * 12.2; // Add some padding
+    //     const centerLat = (minLat + maxLat) / 2;
+    //     const centerLng = (minLng + maxLng) / 2;
+
+    //     // Set the region of the map to fit both current location and event markers
+    //     mapRef.current.fitToCoordinates(
+    //         [
+    //             { latitude: minLat, longitude: minLng },
+    //             { latitude: maxLat, longitude: maxLng },
+    //         ],
+    //         {
+    //             edgePadding: { top: 150, right: 150, bottom: 150, left: 150 },
+    //             animated: true,
+    //         }
+    //     );
+
+    //     // Zoom out the map by adjusting the region
+    //     mapRef.current.animateToRegion(
+    //         {
+    //             latitude: centerLat,
+    //             longitude: centerLng,
+    //             latitudeDelta: latDelta,
+    //             longitudeDelta: lngDelta,
+    //         },
+    //         1000 // Animation duration
+    //     );
+    // };
+
+    // Call this function once both location and eventsCoordinates are set
+
     const fitMarkersOnMap = () => {
+        if (!location || !eventsCoordinates || eventsCoordinates.length === 0) {
+            return;
+        }
+
         let minLat = location.latitude;
         let maxLat = location.latitude;
         let minLng = location.longitude;
         let maxLng = location.longitude;
 
-        // Find min and max coordinates among current location and event markers
         eventsCoordinates.forEach((marker) => {
             minLat = Math.min(minLat, marker.latitude);
             maxLat = Math.max(maxLat, marker.latitude);
@@ -236,13 +299,11 @@ const MapScreen = (props) => {
             maxLng = Math.max(maxLng, marker.longitude);
         });
 
-        // Calculate center and delta for the region
         const latDelta = (maxLat - minLat) * 12.2; // Add some padding
         const lngDelta = (maxLng - minLng) * 12.2; // Add some padding
         const centerLat = (minLat + maxLat) / 2;
         const centerLng = (minLng + maxLng) / 2;
 
-        // Set the region of the map to fit both current location and event markers
         mapRef.current.fitToCoordinates(
             [
                 { latitude: minLat, longitude: minLng },
@@ -254,7 +315,6 @@ const MapScreen = (props) => {
             }
         );
 
-        // Zoom out the map by adjusting the region
         mapRef.current.animateToRegion(
             {
                 latitude: centerLat,
@@ -266,7 +326,6 @@ const MapScreen = (props) => {
         );
     };
 
-    // Call this function once both location and eventsCoordinates are set
     useEffect(() => {
         if (location && eventsCoordinates.length > 0) {
             fitMarkersOnMap();
@@ -274,118 +333,156 @@ const MapScreen = (props) => {
     }, [location, eventsCoordinates]);
 
 
+    const getImageSource = (subject) => {
+        if (Array.isArray(subject) && subject.includes('Math') && subject.length === 1) {
+            return require('../assets/eventMarkerOrange.png');
+        } else if (Array.isArray(subject) && subject.includes('Science') && subject.length === 1) {
+            return require('../assets/eventMarkerRed.png');
+        } else if (Array.isArray(subject) && subject.includes('Technology') && subject.length === 1) {
+            return require('../assets/eventMarkerGreen.png');
+        } else if (Array.isArray(subject) && subject.includes('Engineering') && subject.length === 1) {
+            return require('../assets/eventMarkerYellow.png');
+        } else if (Array.isArray(subject) && subject.includes('Entrepreneurship') && subject.length === 1) {
+            return require('../assets/eventMarkerPurple.png');
+        } else if (Array.isArray(subject) && subject.length > 1) {
+            return require('../assets/eventMarkerWhite.png');
+        } else {
+            return require('../assets/eventMarkerWhite.png');
+        }
+    }
+
+    const openGoogleMaps = () => {
+        const destination = eventsCoordinates[selectedIndex];
+        const url = `https://www.google.com/maps/dir/?api=1&origin=${location.latitude},${location.longitude}&destination=${destination.latitude},${destination.longitude}&travelmode=driving`;
+        Linking.openURL(url);
+    };
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
             <StatusBar backgroundColor='transparent' translucent />
-            <View style={{ flex: 1, width: '100%', position: 'relative', }}>
-                {eventsData &&
-                    <>
-                        <MapView
-                            ref={mapRef}
-                            style={{ width: '100%', flex: 1, }}
-                            provider={PROVIDER_GOOGLE}
-                        // initialRegion={{
-                        //     latitude: location ? location.latitude : 37.78825,
-                        //     longitude: location ? location.longitude : -122.4324,
-                        //     latitudeDelta: 0.2,
-                        //     longitudeDelta: 0.2,
-                        // }}
-                        >
-                            {location && (
-                                <Marker
-                                    coordinate={{ latitude: location.latitude, longitude: location.longitude }}
-                                    pinColor="blue"
-                                    rotation={getMarkerRotation()}
-                                />
-                            )}
-                            {filteredEvents.map((coordinate, index) => {
-                                const distance = getDistance(location, coordinate);
-                                if (distance <= filterDistanceValue) {
-                                    return (
-                                        <Marker
-                                            key={index}
-                                            coordinate={coordinate}
-                                            onPress={() => onEventMarkerPress(index)}
-                                        >
-                                            <Image
-                                                source={require('../assets/eventMarker.png')}
-                                                style={{ width: selectedIndex === index ? 40 : 25, height: selectedIndex === index ? 40 : 25 }}
-                                                resizeMode="contain"
-                                            />
-                                        </Marker>
-                                    );
-                                } else {
-                                    return null; // Hide the marker if distance is greater than 3 miles
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={{ flex: 1, width: '100%', position: 'relative', }}>
+                    {eventsData &&
+                        <>
+                            <MapView
+                                ref={mapRef}
+                                style={{ width: '100%', flex: 1, }}
+                                provider={PROVIDER_GOOGLE}
+                            // initialRegion={{
+                            //     latitude: location ? location.latitude : 37.78825,
+                            //     longitude: location ? location.longitude : -122.4324,
+                            //     latitudeDelta: 0.2,
+                            //     longitudeDelta: 0.2,
+                            // }}
+                            >
+                                {location && (
+                                    <Marker
+                                        coordinate={{ latitude: location.latitude, longitude: location.longitude }}
+                                        pinColor="blue"
+                                    // rotation={getMarkerRotation()}
+                                    />
+                                )}
+
+                                {filteredEvents.map((event, index) => {
+                                    const coordinate = { latitude: event.latitude, longitude: event.longitude };
+                                    const distance = getDistance(location, coordinate);
+                                    const eventSubject = event.subject;
+                                    console.log("check here subjects", eventSubject)
+                                    let imageSource = getImageSource(eventSubject);
+
+                                    if (distance <= filterDistanceValue) {
+                                        return (
+                                            <Marker
+                                                key={index}
+                                                coordinate={coordinate}
+                                                onPress={() => onEventMarkerPress(index)}
+                                            >
+                                                <Image
+                                                    source={imageSource}
+                                                    style={{ width: selectedIndex === index ? 60 : 25, height: selectedIndex === index ? 60 : 25 }}
+                                                    resizeMode="contain"
+                                                />
+                                            </Marker>
+                                        );
+                                    } else {
+                                        return null; // Hide the marker if distance is greater than 3 miles
+                                    }
+                                })}
+
+                                {location && polylineCoords && (
+                                    <Polyline
+                                        coordinates={[
+                                            { latitude: location.latitude, longitude: location.longitude },
+                                            ...polylineCoords,
+                                        ]}
+                                        strokeColor={getDistance(location, eventsCoordinates[selectedIndex]) <= filterDistanceValue ? "#000" : "transparent"}
+                                        strokeWidth={2.5}
+                                    />
+                                )}
+
+                                {/* Location Radius */}
+                                {location && (
+                                    <Circle
+                                        center={{ latitude: location.latitude, longitude: location.longitude }}
+                                        radius={1609.34 * radius}
+                                        strokeWidth={1}
+                                        strokeColor="blue"
+                                        fillColor="rgba(0, 128, 255, 0.2)"
+                                    />
+                                )}
+                            </MapView>
+                            <View style={{ position: 'absolute', top: 0, width: '100%', zIndex: 1 }}>
+                                {!route?.params?.eventId ?
+                                    <SearchBar
+                                        value={searchQuery}
+                                        onChangeText={handleSearch}
+                                        placeholder="Search for event"
+                                        onPressIcon={() => navigation.navigate('Events')}
+                                        isList={false} />
+                                    :
+                                    <Pressable style={{ width: 50, height: 50, backgroundColor: '#fff', borderRadius: 50, marginVertical: 20, left: 25, shadowOpacity: 0.25, shadowRadius: 3.2, shadowOffset: { width: 2, height: 2 }, elevation: 5, justifyContent: 'center', alignItems: 'center' }} onPress={() => navigation.navigate('Events')}>
+                                        <MaterialCommunityIcons name="arrow-left" size={29} />
+                                    </Pressable>
+
                                 }
-                            })}
-
-                            {location && polylineCoords && (
-                                <Polyline
-                                    coordinates={[
-                                        { latitude: location.latitude, longitude: location.longitude },
-                                        ...polylineCoords,
-                                    ]}
-                                    strokeColor={getDistance(location, eventsCoordinates[selectedIndex]) <= filterDistanceValue ? "#000" : "transparent"}
-                                    strokeWidth={2.5}
-                                />
-                            )}
-
-                            {/* Location Radius */}
-                            {location && (
-                                <Circle
-                                    center={{ latitude: location.latitude, longitude: location.longitude }}
-                                    radius={1609.34 * radius}
-                                    strokeWidth={1}
-                                    strokeColor="blue"
-                                    fillColor="rgba(0, 128, 255, 0.2)"
-                                />
-                            )}
-                        </MapView>
-                        <View style={{ position: 'absolute', top: 0, width: '100%', zIndex: 1 }}>
-                            {!route?.params?.eventId ?
-                                <SearchBar
-                                    value={searchQuery}
-                                    onChangeText={handleSearch}
-                                    placeholder="Search for event"
-                                    onPressIcon={() => navigation.navigate('Events')}
-                                    isList={false} />
-                                :
-                                <Pressable style={{ width: 50, height: 50, backgroundColor: '#fff', borderRadius: 50, marginVertical: 20, left: 25, shadowOpacity: 0.25, shadowRadius: 3.2, shadowOffset: { width: 2, height: 2 }, elevation: 5, justifyContent: 'center', alignItems: 'center' }} onPress={() => navigation.navigate('Events')}>
-                                    <MaterialCommunityIcons name="arrow-left" size={29} />
-                                </Pressable>
-
-                            }
-                            {location &&
-                                <TransportMode userLocation={location} destination={eventsCoordinates[selectedIndex]} />
-                            }
-                        </View>
-                        {location && !route?.params?.eventId &&
-                            <View style={{ position: 'absolute', bottom: 0, }}>
-                                <Carousel
-                                    // ref={(c) => { this._carousel = c; }}
-                                    // layoutCardOffset={9}
-                                    ref={carouselRef}
-                                    data={visibleEvents}
-                                    renderItem={_renderItem}
-                                    sliderWidth={Dimensions.get('screen').width}
-                                    itemWidth={Dimensions.get('screen').width / 2.09}
-                                    containerCustomStyle={{ flexGrow: 0, flex: 1, height: Dimensions.get('screen').height / 2.5, width: '100%', }}
-                                    slideStyle={{ flex: 1, justifyContent: 'flex-end', marginHorizontal: 2.5 }}
-                                    contentContainerCustomStyle={{ height: '100%', }}
-                                    // sliderHeight={300}
-                                    // itemHeight={300}
-                                    inactiveSlideOpacity={1}
-                                    inactiveSlideShift={28}
-                                    inactiveSlideScale={0.9}
-                                    firstItem={selectedIndex}
-                                    onSnapToItem={onSnapFunc}
-                                />
+                                {location &&
+                                    <Pressable onPress={openGoogleMaps}>
+                                        <TransportMode userLocation={location} destination={eventsCoordinates[selectedIndex]} />
+                                    </Pressable>
+                                }
                             </View>
-                        }
-                    </>
-                }
-            </View>
-
+                            <View style={{ position: 'absolute', top: 100, right: 20 }}>
+                                <Pressable onPress={() => navigation.navigate('Create Event')}>
+                                    <MaterialCommunityIcons name="plus-circle" size={50} color="#000000" />
+                                </Pressable>
+                            </View>
+                            {location && !route?.params?.eventId &&
+                                <View style={{ position: 'absolute', bottom: 0, }}>
+                                    <Carousel
+                                        // ref={(c) => { this._carousel = c; }}
+                                        // layoutCardOffset={9}
+                                        ref={carouselRef}
+                                        data={visibleEvents}
+                                        renderItem={_renderItem}
+                                        sliderWidth={Dimensions.get('screen').width}
+                                        itemWidth={Dimensions.get('screen').width / 2.09}
+                                        containerCustomStyle={{ flexGrow: 0, flex: 1, height: Dimensions.get('screen').height / 2.5, width: '100%', }}
+                                        slideStyle={{ flex: 1, justifyContent: 'flex-end', marginHorizontal: 2.5 }}
+                                        contentContainerCustomStyle={{ height: '100%', }}
+                                        // sliderHeight={300}
+                                        // itemHeight={300}
+                                        inactiveSlideOpacity={1}
+                                        inactiveSlideShift={28}
+                                        inactiveSlideScale={0.9}
+                                        firstItem={selectedIndex}
+                                        onSnapToItem={onSnapFunc}
+                                    />
+                                </View>
+                            }
+                        </>
+                    }
+                </View>
+            </TouchableWithoutFeedback>
         </SafeAreaView>
     );
 }

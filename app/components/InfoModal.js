@@ -22,9 +22,8 @@ const InfoModal = ({ isVisible, onClose }) => {
                             <Text style={styles.textStyle}>X</Text>
                         </Pressable>
                     </View>
-                    <Text style={styles.modalText}>The STEME Youth Career Development
-                        Program's mapSTEM application tracks various events and activities in Science,
-                        Technology, Engineering, Math and Enterpreneurship and makes it accessible and affordable for its users.</Text>
+                    <Text style={styles.modalText}>STEM·E's mapSTEM app tracks various events and activities in Science, Technology,
+                        Engineering, Math and Entrepreneurship, making it accessible for users.</Text>
 
                 </View>
             </View>

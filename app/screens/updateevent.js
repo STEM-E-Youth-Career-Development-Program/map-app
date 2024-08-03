@@ -293,7 +293,7 @@ function UpdateEventScreen({ props, route }) {
 
       });
       console.log('After fetch');
-      // console.log('Response Status:', response.status);
+      console.log('Response Status:', response.status);
       const responseText = await response.text();
       if (response.ok) {
         // console.log('Event updated successfully');
