@@ -4,18 +4,30 @@ import PageHeader from './PageHeader';
 import Event from './Event';
 import CreateEventScreen from '../screens/CreateEventScreen';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { TouchableOpacity, View, Text, StyleSheet, Image, ScrollView, ImageBackground, Dimensions, Linking, Share } from 'react-native';
+import { TouchableOpacity, View, Text, StyleSheet, Image, ScrollView, Pressable, ImageBackground, Dimensions, Linking, Share } from 'react-native';
 import Constants from 'expo-constants';
-
+import * as Location from 'expo-location';
 
 const height = Dimensions.get('window').height
 
 const EventDetails = (props) => {
 
   const { allDetails, distance } = props.route.params;
-  //const base64Image = `data:image/jpeg;base64,${allDetails.imageData}`;
-  // console.log("check", allDetails)
+  const [userLocation, setUserLocation] = React.useState(null);
 
+  React.useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setUserLocation({ error: 'Permission to access location was denied' });
+        return;
+      }
+  
+      let location = await Location.getCurrentPositionAsync({});
+      setUserLocation(location);
+    })();
+  }, []);
+  
   const renderImage = () => {
     if (!allDetails.imageData) {
       return (
@@ -42,7 +54,7 @@ const EventDetails = (props) => {
       );
     }
   };
-  
+
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -51,16 +63,16 @@ const EventDetails = (props) => {
 
   const handleUrlPress = () => {
     let url = allDetails.url;
-    
+
     // Ensure the URL has the correct protocol
     if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
       if (url.startsWith('www.')) {
         url = 'http://' + url; // You can use 'https://' if you prefer
       } else {
-        url = 'http://www.' + url; // You can use 'https://' if you prefer
+        url = 'http://' + url; // You can use 'https://' if you prefer
       }
     }
-  
+
     if (url) {
       Linking.openURL(url).catch((err) => {
         console.error('Failed to open URL:', err);
@@ -69,8 +81,8 @@ const EventDetails = (props) => {
       console.error('Invalid URL:', url);
     }
   };
-  
-  
+
+
 
   const handleShare = async () => {
     try {
@@ -92,6 +104,14 @@ const EventDetails = (props) => {
     }
   };
 
+  console.log("check", userLocation? userLocation.coords.latitude : 'Waiting for location...');
+  const openGoogleMaps = () => {
+    const originAddress = `${userLocation? userLocation.coords.latitude : 'Waiting for location...'},${userLocation? userLocation.coords.longitude : 'Waiting for location...'}`; // Use the current location's latitude and longitude
+    const destinationAddress = allDetails.address; // Get the address from the event data
+
+    const url = `https://google.com/maps?q=${encodeURIComponent(originAddress)}+to+${encodeURIComponent(destinationAddress)}`;
+    Linking.openURL(url);
+  };
 
   return (
     <>
@@ -99,21 +119,21 @@ const EventDetails = (props) => {
         <PageHeader header={allDetails.eventName} />
       </View>
       <ScrollView>
-      {renderImage() }
+        {renderImage()}
         {/* <ImageBackground source={{ uri: base64Image }} style={styles.eventImg}>
           <View style={styles.overlayView} />
         </ImageBackground> */}
         <View style={styles.iconRow}>
-        {/* <View style={[styles.iconButtons, { right: 15 }]}>
+          {/* <View style={[styles.iconButtons, { right: 15 }]}>
             <Image  source={{ uri: `${allDetails.imageData}` }}
           style={styles.eventImg} />
           </View> */}
-         {allDetails.url && (
+          {allDetails.url && (
             <TouchableOpacity onPress={handleUrlPress} style={[styles.iconButtons, { right: 7 }]}>
               <Image source={require('../assets/earth.png')} style={{ width: 20, height: 20 }} />
             </TouchableOpacity>
           )}
-           <TouchableOpacity onPress={handleShare} style={styles.iconButtons}>
+          <TouchableOpacity onPress={handleShare} style={styles.iconButtons}>
             <Image source={require('../assets/share.png')} style={{ width: 20, height: 20 }} />
           </TouchableOpacity>
         </View>
@@ -124,14 +144,14 @@ const EventDetails = (props) => {
         </View>
 
         {allDetails.url && (
-        <Text style={styles.more}>
-          For more information and registration, visit the{' '}
-          <TouchableOpacity onPress={handleUrlPress}>
-            <Text style={styles.underlineText}>Organizer's Website</Text>
-          </TouchableOpacity>
-        </Text>
+          <Text style={styles.more}>
+            For more information and registration, visit the{' '}
+            <TouchableOpacity onPress={handleUrlPress}>
+              <Text style={styles.underlineText}>Organizer's Website</Text>
+            </TouchableOpacity>
+          </Text>
         )}
-        
+
         <View style={styles.contentBackground}>
           <View style={{ marginLeft: '2.5%', marginTop: 12 }}>
             <Text style={{ fontWeight: 'bold', color: '#171766', fontSize: 16 }}>Event Details:</Text>
@@ -156,7 +176,9 @@ const EventDetails = (props) => {
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <MaterialCommunityIcons name='map-marker-outline' size={20} style={{ paddingRight: 10 }} />
               <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Location: </Text>
-              <Text style={{ color: '#999999', maxWidth: '70%' }} numberOfLines={2} ellipsizeMode='tail'>{allDetails.address}</Text>
+              <Pressable onPress={openGoogleMaps}>
+                <Text style={{ color: '#999999', maxWidth: '70%', textDecorationLine: "underline"}} numberOfLines={2} ellipsizeMode='tail'>{allDetails.address}</Text>
+              </Pressable>
             </View>
             <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
@@ -189,6 +211,12 @@ const EventDetails = (props) => {
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Eligibility/Other: </Text>
               <Text style={{ color: '#999999' }}>{allDetails.eligibility}</Text>
             </View>
+
+            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+              <View style={{ width: '8%' }} />
+              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Web URL: </Text>
+              <Text style={{ color: '#999999' }}>{allDetails.url}</Text>
+            </View>
             {/* <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Age Group: </Text>
@@ -197,7 +225,7 @@ const EventDetails = (props) => {
 
             <View style={{ marginVertical: 17 }}>
               <Text style={{ fontWeight: '600', fontSize: 16 }}>Description: </Text>
-              <Text style={{ color: '#999999', maxWidth: '97%', textAlign: "justify" ,fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }}  ellipsizeMode='tail'>{allDetails.description}</Text>
+              <Text style={{ color: '#999999', maxWidth: '97%', textAlign: "justify", fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }} ellipsizeMode='tail'>{allDetails.description}</Text>
             </View>
 
             {/* <View style={styles.line} />
@@ -244,7 +272,7 @@ const EventDetails = (props) => {
             <Text style={{ marginBottom: 20 }}>See More Reviews</Text> */}
 
           </View>
-          
+
         </View>
       </ScrollView>
     </>
@@ -291,7 +319,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10
 
   },
-  
+
   more: {
     marginVertical: 20,
     textAlign: 'center',

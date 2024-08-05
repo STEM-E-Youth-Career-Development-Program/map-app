@@ -10,7 +10,7 @@ import TransportMode from '../components/TransportMode';
 import { MAP_API_KEY } from '@env'
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-
+import Loading from 'react-native-loading-spinner-overlay';
 
 const MapScreen = (props) => {
     const mapRef = useRef(null);
@@ -24,6 +24,7 @@ const MapScreen = (props) => {
     const [selectedIndex, setSelectedIndex] = useState(0)
     const [filteredEvents, setFilteredEvents] = useState([]);
     const [eventsCoordinates, setEventsCoordinates] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const radius = 2;
     const filterDistanceValue = 50;
 
@@ -86,6 +87,8 @@ const MapScreen = (props) => {
 
                 })
                 .catch((error) => console.error('Error fetching data:', error));
+
+            setIsLoading(false);
         })();
     }, [searchQuery]);
 
@@ -114,22 +117,45 @@ const MapScreen = (props) => {
     };
 
 
+    // const getDistance = (coord1, coord2) => {
+    //     const R = 3959;
+    //     const dLat = deg2rad(coord2.latitude - coord1.latitude);
+    //     const dLon = deg2rad(coord2.longitude - coord1.longitude);
+    //     const a =
+    //         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    //         Math.cos(deg2rad(coord1.latitude)) * Math.cos(deg2rad(coord2.latitude)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    //     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    //     const distance = R * c;
+    //     return distance;
+    // };
+
+    // const deg2rad = (deg) => {
+    //     return deg * (Math.PI / 180);
+    // };
+
+
     const getDistance = (coord1, coord2) => {
-        const R = 3959;
-        const dLat = deg2rad(coord2.latitude - coord1.latitude);
-        const dLon = deg2rad(coord2.longitude - coord1.longitude);
+        const R = 3959; // Radius of the Earth in miles
+        const lat1 = deg2rad(coord1.latitude);
+        const lon1 = deg2rad(coord1.longitude);
+        const lat2 = deg2rad(coord2.latitude);
+        const lon2 = deg2rad(coord2.longitude);
+
+        const dLat = lat2 - lat1;
+        const dLon = lon2 - lon1;
+
         const a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(deg2rad(coord1.latitude)) * Math.cos(deg2rad(coord2.latitude)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         const distance = R * c;
+
         return distance;
     };
 
     const deg2rad = (deg) => {
         return deg * (Math.PI / 180);
     };
-
 
     useFocusEffect(
         React.useCallback(() => {
@@ -351,9 +377,17 @@ const MapScreen = (props) => {
         }
     }
 
+    // const openGoogleMaps = () => {
+    //     const destination = eventsCoordinates[selectedIndex];
+    //     const url = `https://www.google.com/maps/dir/?api=1&origin=${location.latitude},${location.longitude}&destination=${destination.latitude},${destination.longitude}&travelmode=driving`;
+    //     Linking.openURL(url);
+    // };
+
     const openGoogleMaps = () => {
-        const destination = eventsCoordinates[selectedIndex];
-        const url = `https://www.google.com/maps/dir/?api=1&origin=${location.latitude},${location.longitude}&destination=${destination.latitude},${destination.longitude}&travelmode=driving`;
+        const originAddress = `${location.latitude},${location.longitude}`; // Use the current location's latitude and longitude
+        const destinationAddress = filteredEvents[selectedIndex].address; // Get the address from the event data
+
+        const url = `https://google.com/maps?q=${encodeURIComponent(originAddress)}+to+${encodeURIComponent(destinationAddress)}`;
         Linking.openURL(url);
     };
 
@@ -362,6 +396,7 @@ const MapScreen = (props) => {
             <StatusBar backgroundColor='transparent' translucent />
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={{ flex: 1, width: '100%', position: 'relative', }}>
+                    <Loading visible={isLoading} textContent={'Loading...'} textStyle={{ color: '#FFF' }} />
                     {eventsData &&
                         <>
                             <MapView
@@ -387,7 +422,7 @@ const MapScreen = (props) => {
                                     const coordinate = { latitude: event.latitude, longitude: event.longitude };
                                     const distance = getDistance(location, coordinate);
                                     const eventSubject = event.subject;
-                                    console.log("check here subjects", eventSubject)
+
                                     let imageSource = getImageSource(eventSubject);
 
                                     if (distance <= filterDistanceValue) {
@@ -451,11 +486,11 @@ const MapScreen = (props) => {
                                     </Pressable>
                                 }
                             </View>
-                            <View style={{ position: 'absolute', top: 100, right: 20 }}>
+                            {/* <View style={{ position: 'absolute', top: 100, right: 20 }}>
                                 <Pressable onPress={() => navigation.navigate('Create Event')}>
                                     <MaterialCommunityIcons name="plus-circle" size={50} color="#000000" />
                                 </Pressable>
-                            </View>
+                            </View> */}
                             {location && !route?.params?.eventId &&
                                 <View style={{ position: 'absolute', bottom: 0, }}>
                                     <Carousel

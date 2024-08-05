@@ -20,7 +20,7 @@ function EventListScreen({ route, navigation }) {
 
 
   useEffect(()=>{
-    console.log("::Setting filters")
+    // console.log("::Setting filters")
     if(params){
       const {selectedSubjects, selectedCost , distance , eventType} = params;
       setFilters((prevState)=>({
@@ -178,21 +178,49 @@ function EventListScreen({ route, navigation }) {
     setFilteredData(filteredEvents);
   }, [searchQuery, active, loading, eventsAPI, location, filters]);
 
+  // const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  //   const R = 3958.8; // Earth radius in miles
+  //   const dLat = toRadians(lat2 - lat1);
+  //   const dLon = toRadians(lon2 - lon1);
+  //   const a =
+  //     Math.sin(dLat / 2) * Math.sin(dLon / 2) +
+  //     Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  //   const distance = R * c;
+  //   return distance;
+  // };
+
+  
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    if (!lat1 || !lon1 || !lat2 || !lon2) {
+      console.error('Invalid latitude or longitude values');
+      return null;
+    }
+  
     const R = 3958.8; // Earth radius in miles
     const dLat = toRadians(lat2 - lat1);
     const dLon = toRadians(lon2 - lon1);
+    const lat1Rad = toRadians(lat1);
+    const lat2Rad = toRadians(lat2);
+  
     const a =
-      Math.sin(dLat / 2) * Math.sin(dLon / 2) +
-      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
+  
+    if (isNaN(distance)) {
+      console.error('Distance calculation failed');
+      return null;
+    }
+  
     return distance;
   };
-
+  
   const toRadians = (angle) => {
     return (angle * Math.PI) / 180;
   };
+
 
 
   return (

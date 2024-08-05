@@ -52,6 +52,15 @@ function SearchBar({ onChangeText, value, onPressIcon, isList, ...otherProps }) 
           }
         </Pressable>
 
+        {isList ?
+          null
+          :
+          <Pressable style={styles.container}
+            onPress={() => navigation.navigate('Create Event')}>
+            <MaterialCommunityIcons name="plus-circle" size={30} color="#000000" />
+          </Pressable>
+        }
+
       </View>
 
       <InfoModal
