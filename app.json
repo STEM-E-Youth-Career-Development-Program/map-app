@@ -27,10 +27,12 @@
       }
     },
     "android": {
+      "package": "com.demo.mapapp",
+      "versionCode": 1,        //Increment this every new update
+
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.demo.mapapp",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyABw1Zlew8uwDkqokOuy9d7JWo9k4Ykj80"
