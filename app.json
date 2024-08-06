@@ -2,7 +2,7 @@
   "expo": {
     "name": "mapSTEM", // renamed to mapSTEM for app release
     "slug": "map-app",
-    "version": "1.0.0",
+    "version": "1.0.0",  //Increment this every new update
     "ios": {
       "buildNumber": "2" // Increment this build number
     },
@@ -29,7 +29,6 @@
     "android": {
       "package": "com.demo.mapapp",
       "versionCode": 1,        //Increment this every new update
-
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF"
       },
