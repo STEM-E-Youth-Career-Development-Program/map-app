@@ -173,7 +173,7 @@ function EventListScreen({ route, navigation }) {
 
       return matchesSearchQuery && matchesStatus && matchesEventType && matchesDistance;
     });
-
+    filteredEvents.sort((a, b) => a.distance - b.distance);
     // console.log('Filtered events:', filteredEvents);
     setFilteredData(filteredEvents);
   }, [searchQuery, active, loading, eventsAPI, location, filters]);

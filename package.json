@@ -27,6 +27,7 @@
     "expo-status-bar": "~1.4.2",
     "formik": "^2.2.9",
     "google-polyline": "^1.0.3",
+    "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "react": "18.2.0",
     "react-geocode": "^1.0.0-alpha.1",
@@ -45,6 +46,7 @@
     "react-native-screens": "~3.20.0",
     "react-native-select-dropdown": "^3.4.0",
     "react-native-snap-carousel": "^4.0.0-beta.6",
+    "simplify-js": "^1.2.4",
     "yup": "^1.0.2"
   },
   "devDependencies": {
