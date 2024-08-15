@@ -11,6 +11,8 @@ import { MAP_API_KEY } from '@env'
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Loading from 'react-native-loading-spinner-overlay';
+import * as polyline from 'google-polyline';
+
 
 const MapScreen = (props) => {
     const mapRef = useRef(null);
@@ -103,18 +105,18 @@ const MapScreen = (props) => {
     // };
 
 
-    const filterEventsWithinRadius = (userLocation) => {
-        const distances = eventsCoordinates.map((event) => ({
-            distance: getDistance(userLocation, event),
-            event,
-        }));
+    // const filterEventsWithinRadius = (userLocation) => {
+    //     const distances = eventsCoordinates.map((event) => ({
+    //         distance: getDistance(userLocation, event),
+    //         event,
+    //     }));
 
-        distances.sort((a, b) => a.distance - b.distance);
+    //     distances.sort((a, b) => a.distance - b.distance);
 
-        const nearestEvents = distances.slice(0, 5).map((item) => item.event);
+    //     const nearestEvents = distances.slice(0, 5).map((item) => item.event);
 
-        setFilteredEvents(nearestEvents);
-    };
+    //     setFilteredEvents(nearestEvents);
+    // };
 
 
     // const getDistance = (coord1, coord2) => {
@@ -133,6 +135,10 @@ const MapScreen = (props) => {
     //     return deg * (Math.PI / 180);
     // };
 
+
+    const filterEventsWithinRadius = (userLocation) => {
+        setFilteredEvents(eventsData);
+    };
 
     const getDistance = (coord1, coord2) => {
         const R = 3959; // Radius of the Earth in miles
@@ -186,20 +192,81 @@ const MapScreen = (props) => {
 
 
 
+    // const createPolyline = (eventIndex, userLocation) => {
+    //     if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
+    //         const destination = eventsCoordinates[eventIndex];
+    //         if (destination && destination.latitude && destination.longitude) {
+    //             const destinationString = `${destination.latitude},${destination.longitude}`;
+    //             const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude},${userLocation.longitude}&destination=${destinationString}&key=${MAP_API_KEY}`;
+
+    //             fetch(apiUrl)
+    //                 .then(response => response.json())
+    //                 .then(data => {
+    //                     const points = data.routes[0].overview_polyline.points;
+    //                     const res = decodePolyline(points);
+    //                     setpolylineCoords(res);
+
+    //                     if (mapRef) {
+    //                         mapRef?.current?.fitToCoordinates([
+    //                             { latitude: destination.latitude, longitude: destination.longitude },
+    //                             { latitude: userLocation.latitude, longitude: userLocation.longitude }
+    //                         ], { edgePadding: { top: 80, right: 20, bottom: 80, left: 80 }, animated: true });
+    //                     }
+    //                 })
+    //                 .catch(error => console.error(error));
+    //         } else {
+    //             console.error('Invalid destination coordinates');
+    //         }
+    //     } else {
+    //         console.error('Invalid eventIndex or eventsCoordinates is empty');
+    //     }
+    // };
+
+
+
+
+    // const _renderItem = ({ item, index }) => {
+    //     const distance = getDistance(location, eventsCoordinates[index]);
+    //     if (distance <= filterDistanceValue) {
+    //         return <MapCard item={item} navigation={navigation} isSelected={selectedIndex === index} distance={distance} />;
+    //     } else {
+    //         return null; // Hide the MapCard if distance is greater than 3 miles
+    //     }
+    // };
+
+    // const _renderItem = ({ item, index }) => {
+    //     const distance = getDistance(location, { latitude: parseFloat(item.latitude), longitude: parseFloat(item.longitude) });
+    //     return (
+    //         <MapCard
+    //             key={index}
+    //             item={item}
+    //             navigation={navigation}
+    //             isSelected={selectedIndex === index}
+    //             distance={distance}
+    //         />
+    //     );
+    // };
+
+
     const createPolyline = (eventIndex, userLocation) => {
         if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
             const destination = eventsCoordinates[eventIndex];
             if (destination && destination.latitude && destination.longitude) {
-                const destinationString = `${destination.latitude},${destination.longitude}`;
-                const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude},${userLocation.longitude}&destination=${destinationString}&key=${MAP_API_KEY}`;
-
+                const coordinates = [
+                    [userLocation.latitude, userLocation.longitude],
+                    [destination.latitude, destination.longitude]
+                ];
+    
+                const polylineString = polyline.encode(coordinates);
+                const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude},${userLocation.longitude}&destination=${destination.latitude},${destination.longitude}&mode=driving&key=${MAP_API_KEY}`;
+    
                 fetch(apiUrl)
                     .then(response => response.json())
                     .then(data => {
-                        const points = data.routes[0].overview_polyline.points;
-                        const res = decodePolyline(points);
-                        setpolylineCoords(res);
-
+                        const polylinePoints = data.routes[0].overview_polyline.points;
+                        const polylineCoords = decodePolyline(polylinePoints);
+                        setpolylineCoords(polylineCoords);
+    
                         if (mapRef) {
                             mapRef?.current?.fitToCoordinates([
                                 { latitude: destination.latitude, longitude: destination.longitude },
@@ -218,36 +285,64 @@ const MapScreen = (props) => {
 
 
 
-
     const _renderItem = ({ item, index }) => {
-        const distance = getDistance(location, eventsCoordinates[index]);
-        if (distance <= filterDistanceValue) {
-            return <MapCard item={item} navigation={navigation} isSelected={selectedIndex === index} distance={distance} />;
-        } else {
-            return null; // Hide the MapCard if distance is greater than 3 miles
-        }
+        const distance = getDistance(location, { latitude: parseFloat(item.latitude), longitude: parseFloat(item.longitude) });
+        return (
+            <MapCard
+                key={index}
+                item={item}
+                navigation={navigation}
+                isSelected={selectedIndex === index}
+                distance={distance}
+            />
+        );
     };
 
+    // const onSnapFunc = (ind) => {
+    //     if (getDistance(location, eventsCoordinates[ind]) <= filterDistanceValue) {
+    //         setSelectedIndex(visibleEvents.findIndex((event) => event.id === filteredEvents[ind].id));
+    //         createPolyline(ind, location);
+    //     } else {
+    //         // Do not snap to the next item if the distance is greater than 3 miles
+    //         return;
+    //     }
+
+    //     if (carouselRef.current) {
+    //         carouselRef.current.snapToItem(ind);
+    //     }
+    // };
+
     const onSnapFunc = (ind) => {
-        if (getDistance(location, eventsCoordinates[ind]) <= filterDistanceValue) {
-            setSelectedIndex(ind);
-            createPolyline(ind, location);
-        } else {
-            // Do not snap to the next item if the distance is greater than 3 miles
-            return;
-        }
+        setSelectedIndex(ind);
+        createPolyline(ind, location);
 
         if (carouselRef.current) {
             carouselRef.current.snapToItem(ind);
         }
     };
 
+    const visibleEvents = filteredEvents;
+
+    // const onSnapFunc = (ind) => {
+    //     if (getDistance(location, eventsCoordinates[ind]) <= filterDistanceValue) {
+    //         setSelectedIndex(ind);
+    //         createPolyline(ind, location);
+    //     } else {
+    //         // Do not snap to the next item if the distance is greater than 3 miles
+    //         return;
+    //     }
+
+    //     if (carouselRef.current) {
+    //         carouselRef.current.snapToItem(ind);
+    //     }
+    // };
 
 
-    const visibleEvents = filteredEvents.filter((event) => {
-        const distance = getDistance(location, { latitude: parseFloat(event.latitude), longitude: parseFloat(event.longitude) });
-        return distance <= filterDistanceValue;
-    });
+
+    // const visibleEvents = filteredEvents.filter((event) => {
+    //     const distance = getDistance(location, { latitude: parseFloat(event.latitude), longitude: parseFloat(event.longitude) });
+    //     return distance <= filterDistanceValue;
+    // });
 
     const getMarkerRotation = () => {
         return 180;
@@ -418,7 +513,7 @@ const MapScreen = (props) => {
                                     />
                                 )}
 
-                                {filteredEvents.map((event, index) => {
+                                {/* {visibleEvents.map((event, index) => {
                                     const coordinate = { latitude: event.latitude, longitude: event.longitude };
                                     const distance = getDistance(location, coordinate);
                                     const eventSubject = event.subject;
@@ -426,6 +521,7 @@ const MapScreen = (props) => {
                                     let imageSource = getImageSource(eventSubject);
 
                                     if (distance <= filterDistanceValue) {
+                                        console.log(`Marker ${index + 1} - Latitude: ${coordinate.latitude}, Longitude: ${coordinate.longitude}`);
                                         return (
                                             <Marker
                                                 key={index}
@@ -442,6 +538,28 @@ const MapScreen = (props) => {
                                     } else {
                                         return null; // Hide the marker if distance is greater than 3 miles
                                     }
+                                })} */}
+
+                                {visibleEvents.map((event, index) => {
+                                    const coordinate = { latitude: event.latitude, longitude: event.longitude };
+                                    const distance = getDistance(location, coordinate);
+                                    const eventSubject = event.subject;
+
+                                    let imageSource = getImageSource(eventSubject);
+                                    console.log(`Marker ${index + 1} - Latitude: ${coordinate.latitude}, Longitude: ${coordinate.longitude}`);
+                                    return (
+                                        <Marker
+                                            key={index}
+                                            coordinate={coordinate}
+                                            onPress={() => onEventMarkerPress(index)}
+                                        >
+                                            <Image
+                                                source={imageSource}
+                                                style={{ width: selectedIndex === index ? 60 : 25, height: selectedIndex === index ? 60 : 25 }}
+                                                resizeMode="contain"
+                                            />
+                                        </Marker>
+                                    );
                                 })}
 
                                 {location && polylineCoords && (
@@ -454,6 +572,15 @@ const MapScreen = (props) => {
                                         strokeWidth={2.5}
                                     />
                                 )}
+
+                                {/* {location && polylineCoords && polylineCoords.map((segment, index) => (
+                                    <Polyline
+                                        key={index}
+                                        coordinates={segment}
+                                        strokeColor="#000"
+                                        strokeWidth={2.5}
+                                    />
+                                ))} */}
 
                                 {/* Location Radius */}
                                 {location && (
