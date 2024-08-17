@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline, Circle } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { View, Text, StatusBar, SafeAreaView, Alert, Image, Dimensions, Pressable, TouchableWithoutFeedback, Keyboard, Linking } from 'react-native';
@@ -165,20 +165,20 @@ const MapScreen = () => {
             if (event.latitude && event.longitude) {
                 const eventLocation = { latitude: parseFloat(event.latitude), longitude: parseFloat(event.longitude) };
                 const distance = getDistance(location, eventLocation);
-    
+
                 const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
                 const isMatchingSearch = (
                     event.eventName.toLowerCase().includes(query.toLowerCase()) ||
                     subjectString.includes(query.toLowerCase())
                 );
-    
+
                 return distance <= (radius * 1609.34) && isMatchingSearch; // Radius converted to meters
             } else {
                 // If latitude or longitude is missing, exclude the event
                 return false;
             }
         });
-    
+
         setFilteredEvents(filtered);
         setVisibleEvents(filtered);
         setEventsCoordinates(filtered.map((event) => ({
@@ -186,14 +186,15 @@ const MapScreen = () => {
             longitude: parseFloat(event.longitude)
         })));
     };
-    
+
+
     useEffect(() => {
         if (location) {
             filterEventsWithinRadius(location, radius, searchQuery);
         }
     }, [location, searchQuery, eventsData]);
-    
-    
+
+
 
     const getDistance = (coord1, coord2) => {
         const R = 3959; // Radius of the Earth in miles
@@ -460,26 +461,32 @@ const MapScreen = () => {
                                         )}
 
                                         {visibleEvents.map((event, index) => {
-                                            const coordinate = { latitude: event.latitude, longitude: event.longitude };
-                                            const distance = getDistance(location, coordinate);
-                                            const eventSubject = event.subject;
+                                            if (event.latitude && event.longitude) {
+                                                const coordinate = { latitude: event.latitude, longitude: event.longitude };
+                                              //  const distance = getDistance(location, coordinate);
+                                                const eventSubject = event.subject;
 
-                                            let imageSource = getImageSource(eventSubject);
+                                                let imageSource = getImageSource(eventSubject);
 
-                                            return (
-                                                <Marker
-                                                    key={index}
-                                                    coordinate={coordinate}
-                                                    onPress={() => onEventMarkerPress(index)}
-                                                >
-                                                    <Image
-                                                        source={imageSource}
-                                                        style={{ width: selectedIndex === index ? 60 : 25, height: selectedIndex === index ? 60 : 25 }}
-                                                        resizeMode="contain"
-                                                    />
-                                                </Marker>
-                                            );
+                                                return (
+                                                    <Marker
+                                                        key={index}
+                                                        coordinate={coordinate}
+                                                        onPress={() => onEventMarkerPress(index)}
+                                                    >
+                                                        <Image
+                                                            source={imageSource}
+                                                            style={{ width: selectedIndex === index ? 60 : 25, height: selectedIndex === index ? 60 : 25 }}
+                                                            resizeMode="contain"
+                                                        />
+                                                    </Marker>
+                                                );
+                                            } else {
+                                                console.warn(`Event ${event.eventName} is missing latitude or longitude`);
+                                                return null;
+                                            }
                                         })}
+
 
                                         {location && polylineCoords && (
                                             <Polyline
