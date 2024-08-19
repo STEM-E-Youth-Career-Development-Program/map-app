@@ -14,11 +14,11 @@
             "autoIncrement": true
         }
     },
-    
     "submit": {
-       "production": {
-            "android":{
+        "production": {
+            "android": {
                 //"serviceAccountKeyPath": Provide path when releasing a new app update 
             }
+        }
     }
 }
