@@ -53,96 +53,52 @@ const MapScreen = () => {
 
 
     useEffect(() => {
-        (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission denied', 'We need location permissions to get your location.');
-                return;
-            }
-            try {
-                const currentLocation = await Location.getCurrentPositionAsync();
-                setLocation(currentLocation.coords);
-                fitToFrame(currentLocation.coords);
-                filterEventsWithinRadius(currentLocation.coords, radius);
+        console.log('useEffect called');
+        const fetchData = async () => {
+            console.log('fetchData called');
+          setIsLoading(true);
+          let { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Permission denied', 'We need location permissions to get your location.');
+            setIsLoading(false);
+            return;
+          }
+          try {
+            // const currentLocation = await Location.getCurrentPositionAsync();
+            const currentLocation = await Location.getCurrentPositionAsync({ timeout: 10000, enableHighAccuracy: true, });
+            console.log('Got current location:', currentLocation);
+            setLocation(currentLocation.coords);
+            fitToFrame(currentLocation.coords);
+            filterEventsWithinRadius(currentLocation.coords, radius);
+      
+            fetch('https://mapstem-api.azurewebsites.net/api/Event')
+              .then((response) => response.json())
+              .then((data) => {
+                const onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
+                seteventsData(onsiteEvents);
+                const eventCoordinates = onsiteEvents.map((event) => ({
+                  latitude: parseFloat(event.latitude) || 29.759141,
+                  longitude: parseFloat(event.longitude) || -95.370310,
+                }));
+      
+                setEventsCoordinates(eventCoordinates);
+                setFilteredEvents(onsiteEvents); // Initially show all events
+              })
+              .catch((error) => {
+                console.error('Error fetching data:', error);
+                setFetchError(error.message);
+              })
+              .finally(() => setIsLoading(false));
+          } catch (error) {
+            console.log('Error getting current location:', error);
+            setIsLoading(false);
+          }
+        };
+      
+        fetchData();
+      }, []);
 
-                fetch('https://mapstem-api.azurewebsites.net/api/Event')
-                    .then((response) => response.json())
-                    .then((data) => {
-                        const onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
-                        seteventsData(onsiteEvents);
-                        const eventCoordinates = onsiteEvents.map((event) => ({
-                            latitude: parseFloat(event.latitude) || 29.759141,
-                            longitude: parseFloat(event.longitude) || -95.370310,
-                        }));
-
-                        setEventsCoordinates(eventCoordinates);
-                        setFilteredEvents(onsiteEvents); // Initially show all events
-                    })
-                    .catch((error) => {
-                        console.error('Error fetching data:', error);
-                        setFetchError(error.message);
-                    })
-                    .finally(() => setIsLoading(false));
-            } catch (error) {
-                console.log('Error getting current location:', error);
-            }
-        })();
-    }, []);
-
-
-    // useEffect(() => {
-    //     (async () => {
-    //         let { status } = await Location.requestForegroundPermissionsAsync();
-    //         if (status !== 'granted') {
-    //             Alert.alert('Permission denied', 'We need location permissions to get your location.');
-    //             return;
-    //         }
-    //         try {
-    //             const currentLocation = await Location.getCurrentPositionAsync({
-    //                 //accuracy: Location.Accuracy.Highest,
-    //                 //maximumAge: 10000,
-    //                 //timeout: 5000
-    //             });
-    //             setLocation(currentLocation);
-    //         } catch (error) {
-    //             console.log('Error getting current location:', error);
-    //         }
-
-    //         let currentLocation = await Location.getCurrentPositionAsync({});
-    //         setLocation(currentLocation.coords);
-    //         fitToFrame(currentLocation.coords);
-    //         createPolyline(selectedIndex, currentLocation.coords);
-    //         filterEventsWithinRadius(currentLocation.coords, radius);
-
-    //         fetch('https://mapstem-api.azurewebsites.net/api/Event')
-    //             .then((response) => response.json())
-    //             .then((data) => {
-    //                 const onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
-    //                 seteventsData(onsiteEvents)
-    //                 const eventCoordinates = onsiteEvents.map((event) => ({
-    //                     latitude: parseFloat(event.latitude) || 29.759141,
-    //                     longitude: parseFloat(event.longitude) || -95.370310,
-    //                 }));
-
-    //                 setEventsCoordinates(eventCoordinates);
-    //                 const filteredEvent = onsiteEvents.filter((event) => {
-    //                     const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
-    //                     return (
-    //                         event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    //                         subjectString.includes(searchQuery.toLowerCase())
-    //                     );
-    //                 });
-    //                 setFilteredEvents(filteredEvent);
-    //             })
-    //             .catch((error) => {
-    //                 console.error('Error fetching data:', error);
-    //                 setFetchError(error.message);
-    //             })
-    //             .finally(() => setIsLoading(false));
-    //     })();
-    // }, [searchQuery]);
-
-
+      
     useEffect(() => {
         if (location && eventsData.length > 0) {
             const sortedEvents = eventsData.sort((a, b) => {

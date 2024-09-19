@@ -47,7 +47,8 @@
     "react-native-select-dropdown": "^3.4.0",
     "react-native-snap-carousel": "^4.0.0-beta.6",
     "simplify-js": "^1.2.4",
-    "yup": "^1.0.2"
+    "yup": "^1.0.2",
+    "expo-device": "~5.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
