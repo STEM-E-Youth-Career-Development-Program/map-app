@@ -30,7 +30,12 @@
         "microphone",
         "contacts"
       ],
-      "infoPlist": { "NSLocationAlwaysAndWhenInUseUsageDescription": "We needs camera permissions to allow you to upload profile photos."}
+      "infoPlist": { 
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Your location allows you to view STEM events while accessing the app.",
+        "NSLocationAlwaysUsageDescription": "Your location allows you to view STEM events while accessing the app.",
+        "NSLocationUsageDescription": "Your location allows you to view STEM events while accessing the app."
+        
+      }
     },
     "android": {
       "package": "com.demo.mapapp",
