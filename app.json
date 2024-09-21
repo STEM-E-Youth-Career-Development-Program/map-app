@@ -58,6 +58,14 @@
       "eas": {
         "projectId": "9554c499-9949-4dcb-95b7-f46156cc5a97"
       }
-    }
+    },
+    "plugins": [
+    [
+      "expo-location",
+      {
+        "locationAlwaysAndWhenInUsePermission": "Your location allows you to view STEM events while accessing the app."
+      }
+    ]
+  ]
   }
 }
