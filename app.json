@@ -29,7 +29,8 @@
         "camera",
         "microphone",
         "contacts"
-      ]
+      ],
+      "infoPlist": { "NSLocationAlwaysAndWhenInUseUsageDescription": "We needs camera permissions to allow you to upload profile photos."}
     },
     "android": {
       "package": "com.demo.mapapp",

@@ -1,4 +1,4 @@
 <key>NSLocationWhenInUseUsageDescription</key>
 <string>This app needs access to your location to function properly</string>
-<key>NSLocationAlwaysUsageDescription</key>
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 <string>This app needs access to your location to function properly</string>
