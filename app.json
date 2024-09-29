@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "mapSTEM", 
+    "name": "mapSTEM",
     "slug": "map-app",
-    "version": "1.0.0", 
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./app/assets/map_icon.png",
     "userInterfaceStyle": "light",
@@ -17,7 +17,7 @@
       "**/*"
     ],
     "ios": {
-      "buildNumber": "2" ,
+      "buildNumber": "2",
       "supportsTablet": true,
       "bundleIdentifier": "com.demo.mapapp",
       "config": {
@@ -30,16 +30,15 @@
         "microphone",
         "contacts"
       ],
-      "infoPlist": { 
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Your location allows you to view STEM events while accessing the app.",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Your location allows you to view STEM events while accessing the app.",
         "NSLocationAlwaysUsageDescription": "Your location allows you to view STEM events while accessing the app.",
         "NSLocationUsageDescription": "Your location allows you to view STEM events while accessing the app."
-        
       }
     },
     "android": {
       "package": "com.demo.mapapp",
-      "versionCode": 1, 
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF"
       },
@@ -60,12 +59,12 @@
       }
     },
     "plugins": [
-    [
-      "expo-location",
-      {
-        "locationAlwaysAndWhenInUsePermission": "Your location allows you to view STEM events while accessing the app."
-      }
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Your location allows you to view STEM events while accessing the app."
+        }
+      ]
     ]
-  ]
   }
 }

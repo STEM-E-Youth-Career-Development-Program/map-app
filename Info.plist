@@ -1,4 +1,8 @@
+<key>NSLocationAlwaysUsageDescription</key>
+<string>Your location allows you to view STEM events while accessing the app.</string>
+<key>NSLocationUsageDescription</key>
+<string>Your location allows you to view STEM events while accessing the app.</string>
 <key>NSLocationWhenInUseUsageDescription</key>
-<string>This app needs access to your location to function properly</string>
-<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-<string>This app needs access to your location to function properly</string>
+<string>Your location allows you to view STEM events while accessing the app.</string>
+ 
+ 
