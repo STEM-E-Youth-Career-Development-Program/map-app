@@ -5,12 +5,14 @@ import Event from '../components/Event';
 import PageHeader from '../components/PageHeader';
 import Constants from 'expo-constants';
 import NextButton from '../components/NextButton';
-import { useLocation } from '../components/locationGet';
+//import { useLocation } from '../components/locationGet';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
+import * as Location from 'expo-location';
+
 function EventListScreen({ route, navigation }) {
-  const { location } = useLocation();
-  const { params  } = route;
+  //const { location } = useLocation();
+  const { params } = route;
   const [searchQuery, setSearchQuery] = useState('');
   const [active, setActive] = useState(true);
   const [eventsAPI, setEvents] = useState([]);
@@ -18,37 +20,66 @@ function EventListScreen({ route, navigation }) {
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState(null);
 
+  const [location, setLocation] = useState(null);
 
-  useEffect(()=>{
+
+
+  useEffect(() => {
+    const getLocation = async () => {
+      try {
+        await Location.requestForegroundPermissionsAsync({ requestAlwaysAuthorization: true });
+        const currentLocation = await Location.getCurrentPositionAsync({ timeout: 10000, enableHighAccuracy: true, });
+        console.log('Got current location in Event List:', currentLocation);
+        setLocation(currentLocation.coords);
+        // Call other functions here...
+      } catch (error) {
+        console.log('Error getting location:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getLocation();
+  }, []);
+
+  useEffect(() => {
+    console.log("outside",{filters,loading})
+    if(filters){
+      console.log("inside",{filters,loading})
+      fetchData()
+    };
+  }, [filters, location]);
+  
+
+  useEffect(() => {
     // console.log("::Setting filters")
-    if(params){
-      const {selectedSubjects, selectedCost , distance , eventType} = params;
-      setFilters((prevState)=>({
+    if (params) {
+      const { selectedSubjects, selectedCost, distance, eventType } = params;
+      setFilters((prevState) => ({
         ...prevState,
         selectedCost,
         selectedSubjects,
         distance,
         eventType
       }))
-    }else{
-      setFilters(prevState=>({
+    } else {
+      setFilters(prevState => ({
         ...prevState,
-          selectedSubjects:[],
-          selectedCost:"",
-          distance:"",
-          eventType:"",
+        selectedSubjects: [],
+        selectedCost: "",
+        distance: "",
+        eventType: "",
       }))
     }
-  },[params])
+  }, [params])
 
 
-  useEffect(()=>{
+  useEffect(() => {
     console.debug({
       location, params, searchQuery, active, loading, filters
     })
-  },[location, params, searchQuery, active, loading, filters])
+  }, [location, params, searchQuery, active, loading, filters])
 
-  const renderFilterCapsules = () => !filters?null:(
+  const renderFilterCapsules = () => !filters ? null : (
     <View style={styles.filterCapsulesContainer}>
       {renderFilter('Event Type', filters.eventType)}
       {renderFilter('Selected Cost', filters.selectedCost)}
@@ -122,12 +153,12 @@ function EventListScreen({ route, navigation }) {
 
   useEffect(() => {
     console.log(
-        
-      "outside",{filters,loading})
-    if(filters){
+
+      "outside", { filters, loading })
+    if (filters) {
       console.log(
-        
-        "inside",{filters,loading})
+
+        "inside", { filters, loading })
       fetchData()
     };
   }, [filters]);
@@ -153,7 +184,7 @@ function EventListScreen({ route, navigation }) {
     // console.log('Events with distance:', eventsWithDistance);
 
     const filteredEvents = eventsWithDistance.filter((event) => {
-      const {eventType, distance} = filters;
+      const { eventType, distance } = filters;
       const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
 
       const matchesSearchQuery =
@@ -190,33 +221,33 @@ function EventListScreen({ route, navigation }) {
   //   return distance;
   // };
 
-  
+
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     if (!lat1 || !lon1 || !lat2 || !lon2) {
       console.error('Invalid latitude or longitude values');
       return null;
     }
-  
+
     const R = 3958.8; // Earth radius in miles
     const dLat = toRadians(lat2 - lat1);
     const dLon = toRadians(lon2 - lon1);
     const lat1Rad = toRadians(lat1);
     const lat2Rad = toRadians(lat2);
-  
+
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
-  
+
     if (isNaN(distance)) {
       console.error('Distance calculation failed');
       return null;
     }
-  
+
     return distance;
   };
-  
+
   const toRadians = (angle) => {
     return (angle * Math.PI) / 180;
   };

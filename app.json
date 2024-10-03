@@ -62,7 +62,8 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Your location allows you to view STEM events while accessing the app."
+          "locationAlwaysAndWhenInUsePermission": "Your location allows you to view STEM events while accessing the app.",
+          "NSPhotoLibraryUsageDescription":"This app requires access to the photo library to enable you to upload your photos of STEM events"
         }
       ]
     ]
