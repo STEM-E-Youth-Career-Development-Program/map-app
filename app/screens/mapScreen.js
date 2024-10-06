@@ -400,7 +400,7 @@ const MapScreen = () => {
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                         <View style={{ flex: 1, width: '100%', position: 'relative', }}>
                             <Loading visible={isLoading} textContent={'Loading...'} textStyle={{ color: '#FFF' }} />
-                            {eventsData && location &&
+                            {eventsData &&
                                 <>
                                     <MapView
                                         ref={mapRef}
