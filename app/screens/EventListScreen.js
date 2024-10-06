@@ -27,15 +27,16 @@ function EventListScreen({ route, navigation }) {
   useEffect(() => {
     const getLocation = async () => {
       try {
-        await Location.requestForegroundPermissionsAsync({ requestAlwaysAuthorization: true });
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.log('Location permissions not granted');
+          return;
+        }
         const currentLocation = await Location.getCurrentPositionAsync({ timeout: 10000, enableHighAccuracy: true, });
-        console.log('Got current location in Event List:', currentLocation);
+        console.log('Got current location:', currentLocation);
         setLocation(currentLocation.coords);
-        // Call other functions here...
       } catch (error) {
         console.log('Error getting location:', error);
-      } finally {
-        setIsLoading(false);
       }
     };
     getLocation();
