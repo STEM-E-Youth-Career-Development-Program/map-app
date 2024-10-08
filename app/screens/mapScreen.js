@@ -14,7 +14,7 @@ import Loading from 'react-native-loading-spinner-overlay';
 import * as polyline from 'google-polyline';
 import simplify from 'simplify-js';
 import { debounce } from 'lodash';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MapScreen = () => {
     const mapRef = useRef(null);
@@ -66,8 +66,9 @@ const MapScreen = () => {
           try {
             // const currentLocation = await Location.getCurrentPositionAsync();
             const currentLocation = await Location.getCurrentPositionAsync({ timeout: 10000, enableHighAccuracy: true, });
-            console.log('Got current location:', currentLocation);
+            // console.log('Got current location:', currentLocation);
             setLocation(currentLocation.coords);
+            AsyncStorage.setItem('location', JSON.stringify(currentLocation.coords));
             fitToFrame(currentLocation.coords);
             filterEventsWithinRadius(currentLocation.coords, radius);
       

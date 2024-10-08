@@ -7,8 +7,9 @@ import Constants from 'expo-constants';
 import NextButton from '../components/NextButton';
 //import { useLocation } from '../components/locationGet';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
 import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 function EventListScreen({ route, navigation }) {
   //const { location } = useLocation();
@@ -21,25 +22,43 @@ function EventListScreen({ route, navigation }) {
   const [filters, setFilters] = useState(null);
 
   const [location, setLocation] = useState(null);
-
-
+  const [loadingLocation, setLoadingLocation] = useState(true);
 
   useEffect(() => {
-    const getLocation = async () => {
+    const getLocationFromStorage = async () => {
       try {
-        await Location.requestForegroundPermissionsAsync({ requestAlwaysAuthorization: true });
-        const currentLocation = await Location.getCurrentPositionAsync({ timeout: 10000, enableHighAccuracy: true, });
-        console.log('Got current location in Event List:', currentLocation);
-        setLocation(currentLocation.coords);
-        // Call other functions here...
+        const storedLocation = await AsyncStorage.getItem('location');
+        console.log('Stored location:', storedLocation); // Add this log statement
+        if (storedLocation) {
+          const locationData = JSON.parse(storedLocation);
+          setLocation(locationData);
+          setLoadingLocation(false);
+        }
       } catch (error) {
-        console.log('Error getting location:', error);
-      } finally {
-        setIsLoading(false);
+        console.error('Error loading location from storage:', error);
       }
     };
-    getLocation();
+    getLocationFromStorage();
   }, []);
+
+
+
+  // useEffect(() => {
+  //   const getLocation = async () => {
+  //     try {
+  //       await Location.requestForegroundPermissionsAsync({ requestAlwaysAuthorization: true });
+  //       const currentLocation = await Location.getCurrentPositionAsync({ timeout: 10000, enableHighAccuracy: true, });
+  //       console.log('Got current location in Event List:', currentLocation);
+  //       setLocation(currentLocation.coords);
+  //       // Call other functions here...
+  //     } catch (error) {
+  //       console.log('Error getting location:', error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   getLocation();
+  // }, []);
 
   useEffect(() => {
     console.log("outside",{filters,loading})
@@ -167,7 +186,12 @@ function EventListScreen({ route, navigation }) {
     if (loading) {
       return;
     }
-
+  
+    if (!location) {
+      console.log('Location is null, cannot calculate distance');
+      return;
+    }
+  
     const eventsWithDistance = Array.isArray(eventsAPI)
       ? eventsAPI.map((event) => {
         const eventDistance = calculateDistance(
@@ -180,13 +204,11 @@ function EventListScreen({ route, navigation }) {
         return { ...event, distance: eventDistance };
       })
       : [];
-
-    // console.log('Events with distance:', eventsWithDistance);
-
+  
     const filteredEvents = eventsWithDistance.filter((event) => {
       const { eventType, distance } = filters;
       const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
-
+  
       const matchesSearchQuery =
         event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         subjectString.includes(searchQuery.toLowerCase());
@@ -195,20 +217,19 @@ function EventListScreen({ route, navigation }) {
         (!active && event.eventStatus === 'Pending');
       const matchesEventType = !eventType || event.eventType === eventType;
       const matchesDistance = distance === 100 || !distance || event.distance <= distance;
-
+  
       // console.log(`Event: ${event.eventName}`);
       // console.log(`Matches search query: ${matchesSearchQuery}`);
       // console.log(`Matches status: ${matchesStatus}`);
       // console.log(`Matches event type: ${matchesEventType}`);
       // console.log(`Matches distance: ${matchesDistance}`);
-
+  
       return matchesSearchQuery && matchesStatus && matchesEventType && matchesDistance;
     });
     filteredEvents.sort((a, b) => a.distance - b.distance);
     // console.log('Filtered events:', filteredEvents);
     setFilteredData(filteredEvents);
-  }, [searchQuery, active, loading, eventsAPI, location, filters]);
-
+  }, [location, eventsAPI, loading, searchQuery, active, filters]);
   // const calculateDistance = (lat1, lon1, lat2, lon2) => {
   //   const R = 3958.8; // Earth radius in miles
   //   const dLat = toRadians(lat2 - lat1);
@@ -223,6 +244,11 @@ function EventListScreen({ route, navigation }) {
 
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    if (!location) {
+      console.log('Location is null, cannot calculate distance');
+      return null;
+    }
+
     if (!lat1 || !lon1 || !lat2 || !lon2) {
       console.error('Invalid latitude or longitude values');
       return null;
@@ -259,7 +285,7 @@ function EventListScreen({ route, navigation }) {
       <PageHeader header="All Events" />
       {renderFilterCapsules()}
 
-      {loading ? (
+      {loadingLocation ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#000" />
         </View>
