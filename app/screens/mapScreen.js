@@ -15,6 +15,8 @@ import * as polyline from 'google-polyline';
 import simplify from 'simplify-js';
 import { debounce } from 'lodash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Logger from '../utils/logger';
+import fetchEvents from '../utils/data';
 
 const MapScreen = () => {
     const mapRef = useRef(null);
@@ -22,6 +24,7 @@ const MapScreen = () => {
     const route = useRoute();
     const navigation = useNavigation()
     const [eventsData, seteventsData] = useState([]);
+    const [allEvents, setAllEvents] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [location, setLocation] = useState(null);
     const [polylineCoords, setpolylineCoords] = useState(null)
@@ -39,6 +42,110 @@ const MapScreen = () => {
     }, 300);
 
     useEffect(() => {
+        
+        const fetchData = async () => {
+
+            setIsLoading(true);
+
+            let { status } = await Location.requestForegroundPermissionsAsync();
+
+            Logger.info('status is ${status}',status);
+
+            if (status !== 'granted') {
+                Alert.alert('Permission denied', 'We need location permissions to get your location.');
+                setIsLoading(false);
+                return;
+            }
+            //AsyncStorage.clear();
+
+            try {
+
+                // Retrieve location data from AsyncStorage
+                const storedLocation = await AsyncStorage.getItem('location');
+                Logger.log('*******************stored location:', storedLocation);
+
+                let localLocation = null;
+
+                if (storedLocation !== null) {
+                    // Parse the stored location data
+                    const locationData = JSON.parse(storedLocation);
+
+                    const storedTimestamp = locationData.timestamp;
+                    console.log('Using stored location:', locationData.coords);
+
+                    // Get the current date and the stored date
+                    const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                    const storedDate = new Date(storedTimestamp).toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+                    // Check if the stored date is the same as today's date
+                    if (currentDate === storedDate) {
+                        // Dates match, use stored location
+                        console.log("current date", currentDate, storedDate)
+                        localLocation = locationData.coords;
+                        setLocation(locationData.coords); // Set the stored location
+                    }
+                }
+                else {
+
+                    const currentLocation = await Location.getCurrentPositionAsync({ timeout: 10000, enableHighAccuracy: true, });
+                    Logger.log('Got current location from phone:', currentLocation);
+                    setLocation(currentLocation.coords);
+                    localLocation = currentLocation.coords;
+                    // Capture the current timestamp
+                    const currentTimestamp = Date.now();
+
+                    // Create an object to store both location and timestamp
+                    const locationData = {
+                        coords: localLocation,
+                        timestamp: currentTimestamp,
+                    };
+
+                    // Store location data and timestamp in AsyncStorage
+                    await AsyncStorage.setItem('location', JSON.stringify(locationData));
+                } 
+                let onsiteEvents=null;
+                fetch('https://mapstem-api.azurewebsites.net/api/Event')
+                    .then((response) => response.json())
+                    .then((data) => {
+                        setAllEvents(data);
+                        onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
+                        seteventsData(onsiteEvents);
+                        const eventCoordinates = onsiteEvents.map((event) => ({
+                            latitude: parseFloat(event.latitude) || 29.759141,
+                            longitude: parseFloat(event.longitude) || -95.370310,
+                        }));
+                        console.log("events fetched", eventCoordinates)
+
+                        setEventsCoordinates(eventCoordinates);
+                        setFilteredEvents(onsiteEvents); // Initially show all events
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching data:', error);
+                        setFetchError(error.message);
+                    })
+                    .finally(() => setIsLoading(false));
+                
+                await AsyncStorage.setItem('onSiteEvents', JSON.stringify(onsiteEvents));
+ 
+                Logger.warn("Events fetched location is ", location)
+
+                filterEventsWithinRadius(localLocation, radius);
+                console.log("filterEvent completed")
+                fitToFrame(localLocation);
+                console.log("Fit to frame completed")
+
+            } catch (error) {
+                console.log('Error getting current location:', error);
+                setIsLoading(false);
+            }
+
+        };
+
+        fetchData();
+    }, []);
+
+
+    useEffect(() => {
         if (eventsData.length > 0) {
             const filteredEvent = eventsData.filter((event) => {
                 const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
@@ -51,55 +158,6 @@ const MapScreen = () => {
         }
     }, [searchQuery, eventsData]);
 
-
-    useEffect(() => {
-        console.log('useEffect called');
-        const fetchData = async () => {
-            console.log('fetchData called');
-          setIsLoading(true);
-          let { status } = await Location.requestForegroundPermissionsAsync();
-          if (status !== 'granted') {
-            Alert.alert('Permission denied', 'We need location permissions to get your location.');
-            setIsLoading(false);
-            return;
-          }
-          try {
-            // const currentLocation = await Location.getCurrentPositionAsync();
-            const currentLocation = await Location.getCurrentPositionAsync({ timeout: 10000, enableHighAccuracy: true, });
-            // console.log('Got current location:', currentLocation);
-            setLocation(currentLocation.coords);
-            AsyncStorage.setItem('location', JSON.stringify(currentLocation.coords));
-            fitToFrame(currentLocation.coords);
-            filterEventsWithinRadius(currentLocation.coords, radius);
-      
-            fetch('https://mapstem-api.azurewebsites.net/api/Event')
-              .then((response) => response.json())
-              .then((data) => {
-                const onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
-                seteventsData(onsiteEvents);
-                const eventCoordinates = onsiteEvents.map((event) => ({
-                  latitude: parseFloat(event.latitude) || 29.759141,
-                  longitude: parseFloat(event.longitude) || -95.370310,
-                }));
-      
-                setEventsCoordinates(eventCoordinates);
-                setFilteredEvents(onsiteEvents); // Initially show all events
-              })
-              .catch((error) => {
-                console.error('Error fetching data:', error);
-                setFetchError(error.message);
-              })
-              .finally(() => setIsLoading(false));
-          } catch (error) {
-            console.log('Error getting current location:', error);
-            setIsLoading(false);
-          }
-        };
-      
-        fetchData();
-      }, []);
-
-      
     useEffect(() => {
         if (location && eventsData.length > 0) {
             const sortedEvents = eventsData.sort((a, b) => {
@@ -117,6 +175,8 @@ const MapScreen = () => {
 
 
     const filterEventsWithinRadius = (location, radius, query) => {
+        Logger.info ('In fiterEventswithinRadius',eventsData.length);
+        
         const filtered = eventsData.filter((event) => {
             // Check if latitude and longitude are defined
             if (event.latitude && event.longitude) {
@@ -124,12 +184,13 @@ const MapScreen = () => {
                 const distance = getDistance(location, eventLocation);
 
                 const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
-                const isMatchingSearch = (
-                    event.eventName.toLowerCase().includes(query.toLowerCase()) ||
-                    subjectString.includes(query.toLowerCase())
-                );
+                //const isMatchingSearch = (
+                //    event.eventName.toLowerCase().includes(query.toLowerCase()) ||
+                //    subjectString.includes(query.toLowerCase())
+                //);
 
-                return distance <= (radius * 1609.34) && isMatchingSearch; // Radius converted to meters
+                //return distance <= (radius * 1609.34) && isMatchingSearch; // Radius converted to meters
+                return distance <= (radius * 1609.34);
             } else {
                 // If latitude or longitude is missing, exclude the event
                 return false;
@@ -202,40 +263,6 @@ const MapScreen = () => {
             }], { edgePadding: { top: 20, right: 20, bottom: 20, left: 20 }, animated: true })
         }
     }
-    // const createPolyline = (eventIndex, userLocation) => {
-    //     if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
-    //         const destination = eventsCoordinates[eventIndex];
-    //         if (destination && destination.latitude && destination.longitude) {
-    //             const coordinates = [
-    //                 [userLocation.latitude, userLocation.longitude],
-    //                 [destination.latitude, destination.longitude]
-    //             ];
-
-    //             const polylineString = polyline.encode(coordinates);
-    //             const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${userLocation.latitude},${userLocation.longitude}&destination=${destination.latitude},${destination.longitude}&mode=driving&key=${MAP_API_KEY}`;
-
-    //             fetch(apiUrl)
-    //                 .then(response => response.json())
-    //                 .then(data => {
-    //                     const polylinePoints = data.routes[0].overview_polyline.points;
-    //                     const polylineCoords = decodePolyline(polylinePoints);
-    //                     setpolylineCoords(polylineCoords);
-
-    //                     if (mapRef) {
-    //                         mapRef?.current?.fitToCoordinates([
-    //                             { latitude: destination.latitude, longitude: destination.longitude },
-    //                             { latitude: userLocation.latitude, longitude: userLocation.longitude }
-    //                         ], { edgePadding: { top: 80, right: 20, bottom: 80, left: 80 }, animated: true });
-    //                     }
-    //                 })
-    //                 .catch(error => console.error(error));
-    //         } else {
-    //             console.error('Invalid destination coordinates');
-    //         }
-    //     } else {
-    //         console.error('Invalid eventIndex or eventsCoordinates is empty');
-    //     }
-    // };
 
     const createPolyline = (eventIndex, userLocation) => {
         if (eventsCoordinates.length > 0 && eventIndex >= 0 && eventIndex < eventsCoordinates.length) {
@@ -420,7 +447,7 @@ const MapScreen = () => {
                                         {visibleEvents.map((event, index) => {
                                             if (event.latitude && event.longitude) {
                                                 const coordinate = { latitude: event.latitude, longitude: event.longitude };
-                                              //  const distance = getDistance(location, coordinate);
+                                                //  const distance = getDistance(location, coordinate);
                                                 const eventSubject = event.subject;
 
                                                 let imageSource = getImageSource(eventSubject);

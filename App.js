@@ -12,8 +12,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Device from 'expo-device';
-import { View, Text, Alert } from 'react-native';
-import {LocationProvider} from "./app/components/locationGet"
+//if(__DEV__) {import("./ReactotronConfig");}
+  
+
+
 
 const Stack = createNativeStackNavigator();
 

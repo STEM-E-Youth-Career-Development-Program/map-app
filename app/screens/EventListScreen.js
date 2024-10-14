@@ -5,14 +5,13 @@ import Event from '../components/Event';
 import PageHeader from '../components/PageHeader';
 import Constants from 'expo-constants';
 import NextButton from '../components/NextButton';
-//import { useLocation } from '../components/locationGet';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Logger from '../utils/logger';
+import fetchEvents from '../utils/data';
 
 
 function EventListScreen({ route, navigation }) {
-  //const { location } = useLocation();
   const { params } = route;
   const [searchQuery, setSearchQuery] = useState('');
   const [active, setActive] = useState(true);
@@ -26,12 +25,16 @@ function EventListScreen({ route, navigation }) {
 
   useEffect(() => {
     const getLocationFromStorage = async () => {
+      
       try {
+        Logger.warn('params-navigation', params, navigation)
+
         const storedLocation = await AsyncStorage.getItem('location');
         console.log('Stored location:', storedLocation); // Add this log statement
         if (storedLocation) {
           const locationData = JSON.parse(storedLocation);
-          setLocation(locationData);
+          Logger.warn('location coords',locationData.coords)
+          setLocation(locationData.coords);
           setLoadingLocation(false);
         }
       } catch (error) {
@@ -41,33 +44,14 @@ function EventListScreen({ route, navigation }) {
     getLocationFromStorage();
   }, []);
 
-
-
-  // useEffect(() => {
-  //   const getLocation = async () => {
-  //     try {
-  //       await Location.requestForegroundPermissionsAsync({ requestAlwaysAuthorization: true });
-  //       const currentLocation = await Location.getCurrentPositionAsync({ timeout: 10000, enableHighAccuracy: true, });
-  //       console.log('Got current location in Event List:', currentLocation);
-  //       setLocation(currentLocation.coords);
-  //       // Call other functions here...
-  //     } catch (error) {
-  //       console.log('Error getting location:', error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-  //   getLocation();
-  // }, []);
-
   useEffect(() => {
-    console.log("outside",{filters,loading})
-    if(filters){
-      console.log("inside",{filters,loading})
+    console.log("outside", { filters, loading })
+    if (filters) {
+      console.log("inside", { filters, loading })
       fetchData()
     };
   }, [filters, location]);
-  
+
 
   useEffect(() => {
     // console.log("::Setting filters")
@@ -153,7 +137,7 @@ function EventListScreen({ route, navigation }) {
     try {
       setLoading(true);
       const url = buildUrl('https://mapstem-api.azurewebsites.net/api/Event', filters);
-      // console.log('Fetching data from URL:', url);
+      console.log('Fetching data from URL:', url);
 
       const response = await fetch(url);
       if (!response.ok) {
@@ -186,12 +170,12 @@ function EventListScreen({ route, navigation }) {
     if (loading) {
       return;
     }
-  
+
     if (!location) {
       console.log('Location is null, cannot calculate distance');
       return;
     }
-  
+
     const eventsWithDistance = Array.isArray(eventsAPI)
       ? eventsAPI.map((event) => {
         const eventDistance = calculateDistance(
@@ -204,11 +188,11 @@ function EventListScreen({ route, navigation }) {
         return { ...event, distance: eventDistance };
       })
       : [];
-  
+
     const filteredEvents = eventsWithDistance.filter((event) => {
       const { eventType, distance } = filters;
       const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
-  
+
       const matchesSearchQuery =
         event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         subjectString.includes(searchQuery.toLowerCase());
@@ -217,40 +201,28 @@ function EventListScreen({ route, navigation }) {
         (!active && event.eventStatus === 'Pending');
       const matchesEventType = !eventType || event.eventType === eventType;
       const matchesDistance = distance === 100 || !distance || event.distance <= distance;
-  
+
       // console.log(`Event: ${event.eventName}`);
       // console.log(`Matches search query: ${matchesSearchQuery}`);
       // console.log(`Matches status: ${matchesStatus}`);
       // console.log(`Matches event type: ${matchesEventType}`);
       // console.log(`Matches distance: ${matchesDistance}`);
-  
+
       return matchesSearchQuery && matchesStatus && matchesEventType && matchesDistance;
     });
     filteredEvents.sort((a, b) => a.distance - b.distance);
     // console.log('Filtered events:', filteredEvents);
     setFilteredData(filteredEvents);
   }, [location, eventsAPI, loading, searchQuery, active, filters]);
-  // const calculateDistance = (lat1, lon1, lat2, lon2) => {
-  //   const R = 3958.8; // Earth radius in miles
-  //   const dLat = toRadians(lat2 - lat1);
-  //   const dLon = toRadians(lon2 - lon1);
-  //   const a =
-  //     Math.sin(dLat / 2) * Math.sin(dLon / 2) +
-  //     Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  //   const distance = R * c;
-  //   return distance;
-  // };
-
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     if (!location) {
       console.log('Location is null, cannot calculate distance');
       return null;
     }
-
+    
     if (!lat1 || !lon1 || !lat2 || !lon2) {
-      console.error('Invalid latitude or longitude values');
+      console.error('Invalid latitude or longitude values',lat1, lon1, lat2, lon2);
       return null;
     }
 

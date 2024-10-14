@@ -68,6 +68,8 @@
           "NSPhotoLibraryUsageDescription": "This app requires access to the photo library to enable you to upload your photos of STEM events"
         }
       ]
-    ]
-  }
+    ],
+    "sdkVersion": "48.0.0"
+  },
+  "name": "map-app"
 }
