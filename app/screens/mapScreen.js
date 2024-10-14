@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Logger from '../utils/logger';
 import fetchEvents from '../utils/data';
 
+
 const MapScreen = () => {
     const mapRef = useRef(null);
     const carouselRef = useRef(null);
@@ -41,15 +42,26 @@ const MapScreen = () => {
         setSearchQuery(text);
     }, 300);
 
+
+    const fetchEventsData = async () => {
+        try {
+           
+        } catch (error) {
+            console.error('Error fetching events:', error);
+            setLoading(false);
+        }
+    };
+
+
     useEffect(() => {
-        
+
         const fetchData = async () => {
 
             setIsLoading(true);
 
             let { status } = await Location.requestForegroundPermissionsAsync();
 
-            Logger.info('status is ${status}',status);
+            Logger.info('status is ${status}', status);
 
             if (status !== 'granted') {
                 Alert.alert('Permission denied', 'We need location permissions to get your location.');
@@ -102,33 +114,38 @@ const MapScreen = () => {
 
                     // Store location data and timestamp in AsyncStorage
                     await AsyncStorage.setItem('location', JSON.stringify(locationData));
-                } 
-                let onsiteEvents=null;
-                fetch('https://mapstem-api.azurewebsites.net/api/Event')
-                    .then((response) => response.json())
-                    .then((data) => {
-                        setAllEvents(data);
-                        onsiteEvents = data.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
-                        seteventsData(onsiteEvents);
-                        const eventCoordinates = onsiteEvents.map((event) => ({
-                            latitude: parseFloat(event.latitude) || 29.759141,
-                            longitude: parseFloat(event.longitude) || -95.370310,
-                        }));
-                        console.log("events fetched", eventCoordinates)
+                }
+                let onsiteEvents = null;
+                // fetch('https://mapstem-api.azurewebsites.net/api/Event')
+                //     .then((response) => response.json())
+                //     .then((data) => {
+                // setAllEvents(data);
 
-                        setEventsCoordinates(eventCoordinates);
-                        setFilteredEvents(onsiteEvents); // Initially show all events
-                    })
-                    .catch((error) => {
-                        console.error('Error fetching data:', error);
-                        setFetchError(error.message);
-                    })
-                    .finally(() => setIsLoading(false));
-                
-                await AsyncStorage.setItem('onSiteEvents', JSON.stringify(onsiteEvents));
- 
-                Logger.warn("Events fetched location is ", location)
+                // Initially show all events
+                // })
+                // .catch((error) => {
+                //     console.error('Error fetching data:', error);
+                //     setFetchError(error.message);
+                // })
+                // .finally(() => setIsLoading(false));
 
+                // await AsyncStorage.setItem('onSiteEvents', JSON.stringify(onsiteEvents));
+
+                // Logger.warn("Events fetched location is ", location)
+                const events = await fetchEvents();
+            setAllEvents(events);
+            console.log("check mao screen events", events)
+            onsiteEvents = events.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
+            seteventsData(onsiteEvents);
+            const eventCoordinates = onsiteEvents.map((event) => ({
+                latitude: parseFloat(event.latitude) || 29.759141,
+                longitude: parseFloat(event.longitude) || -95.370310,
+            }));
+            console.log("events fetched", eventCoordinates)
+
+            setEventsCoordinates(eventCoordinates);
+            setFilteredEvents(onsiteEvents);
+            setLoading(false);
                 filterEventsWithinRadius(localLocation, radius);
                 console.log("filterEvent completed")
                 fitToFrame(localLocation);
@@ -175,8 +192,8 @@ const MapScreen = () => {
 
 
     const filterEventsWithinRadius = (location, radius, query) => {
-        Logger.info ('In fiterEventswithinRadius',eventsData.length);
-        
+        Logger.info('In fiterEventswithinRadius', eventsData.length);
+
         const filtered = eventsData.filter((event) => {
             // Check if latitude and longitude are defined
             if (event.latitude && event.longitude) {
@@ -184,12 +201,12 @@ const MapScreen = () => {
                 const distance = getDistance(location, eventLocation);
 
                 const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
-                //const isMatchingSearch = (
-                //    event.eventName.toLowerCase().includes(query.toLowerCase()) ||
-                //    subjectString.includes(query.toLowerCase())
-                //);
+                const isMatchingSearch = (
+                   event.eventName.toLowerCase().includes(query.toLowerCase()) ||
+                   subjectString.includes(query.toLowerCase())
+                );
 
-                //return distance <= (radius * 1609.34) && isMatchingSearch; // Radius converted to meters
+                return distance <= (radius * 1609.34) && isMatchingSearch; // Radius converted to meters
                 return distance <= (radius * 1609.34);
             } else {
                 // If latitude or longitude is missing, exclude the event

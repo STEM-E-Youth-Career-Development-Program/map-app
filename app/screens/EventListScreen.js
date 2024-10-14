@@ -10,7 +10,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Logger from '../utils/logger';
 import fetchEvents from '../utils/data';
 
-
 function EventListScreen({ route, navigation }) {
   const { params } = route;
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,6 +21,29 @@ function EventListScreen({ route, navigation }) {
 
   const [location, setLocation] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(true);
+
+  useEffect(() => {
+    // console.log("::Setting filters")
+    if (params) {
+      const { selectedSubjects, selectedCost, distance, eventType } = params;
+      setFilters((prevState) => ({
+        ...prevState,
+        selectedCost,
+        selectedSubjects,
+        distance,
+        eventType
+      }))
+    } else {
+      setFilters(prevState => ({
+        ...prevState,
+        selectedSubjects: [],
+        selectedCost: "",
+        distance: "",
+        eventType: "",
+      }))
+    }
+  }, [params])
+
 
   useEffect(() => {
     const getLocationFromStorage = async () => {
@@ -53,27 +75,7 @@ function EventListScreen({ route, navigation }) {
   }, [filters, location]);
 
 
-  useEffect(() => {
-    // console.log("::Setting filters")
-    if (params) {
-      const { selectedSubjects, selectedCost, distance, eventType } = params;
-      setFilters((prevState) => ({
-        ...prevState,
-        selectedCost,
-        selectedSubjects,
-        distance,
-        eventType
-      }))
-    } else {
-      setFilters(prevState => ({
-        ...prevState,
-        selectedSubjects: [],
-        selectedCost: "",
-        distance: "",
-        eventType: "",
-      }))
-    }
-  }, [params])
+
 
 
   useEffect(() => {
@@ -106,19 +108,19 @@ function EventListScreen({ route, navigation }) {
     return (
       <View style={styles.filterCapsule}>
         <Text style={styles.filterValue}>{formattedValue}</Text>
-        <TouchableOpacity onPress={() => removeFilter(label)}>
+        {/* <TouchableOpacity onPress={() => removeFilter(label)}>
           <MaterialCommunityIcons name="close" size={20} color="white" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     );
   };
 
-  const removeFilter = (label) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [label.toLowerCase().replace(' ', '')]: Array.isArray(prevFilters[label.toLowerCase().replace(' ', '')]) ? [] : '',
-    }));
-  };
+  // const removeFilter = (label) => {
+  //   setFilters((prevFilters) => ({
+  //     ...prevFilters,
+  //     [label.toLowerCase().replace(' ', '')]: Array.isArray(prevFilters[label.toLowerCase().replace(' ', '')]) ? [] : '',
+  //   }));
+  // };
 
   const handleSearch = (text) => {
     setSearchQuery(text);
@@ -133,38 +135,55 @@ function EventListScreen({ route, navigation }) {
   };
 
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const url = buildUrl('https://mapstem-api.azurewebsites.net/api/Event', filters);
-      console.log('Fetching data from URL:', url);
+  // const fetchData = async () => {
+  //   const eventsData = await AsyncStorage.getItem('userData');
+  //   try {
+  //     setLoading(true);
+  //     const url = buildUrl('https://mapstem-api.azurewebsites.net/api/Event', filters);
+  //     console.log('Fetching data from URL:', url);
 
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+  //     const response = await fetch(url);
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! Status: ${response.status}`);
+  //     }
+
+  //     const data = await response.json();
+  //     console.log('API response data:', data.length);
+  //     setEvents(data);
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error);
+  //     setLoading(false);
+  //   }
+  // };
+
+
+    const fetchData = async () => {
+
+      try {
+        const events = await fetchEvents();
+        setEvents(events);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        setLoading(false);
       }
-
-      const data = await response.json();
-      console.log('API response data:', data.length);
-      setEvents(data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    console.log(
-
-      "outside", { filters, loading })
-    if (filters) {
-      console.log(
-
-        "inside", { filters, loading })
-      fetchData()
     };
-  }, [filters]);
+
+
+
+
+  // useEffect(() => {
+  //   console.log(
+
+  //     "outside", { filters, loading })
+  //   if (filters) {
+  //     console.log(
+
+  //       "inside", { filters, loading })
+  //     fetchData()
+  //   };
+  // }, [filters]);
 
   useEffect(() => {
     if (loading) {
@@ -176,6 +195,7 @@ function EventListScreen({ route, navigation }) {
       return;
     }
 
+    console.log("check eventsAPI", eventsAPI.length)  
     const eventsWithDistance = Array.isArray(eventsAPI)
       ? eventsAPI.map((event) => {
         const eventDistance = calculateDistance(
@@ -189,10 +209,10 @@ function EventListScreen({ route, navigation }) {
       })
       : [];
 
+    console.log("check eventWithDistance", eventsWithDistance.length)  
     const filteredEvents = eventsWithDistance.filter((event) => {
-      const { eventType, distance } = filters;
+      const { eventType, distance, selectedSubjects, selectedCost } = filters;
       const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
-
       const matchesSearchQuery =
         event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         subjectString.includes(searchQuery.toLowerCase());
@@ -201,14 +221,33 @@ function EventListScreen({ route, navigation }) {
         (!active && event.eventStatus === 'Pending');
       const matchesEventType = !eventType || event.eventType === eventType;
       const matchesDistance = distance === 100 || !distance || event.distance <= distance;
+      const matchesCost = selectedCost === 100 || !selectedCost || event.selectedCost <= selectedCost;
+      
+      function hasCommonElement(arr1, arr2) {
+        const set1 = new Set(arr1);
+        const set2 = new Set(arr2);
+        
+        for (let elem of set1) {
+            if (set2.has(elem)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+      // const matchesCost = event.cost<=selectedCost;
+      const matchesSubject = Array.isArray(selectedSubjects) && selectedSubjects.length > 0 
+      ? hasCommonElement(event.subject, selectedSubjects)
+      : true;
+    
+      // console.log("check filteredEvents", filteredEvents.length)  
       // console.log(`Event: ${event.eventName}`);
       // console.log(`Matches search query: ${matchesSearchQuery}`);
       // console.log(`Matches status: ${matchesStatus}`);
       // console.log(`Matches event type: ${matchesEventType}`);
       // console.log(`Matches distance: ${matchesDistance}`);
 
-      return matchesSearchQuery && matchesStatus && matchesEventType && matchesDistance;
+      return matchesSearchQuery && matchesStatus && matchesEventType && matchesDistance && matchesSubject;
     });
     filteredEvents.sort((a, b) => a.distance - b.distance);
     // console.log('Filtered events:', filteredEvents);

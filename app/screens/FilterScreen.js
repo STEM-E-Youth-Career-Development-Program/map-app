@@ -90,15 +90,16 @@ const FilterScreen = ({ selectedSubjects, selectedCost }) => {
 
 
   const handleResetFilters = () => {
+    navigation.navigate('Events')
     // Reset all filter values to default
-    console.log("Resetting filters...");
-    setSelected([]);
-    setListKey(prevKey => prevKey + 1);
-    console.log("Selected subjects after reset:", selected);
-    setSelectedLocation("");
-    setShowDistance(true);
-    setDistance(50);
-    setCost(90);
+    // console.log("Resetting filters...");
+    // setSelected([]);
+    // setListKey(prevKey => prevKey + 1);
+    // console.log("Selected subjects after reset:", selected);
+    // setSelectedLocation("");
+    // setShowDistance(true);
+    // setDistance(50);
+    // setCost(90);
   };
 
   return (
