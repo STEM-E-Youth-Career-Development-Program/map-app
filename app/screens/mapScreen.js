@@ -45,7 +45,7 @@ const MapScreen = () => {
 
     const fetchEventsData = async () => {
         try {
-           
+
         } catch (error) {
             console.error('Error fetching events:', error);
             setLoading(false);
@@ -133,19 +133,19 @@ const MapScreen = () => {
 
                 // Logger.warn("Events fetched location is ", location)
                 const events = await fetchEvents();
-            setAllEvents(events);
-            console.log("check mao screen events", events)
-            onsiteEvents = events.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
-            seteventsData(onsiteEvents);
-            const eventCoordinates = onsiteEvents.map((event) => ({
-                latitude: parseFloat(event.latitude) || 29.759141,
-                longitude: parseFloat(event.longitude) || -95.370310,
-            }));
-            console.log("events fetched", eventCoordinates)
+                setAllEvents(events);
+                //console.log("check mao screen events", events)
+                onsiteEvents = events.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
+                seteventsData(onsiteEvents);
+                const eventCoordinates = onsiteEvents.map((event) => ({
+                    latitude: parseFloat(event.latitude) || 29.759141,
+                    longitude: parseFloat(event.longitude) || -95.370310,
+                }));
+                console.log("events fetched", eventCoordinates)
 
-            setEventsCoordinates(eventCoordinates);
-            setFilteredEvents(onsiteEvents);
-            setLoading(false);
+                setEventsCoordinates(eventCoordinates);
+                setFilteredEvents(onsiteEvents);
+                setLoading(false);
                 filterEventsWithinRadius(localLocation, radius);
                 console.log("filterEvent completed")
                 fitToFrame(localLocation);
@@ -202,8 +202,8 @@ const MapScreen = () => {
 
                 const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
                 const isMatchingSearch = (
-                   event.eventName.toLowerCase().includes(query.toLowerCase()) ||
-                   subjectString.includes(query.toLowerCase())
+                    event.eventName.toLowerCase().includes(query.toLowerCase()) ||
+                    subjectString.includes(query.toLowerCase())
                 );
 
                 return distance <= (radius * 1609.34) && isMatchingSearch; // Radius converted to meters
