@@ -302,7 +302,7 @@ function UpdateEventScreen({ props, route }) {
         Alert.alert(
           'Success',
           'Event update successfully!',
-          [{ text: 'OK', onPress: () => navigation.navigate('Events') }],
+          [{ text: 'OK', onPress: () => navigation.navigate('Events', { refresh: true }) }],
           { cancelable: false }
         );
       } else {
@@ -345,7 +345,7 @@ function UpdateEventScreen({ props, route }) {
         Alert.alert(
           'Success',
           'Event activated successfully',
-          [{ text: 'OK', onPress: () => navigation.navigate('Events') }],
+          [{ text: 'OK', onPress: () => navigation.navigate('Events', { refresh: true }) }],
           { cancelable: false }
         );
         setLoading(false);
@@ -384,7 +384,7 @@ function UpdateEventScreen({ props, route }) {
         Alert.alert(
           'Success',
           'Event deleted successfully',
-          [{ text: 'OK', onPress: () => navigation.navigate('Events') }],
+          [{ text: 'OK', onPress: () => navigation.navigate('Events', { refresh: true }) }],
           { cancelable: false }
         );
         setLoading(false);

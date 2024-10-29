@@ -75,7 +75,18 @@ function EventListScreen({ route, navigation }) {
   }, [filters, location]);
 
 
-
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (route.params?.refresh) {
+        AsyncStorage.removeItem('allEvents');
+        fetchData(); // Fetch updated events
+        navigation.setParams({ refresh: false }); // Reset refresh param
+      }
+    });
+  
+    return unsubscribe;
+  }, [navigation, route.params?.refresh]);
+  
 
 
   useEffect(() => {
@@ -161,6 +172,7 @@ function EventListScreen({ route, navigation }) {
     const fetchData = async () => {
 
       try {
+        // await AsyncStorage.removeItem('allEvents');
         const events = await fetchEvents();
         setEvents(events);
         setLoading(false);
