@@ -26,7 +26,7 @@ const fetchEvents = async () => {
     const response = await fetch('https://mapstem-api.azurewebsites.net/api/Event');
     const allEvents = await response.json();
 
-    console.log("Events fetched", allEvents);
+    //console.log("Events fetched", allEvents);
 
     // Store the events along with a timestamp in AsyncStorage
     const newData = {

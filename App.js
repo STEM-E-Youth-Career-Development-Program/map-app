@@ -13,7 +13,7 @@ import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Device from 'expo-device';
 //if(__DEV__) {import("./ReactotronConfig");}
-  
+
 
 
 
@@ -32,11 +32,11 @@ function App() {
   useEffect(() => {
     const handleAppStateChange = async (nextAppState) => {
       if (nextAppState === 'background' || nextAppState === 'inactive') {
-        AsyncStorage.getAllKeys((err, keys) => {
-          AsyncStorage.multiRemove(keys, (err) => {
-            console.log('AsyncStorage cleared');
-          });
-        });
+        // AsyncStorage.getAllKeys((err, keys) => {
+        //   AsyncStorage.multiRemove(keys, (err) => {
+        //     console.log('AsyncStorage cleared');
+        //   });
+        // });
       }
     };
 
@@ -52,40 +52,40 @@ function App() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar style="auto" />
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName='Home'>
-            <Stack.Screen
-              name="Home"
-              component={mapScreen}
-              options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
-            />
-            <Stack.Screen
-              name="Create Event"
-              component={CreateEventScreen}
-              options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
-            />
-            <Stack.Screen
-              name="Update Event"
-              component={UpdateEventScreen}
-              options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
-            />
-            <Stack.Screen
-              name="Events"
-              component={EventListScreen}
-              options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
-            />
-            <Stack.Screen
-              name="Event Details"
-              component={EventDetails}
-              options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
-            />
-            <Stack.Screen
-              name="Filter Events"
-              component={FilterScreen}
-              options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName='Home'>
+          <Stack.Screen
+            name="Home"
+            component={mapScreen}
+            options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
+          />
+          <Stack.Screen
+            name="Create Event"
+            component={CreateEventScreen}
+            options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
+          />
+          <Stack.Screen
+            name="Update Event"
+            component={UpdateEventScreen}
+            options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
+          />
+          <Stack.Screen
+            name="Events"
+            component={EventListScreen}
+            options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
+          />
+          <Stack.Screen
+            name="Event Details"
+            component={EventDetails}
+            options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
+          />
+          <Stack.Screen
+            name="Filter Events"
+            component={FilterScreen}
+            options={{ headerShown: false, animation: 'slide_from_right', animationDuration: 200 }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
     </SafeAreaView>
   );
 }
