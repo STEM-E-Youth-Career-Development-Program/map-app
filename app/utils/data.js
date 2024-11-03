@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
 const fetchEvents = async () => {
   try {
     const storedData = await AsyncStorage.getItem('allEvents');

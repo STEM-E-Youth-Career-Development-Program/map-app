@@ -17,6 +17,7 @@ import { debounce } from 'lodash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Logger from '../utils/logger';
 import fetchEvents from '../utils/data';
+import fetchLocation from '../utils/location';
 
 
 const MapScreen = () => {
@@ -43,14 +44,14 @@ const MapScreen = () => {
     }, 300);
 
 
-    const fetchEventsData = async () => {
-        try {
+    // const fetchEventsData = async () => {
+    //     try {
 
-        } catch (error) {
-            console.error('Error fetching events:', error);
-            setLoading(false);
-        }
-    };
+    //     } catch (error) {
+    //         console.error('Error fetching events:', error);
+    //         setLoading(false);
+    //     }
+    // };
 
 
     useEffect(() => {
@@ -73,65 +74,14 @@ const MapScreen = () => {
             try {
 
                 // Retrieve location data from AsyncStorage
-                const storedLocation = await AsyncStorage.getItem('location');
-                Logger.log('*******************stored location:', storedLocation);
+                const currentLocation = await fetchLocation();
+                Logger.log('*******************stored location:', currentLocation);
+                console.log('Using stored location:', currentLocation);
+                setLocation(currentLocation.coords);
 
-                let localLocation = null;
 
-                if (storedLocation !== null) {
-                    // Parse the stored location data
-                    const locationData = JSON.parse(storedLocation);
-
-                    const storedTimestamp = locationData.timestamp;
-                    console.log('Using stored location:', locationData.coords);
-
-                    // Get the current date and the stored date
-                    const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-                    const storedDate = new Date(storedTimestamp).toISOString().split('T')[0]; // Format: YYYY-MM-DD
-
-                    // Check if the stored date is the same as today's date
-                    if (currentDate === storedDate) {
-                        // Dates match, use stored location
-                        console.log("current date", currentDate, storedDate)
-                        localLocation = locationData.coords;
-                        setLocation(locationData.coords); // Set the stored location
-                    }
-                }
-                else {
-
-                    const currentLocation = await Location.getCurrentPositionAsync({ timeout: 10000, enableHighAccuracy: true, });
-                    Logger.log('Got current location from phone:', currentLocation);
-                    setLocation(currentLocation.coords);
-                    localLocation = currentLocation.coords;
-                    // Capture the current timestamp
-                    const currentTimestamp = Date.now();
-
-                    // Create an object to store both location and timestamp
-                    const locationData = {
-                        coords: localLocation,
-                        timestamp: currentTimestamp,
-                    };
-
-                    // Store location data and timestamp in AsyncStorage
-                    await AsyncStorage.setItem('location', JSON.stringify(locationData));
-                }
+                //retrieve event data from AsyncStorage
                 let onsiteEvents = null;
-                // fetch('https://mapstem-api.azurewebsites.net/api/Event')
-                //     .then((response) => response.json())
-                //     .then((data) => {
-                // setAllEvents(data);
-
-                // Initially show all events
-                // })
-                // .catch((error) => {
-                //     console.error('Error fetching data:', error);
-                //     setFetchError(error.message);
-                // })
-                // .finally(() => setIsLoading(false));
-
-                // await AsyncStorage.setItem('onSiteEvents', JSON.stringify(onsiteEvents));
-
-                // Logger.warn("Events fetched location is ", location)
                 const events = await fetchEvents();
                 setAllEvents(events);
                 //console.log("check mao screen events", events)
