@@ -156,10 +156,10 @@ const EventDetails = (props) => {
           <View style={{ marginLeft: '2.5%', marginTop: 12 }}>
             <Text style={{ fontWeight: 'bold', color: '#171766', fontSize: 16 }}>Event Details:</Text>
 
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+            <View style={{ marginVertical: 17 }}>
               {/* <MaterialCommunityIcons name='map-marker-outline' size={20} style={{ paddingRight: 10 }} /> */}
               <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Event Name: </Text>
-              <Text style={{ color: '#999999', maxWidth: '70%' }} numberOfLines={2} ellipsizeMode='tail'>{allDetails.eventName}</Text>
+              <Text style={{ color: '#999999', maxWidth: '97%', textAlign: "justify", fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }} ellipsizeMode='tail'>{allDetails.eventName}</Text>
             </View>
 
 
@@ -206,16 +206,16 @@ const EventDetails = (props) => {
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Grade Level: </Text>
               <Text style={{ color: '#999999' }}>{allDetails.gradeLevel}</Text>
             </View>
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
+            <View style={{ marginVertical: 17 }}>
               <View style={{ width: '8%' }} />
               <Text style={{ fontWeight: '600', paddingRight: 10 }}>Eligibility/Other: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.eligibility}</Text>
+              <Text style={{ color: '#999999', maxWidth: '97%', textAlign: "justify", fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }} ellipsizeMode='tail'>{allDetails.eligibility}</Text>
             </View>
 
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
-              <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Web URL: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.url}</Text>
+            <View style={{ marginVertical: 17 }}>
+              {/* <View style={{ width: '8%' }} /> */}
+              <Text style={{ fontWeight: '600', paddingRight: 10, }}>Web URL: </Text>
+              <Text style={{ color: '#999999', maxWidth: '97%', textAlign: "justify", fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }} ellipsizeMode='tail'>{allDetails.url}</Text>
             </View>
             {/* <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />

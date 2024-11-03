@@ -71,7 +71,7 @@ function Event({
         </View>
         <View style={styles.info}>
           <View style={{ display: 'flex', flexDirection: 'row' }}>
-            <Text style={[styles.heading, { maxWidth: '70%' }]} numberOfLines={1} ellipsizeMode='tail'>{heading}</Text>
+            <Text style={[styles.heading, { maxWidth: '70%' }]} numberOfLines={2} ellipsizeMode='tail'>{heading}</Text>
             {/* <Image style={styles.duplicate} source={require('../assets/duplicate.png')} /> */}
           </View>
           <Text style={{ fontSize: 12 }}>
