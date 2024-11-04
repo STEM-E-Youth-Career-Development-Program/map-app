@@ -17,7 +17,6 @@ import { debounce } from 'lodash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Logger from '../utils/logger';
 import fetchEvents from '../utils/data';
-import fetchLocation from '../utils/location';
 
 
 const MapScreen = () => {
@@ -44,6 +43,15 @@ const MapScreen = () => {
     }, 300);
 
 
+    const fetchEventsData = async () => {
+        try {
+
+        } catch (error) {
+            console.error('Error fetching events:', error);
+            setLoading(false);
+        }
+    };
+
 
     useEffect(() => {
 
@@ -63,16 +71,69 @@ const MapScreen = () => {
             //AsyncStorage.clear();
 
             try {
-
+                AsyncStorage.removeItem("location")
                 // Retrieve location data from AsyncStorage
-                const currentLocation = await fetchLocation();
-                Logger.log('*******************stored location:', currentLocation);
-                console.log('Using stored location:', currentLocation.coords);
-                setLocation(currentLocation.coords);
+                const storedLocation = await AsyncStorage.getItem('location');
+                Logger.log('*******************stored location:', storedLocation);
+                
 
+                let localLocation = null;
 
-                //retrieve event data from AsyncStorage
+                console.log("check local location", localLocation)
+                if (storedLocation !== null) {
+                    // Parse the stored location data
+                    const locationData = JSON.parse(storedLocation);
+
+                    const storedTimestamp = locationData.timestamp;
+                    console.log('Using stored location:', locationData.coords);
+
+                    // Get the current date and the stored date
+                    const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                    const storedDate = new Date(storedTimestamp).toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+                    // Check if the stored date is the same as today's date
+                    if (currentDate === storedDate) {
+                        // Dates match, use stored location
+                        console.log("current date", currentDate, storedDate)
+                        localLocation = locationData.coords;
+                        setLocation(locationData.coords); // Set the stored location
+                    }
+                }
+                else {
+
+                    const currentLocation = await Location.getCurrentPositionAsync({ timeout: 10000, enableHighAccuracy: true, });
+                    Logger.log('Got current location from phone:', currentLocation);
+                    setLocation(currentLocation.coords);
+                    localLocation = currentLocation.coords;
+                    // Capture the current timestamp
+                    const currentTimestamp = Date.now();
+
+                    // Create an object to store both location and timestamp
+                    const locationData = {
+                        coords: localLocation,
+                        timestamp: currentTimestamp,
+                    };
+
+                    // Store location data and timestamp in AsyncStorage
+                    await AsyncStorage.setItem('location', JSON.stringify(locationData));
+                }
                 let onsiteEvents = null;
+                // fetch('https://mapstem-api.azurewebsites.net/api/Event')
+                //     .then((response) => response.json())
+                //     .then((data) => {
+                // setAllEvents(data);
+
+                // Initially show all events
+                // })
+                // .catch((error) => {
+                //     console.error('Error fetching data:', error);
+                //     setFetchError(error.message);
+                // })
+                // .finally(() => setIsLoading(false));
+
+                // await AsyncStorage.setItem('onSiteEvents', JSON.stringify(onsiteEvents));
+
+                // Logger.warn("Events fetched location is ", location)
                 const events = await fetchEvents();
                 setAllEvents(events);
                 //console.log("check mao screen events", events)
@@ -102,55 +163,74 @@ const MapScreen = () => {
         fetchData();
     }, []);
 
-    
-    // Filter and Sorting
+
+    useEffect(() => {
+        if (eventsData.length > 0) {
+            const filteredEvent = eventsData.filter((event) => {
+                const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
+                return (
+                    event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    subjectString.includes(searchQuery.toLowerCase())
+                );
+            });
+            setFilteredEvents(filteredEvent);
+        }
+    }, [searchQuery, eventsData]);
+
     useEffect(() => {
         if (location && eventsData.length > 0) {
-            let processedEvents = eventsData;
-    
-            // Step 1: Filter based on search query
-            if (searchQuery) {
-                processedEvents = processedEvents.filter((event) => {
-                    const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
-                    return (
-                        event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        subjectString.includes(searchQuery.toLowerCase())
-                    );
-                });
-            }
-    
-            // Step 2: Filter based on location and radius
-            if (radius) {
-                processedEvents = processedEvents.filter((event) => {
-                    if (event.latitude && event.longitude) {
-                        const eventLocation = { latitude: parseFloat(event.latitude), longitude: parseFloat(event.longitude) };
-                        const distance = getDistance(location, eventLocation);
-                        return distance <= (radius * 1609.34); // Radius converted to meters
-                    }
-                    return false; // Exclude events with missing location data
-                });
-            }
-    
-            // Step 3: Sort events by proximity to location
-            processedEvents.sort((a, b) => {
+            const sortedEvents = eventsData.sort((a, b) => {
                 const distanceA = getDistance(location, { latitude: parseFloat(a.latitude), longitude: parseFloat(a.longitude) });
                 const distanceB = getDistance(location, { latitude: parseFloat(b.latitude), longitude: parseFloat(b.longitude) });
                 return distanceA - distanceB;
             });
-    
-            // Update state with processed events
-            setFilteredEvents(processedEvents);
-            setVisibleEvents(processedEvents);
-            setEventsCoordinates(processedEvents.map((event) => ({
-                latitude: parseFloat(event.latitude),
-                longitude: parseFloat(event.longitude)
-            })));
-    
+
+            setFilteredEvents(sortedEvents);
+            setVisibleEvents(sortedEvents);
+            setEventsCoordinates(sortedEvents.map((event) => ({ latitude: parseFloat(event.latitude), longitude: parseFloat(event.longitude) })));
             fitMarkersOnMap();
         }
-    }, [location, radius, searchQuery, eventsData]);
+    }, [location, eventsData]);
 
-    
+
+    const filterEventsWithinRadius = (location, radius, query) => {
+        Logger.info('In fiterEventswithinRadius', eventsData.length);
+
+        const filtered = eventsData.filter((event) => {
+            // Check if latitude and longitude are defined
+            if (event.latitude && event.longitude) {
+                const eventLocation = { latitude: parseFloat(event.latitude), longitude: parseFloat(event.longitude) };
+                const distance = getDistance(location, eventLocation);
+
+                const subjectString = Array.isArray(event.subject) ? event.subject.join(', ').toLowerCase() : '';
+                const isMatchingSearch = (
+                    event.eventName.toLowerCase().includes(query.toLowerCase()) ||
+                    subjectString.includes(query.toLowerCase())
+                );
+
+                return distance <= (radius * 1609.34) && isMatchingSearch; // Radius converted to meters
+                return distance <= (radius * 1609.34);
+            } else {
+                // If latitude or longitude is missing, exclude the event
+                return false;
+            }
+        });
+
+        setFilteredEvents(filtered);
+        setVisibleEvents(filtered);
+        setEventsCoordinates(filtered.map((event) => ({
+            latitude: parseFloat(event.latitude),
+            longitude: parseFloat(event.longitude)
+        })));
+    };
+
+
+    useEffect(() => {
+        if (location) {
+            filterEventsWithinRadius(location, radius, searchQuery);
+        }
+    }, [location, searchQuery, eventsData]);
+
 
 
     const getDistance = (coord1, coord2) => {
