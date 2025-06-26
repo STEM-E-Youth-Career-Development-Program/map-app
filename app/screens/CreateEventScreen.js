@@ -1,7 +1,16 @@
 import React, { useEffect } from "react";
-import { StyleSheet, View, Text, Platform, Image, TouchableOpacity, Button, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Platform,
+  Image,
+  TouchableOpacity,
+  Button,
+  ActivityIndicator,
+} from "react-native";
 import * as Yup from "yup";
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import AppForm from "../components/AppForm";
 import AppFormField from "../components/AppFormField";
 import PageHeader from "../components/PageHeader";
@@ -10,45 +19,33 @@ import SubmitButton from "../components/SubmitButton";
 import { FontAwesome, EvilIcons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import * as ImagePicker from 'expo-image-picker';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Formik } from 'formik';
-import { Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import * as Location from 'expo-location';
-import { MultipleSelectList } from "react-native-dropdown-select-list";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
+import { Formik } from "formik";
+import { Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import * as Location from "expo-location";
+import { Picker } from "@react-native-picker/picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const validationSchema = Yup.object().shape({
-  heading: Yup.string()
-    .required()
-    .label("Name")
+  eventName: Yup.string()
+    .required("Name is required")
     .max(50, "Must be shorter than 50 characters"),
-  grade: Yup.string()
-    .required()
-    .label("Grade")
-    .max(50, "Must be shorter than 50 characters"),
-  ageGroup: Yup.string()
-    .required()
-    .label("ageGroup")
-    .max(50, "Must be shorter than 50 characters"),
+  eventType: Yup.string().required("Event type is required"),
+  cost: Yup.number().positive("Must be greater than 0 (leave blank if 0)"),
   description: Yup.string().required("Please describe the event"),
-  subject: Yup.string().required("Please include the STEM subject"),
-  location: Yup.string().required("Please include the location"),
   startDate: Yup.date().required("Please include the start date"),
   endDate: Yup.date().min(
     Yup.ref("startDate"),
     "End date must be after start date"
   ),
-  cost: Yup.number().positive("Must be greater than 0 (leave blank if 0)"),
+  address: Yup.string().required("Please include the location"),
+  companyName: Yup.string().required("Please include the company name"),
+  subject: Yup.array().min(1, "Please select at least one subject"),
 });
 
-
-
 function CreateEventScreen({ props, route }) {
-
-
-
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
   const [mealIncludeDropdownOpen, setMealIncludeDropdownOpen] = useState(false);
@@ -62,7 +59,7 @@ function CreateEventScreen({ props, route }) {
   const [endTimeOpen, setEndTimeOpen] = useState(false);
   const [startTimeOpen, setStartTimeOpen] = useState(false);
   const [datePickerMode, setDatePickerMode] = useState("date");
-  const [showeventImage, setShowEventImage] = useState('');
+  const [showeventImage, setShowEventImage] = useState("");
   const [subjectDropdownItems, setSubjectDropdownItems] = useState([]);
   const [isFocus, setIsFocus] = useState(false);
   const [selected, setSelected] = useState([]);
@@ -94,41 +91,47 @@ function CreateEventScreen({ props, route }) {
     setEndOpen(false);
   };
 
-
   const [formValues, setFormValues] = useState({
-    ageGroup: '',
-    contactNo: '',
+    ageGroup: "",
+    contactNo: "",
     eventImage: null,
-    companyName: '',
-    eventName: '',
-    endTime: '',
-    endDate: '',
-    subject: '',
-    gradeLevel: '',
-    eligibility: '',
-    cost: '',
-    startTime: '',
-    startDate: '',
-    eventType: '',
-    address: '',
-    description: '',
-    mealInclude: '',
-    webURL: '',
+    companyName: "",
+    eventName: "",
+    endTime: "",
+    endDate: "",
+    subject: "",
+    gradeLevel: "",
+    eligibility: "",
+    cost: "",
+    startTime: "",
+    startDate: "",
+    eventType: "",
+    address: "",
+    description: "",
+    mealInclude: "",
+    webURL: "",
   });
 
   useEffect(() => {
     fetch("https://mapstem-api.azurewebsites.net/api/Subject")
       .then((response) => response.json())
       .then((data) => {
-        setSubjectDropdownItems(data.map((item) => ({
+        const formattedData = data.map((item) => ({
           label: item.name,
           value: item.id,
-        })));
+        }));
+        setSubjectDropdownItems(formattedData);
+        console.log("Formatted subjectDropdownItems:", formattedData); // Debugging log
       })
       .catch((error) => console.error("Error fetching subject data:", error));
   }, []);
 
-  const labelsName = subjectDropdownItems.map(item => item.label);
+  const labelsName = subjectDropdownItems?.map((item) => item.label) || [];
+  console.log("LabelsName:", labelsName); // Debugging log
+
+  // Ensure data prop for MultipleSelectList is valid
+  const multipleSelectData = subjectDropdownItems || [];
+  console.log("Data passed to MultipleSelectList:", multipleSelectData); // Debugging log
 
   const handleGeocode = async (address) => {
     try {
@@ -139,21 +142,22 @@ function CreateEventScreen({ props, route }) {
         const { latitude, longitude } = result[0];
         return { latitude, longitude };
       } else {
-        console.error('No location data found for the given address');
+        console.error("No location data found for the given address");
         return null;
       }
     } catch (error) {
-      console.error('Error geocoding address:', error);
+      console.error("Error geocoding address:", error);
       throw error;
     }
   };
 
   const handleImagePicker = async () => {
     try {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (permissionResult.granted === false) {
-        console.error('Permission to access media library was denied');
+        console.error("Permission to access media library was denied");
         return;
       }
 
@@ -171,77 +175,85 @@ function CreateEventScreen({ props, route }) {
         setFormValues({
           ...formValues,
           eventImage: selectedImageUri,
-
         });
         // console.log('Event Image Path:', selectedImageUri);
-        setShowEventImage(selectedImageUri)
+        setShowEventImage(selectedImageUri);
       }
     } catch (error) {
-      console.error('Error picking image', error);
+      console.error("Error picking image", error);
     }
   };
 
-
-  const handleSubmit = async (values) => {
+  const handleFormSubmit = async (values) => {
     setLoading(true);
     try {
       // console.log("check form Data", values);
       // console.log("check form Data", values.gradeLevel);
       const imageUri = formValues.eventImage ? formValues.eventImage.uri : null;
-      const selectedSubjectsString = selected.join(';');
+      const selectedSubjectsString = selected.join(";");
       // console.log("hello", selectedSubjectsString)
       const { latitude, longitude } = await handleGeocode(values.address);
       // const formattedStartTime = values.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       // const formattedEndTime = values.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const formattedStartTime = values.startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-      const formattedEndTime = values.endTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const formattedStartTime = values.startTime.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const formattedEndTime = values.endTime.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
 
       // Create FormData object
       const formData = new FormData();
-      formData.append('AgeGroup', values.ageGroup);
-      formData.append('ContactNo', values.contactNo);
+      formData.append("AgeGroup", values.ageGroup);
+      formData.append("ContactNo", values.contactNo);
       // formData.append('EventImage', {
       //   uri: formValues.eventImage,
       //   type: 'image/jpeg',
       //   name: 'image.jpg',
       // });
       if (formValues.eventImage) {
-        formData.append('EventImage', {
+        formData.append("EventImage", {
           uri: formValues.eventImage,
-          type: 'image/jpeg',
-          name: 'image.jpg',
+          type: "image/jpeg",
+          name: "image.jpg",
         });
       } else {
-        formData.append('EventImage', '');
+        formData.append("EventImage", "");
       }
-      formData.append('CompmayName', values.companyName);
-      formData.append('EventName', values.eventName);
-      formData.append('EndTime', formattedEndTime);
-      formData.append('EndDate', values.endDate.toISOString());
-      formData.append('SubjectForSaving', selectedSubjectsString);
-      formData.append('GradeLevel', values.gradeLevel);
-      formData.append('Eligibility', values.eligibility);
-      formData.append('Cost', values.cost);
-      formData.append('StartTime', formattedStartTime);
-      formData.append('StartDate', values.startDate.toISOString());
-      formData.append('EventType', values.eventType);
-      formData.append('Address', values.address);
-      formData.append('Description', values.description);
-      formData.append('MealIncluded', values.mealInclude);
-      formData.append('Url', values.webURL);
+      formData.append("CompmayName", values.companyName);
+      formData.append("EventName", values.eventName);
+      formData.append("EndTime", formattedEndTime);
+      formData.append("EndDate", values.endDate.toISOString());
+      formData.append("SubjectForSaving", selectedSubjectsString);
+      formData.append("GradeLevel", values.gradeLevel);
+      formData.append("Eligibility", values.eligibility);
+      formData.append("Cost", values.cost);
+      formData.append("StartTime", formattedStartTime);
+      formData.append("StartDate", values.startDate.toISOString());
+      formData.append("EventType", values.eventType);
+      formData.append("Address", values.address);
+      formData.append("Description", values.description);
+      formData.append("MealIncluded", values.mealInclude);
+      formData.append("Url", values.webURL);
       formData.append("Latitude", latitude);
       formData.append("Longitude", longitude);
-      console.log('Before fetch');
+      console.log("Before fetch");
       // Make the API call to upload the image
-      const response = await fetch('https://mapstem-api.azurewebsites.net/api/Event', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData,
-
-      });
-      console.log('After fetch');
+      const response = await fetch(
+        "https://mapstem-api.azurewebsites.net/api/Event",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          body: formData,
+        }
+      );
+      console.log("After fetch");
 
       // Log the response status and content
       // console.log('Response Status:', response.status);
@@ -254,9 +266,9 @@ function CreateEventScreen({ props, route }) {
         // console.log('Event created successfully');
         // Show success message
         Alert.alert(
-          'Success',
-          'Event created successfully',
-          [{ text: 'OK', onPress: () => navigation.navigate('Events') }],
+          "Success",
+          "Event created successfully",
+          [{ text: "OK", onPress: () => navigation.navigate("Events") }],
           { cancelable: false }
         );
 
@@ -265,19 +277,19 @@ function CreateEventScreen({ props, route }) {
         //   navigation.navigate('Events');
         // }, 5000);
       } else {
-        console.error('Failed to create event');
+        console.error("Failed to create event");
         // Handle the error, you can parse response.json() for more details
       }
       setLoading(false);
     } catch (error) {
-      Alert.alert('Missing Information', 'Please fill out all required fields');
+      Alert.alert("Missing Information", "Please fill out all required fields");
       setLoading(false);
       //console.error('Error creating event', error);
     }
   };
 
   const handleRemoveImage = () => {
-    setShowEventImage('');
+    setShowEventImage("");
   };
 
   return (
@@ -285,11 +297,18 @@ function CreateEventScreen({ props, route }) {
       <KeyboardAwareScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         enableOnAndroid
-        extraScrollHeight={Platform.OS === 'ios' ? 130 : 0}
+        extraScrollHeight={Platform.OS === "ios" ? 130 : 0}
       >
         <PageHeader header={"Create New Event"} />
         {loading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: "90%" }}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: "90%",
+            }}
+          >
             <ActivityIndicator size="large" color="#000" />
           </View>
         ) : (
@@ -297,54 +316,79 @@ function CreateEventScreen({ props, route }) {
             <View style={{ padding: 10, paddingBottom: 75 }}>
               <Formik
                 initialValues={formValues}
-                onSubmit={handleSubmit}
-              // validationSchema={validationSchema}
+                onSubmit={handleFormSubmit}
+                validationSchema={validationSchema}
               >
-                {({ handleChange, handleBlur, handleSubmit, values, setValues }) => (
+                {({
+                  handleChange,
+                  handleBlur,
+                  handleSubmit: formikSubmit, // Rename Formik's handleSubmit
+                  values,
+                  setValues,
+                }) => (
                   <View>
                     <Text style={{ fontSize: 16 }}>Select Event Image</Text>
-                    <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
+                    <View
+                      style={{
+                        alignItems: "center",
+                        marginTop: 10,
+                        marginBottom: 10,
+                      }}
+                    >
                       <TouchableOpacity
                         style={{
-                          backgroundColor: '#ffffff',
+                          backgroundColor: "#ffffff",
                           borderWidth: 1,
-                          borderColor: '#000',
+                          borderColor: "#000",
                           borderRadius: 10,
                           paddingVertical: 30,
                           paddingHorizontal: 20,
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: '100%',
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "100%",
                         }}
                         onPress={handleImagePicker}
                       >
-                        <FontAwesome name="plus" size={20} color="black" style={{ marginRight: 10 }} />
-
+                        <FontAwesome
+                          name="plus"
+                          size={20}
+                          color="black"
+                          style={{ marginRight: 10 }}
+                        />
                       </TouchableOpacity>
 
                       {/* Display the selected image */}
                       {showeventImage && (
-                        <View style={{ alignItems: 'center', marginTop: 10 }}>
+                        <View style={{ alignItems: "center", marginTop: 10 }}>
                           <Text style={{ fontSize: 16 }}>Selected Image:</Text>
                           <Image
                             source={{ uri: showeventImage }}
-                            style={{ width: 200, height: 200, borderRadius: 10, marginTop: 10 }}
+                            style={{
+                              width: 200,
+                              height: 200,
+                              borderRadius: 10,
+                              marginTop: 10,
+                            }}
                           />
-                          <TouchableOpacity onPress={handleRemoveImage} style={{ position: 'absolute', top: 5, right: 5 }}>
-                            <Text style={{ fontSize: 16, color: 'red' }}>X</Text>
+                          <TouchableOpacity
+                            onPress={handleRemoveImage}
+                            style={{ position: "absolute", top: 5, right: 5 }}
+                          >
+                            <Text style={{ fontSize: 16, color: "red" }}>
+                              X
+                            </Text>
                           </TouchableOpacity>
                         </View>
                       )}
                     </View>
 
-
                     <AppFormField
                       name={"heading"}
                       label="Event Name"
                       isRequired={true}
-                      onChangeText={handleChange('eventName')}
-                      onBlur={handleBlur('eventName')}
+                      onChangeText={handleChange("eventName")}
+                      onBlur={handleBlur("eventName")}
                       value={values.eventName}
                       placeholder="Event Name"
                     />
@@ -353,30 +397,39 @@ function CreateEventScreen({ props, route }) {
                       name={"eventType"}
                       label="Event Type"
                       isRequired={true}
-                      icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                      icon={
+                        <FontAwesome
+                          name="angle-down"
+                          color={"#999"}
+                          size={25}
+                        />
+                      }
                       onPress={() => setDropdownOpen(true)}
                       onDropdown={true}
                       onChangeText={(value) => {
-                        handleChange('eventType')(value); // Update Formik state
+                        handleChange("eventType")(value); // Update Formik state
                         setFormValues({ ...formValues, eventType: value });
                       }}
-                      onBlur={handleBlur('eventType')}
+                      onBlur={handleBlur("eventType")}
                       value={values.eventType}
                     />
 
-                    <AppFormField name={"cost"}
-                      label="Average Cost (in dollars)" isRequired={true}
-                      onChangeText={handleChange('cost')}
-                      onBlur={handleBlur('cost')}
+                    <AppFormField
+                      name={"cost"}
+                      label="Average Cost (in dollars)"
+                      isRequired={true}
+                      onChangeText={handleChange("cost")}
+                      onBlur={handleBlur("cost")}
                       value={values.cost}
                     />
                     <AppFormField
                       name={"description"}
-                      label="Description" isRequired={true}
+                      label="Description"
+                      isRequired={true}
                       multiline
                       numberOfLines={3}
-                      onChangeText={handleChange('description')}
-                      onBlur={handleBlur('description')}
+                      onChangeText={handleChange("description")}
+                      onBlur={handleBlur("description")}
                       value={values.description}
                     />
 
@@ -406,7 +459,10 @@ function CreateEventScreen({ props, route }) {
                         onChange={(event, selectedDate) => {
                           onChangeStartDate(event, selectedDate);
                           setValues({ ...values, startDate: selectedDate });
-                          setFormValues({ ...formValues, startDate: selectedDate });
+                          setFormValues({
+                            ...formValues,
+                            startDate: selectedDate,
+                          });
                         }}
                       />
                     )}
@@ -435,14 +491,21 @@ function CreateEventScreen({ props, route }) {
                         onChange={(event, selectedDate) => {
                           onChangeEndDate(event, selectedDate);
                           setValues({ ...values, endDate: selectedDate }); // Update Formik state
-                          setFormValues({ ...formValues, endDate: selectedDate });
+                          setFormValues({
+                            ...formValues,
+                            endDate: selectedDate,
+                          });
                         }}
                       />
                     )}
 
                     <AppFormField
                       name={"startTime"}
-                      value={startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                      value={startTime.toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
                       label="Start Time"
                       isRequired={true}
                       icon={
@@ -464,7 +527,10 @@ function CreateEventScreen({ props, route }) {
                         onChange={(event, selectedTime) => {
                           onChangeStartTime(event, selectedTime);
                           setValues({ ...values, startTime: selectedTime }); // Update Formik state
-                          setFormValues({ ...formValues, startTime: selectedTime });
+                          setFormValues({
+                            ...formValues,
+                            startTime: selectedTime,
+                          });
                         }}
                       />
                     )}
@@ -472,7 +538,11 @@ function CreateEventScreen({ props, route }) {
                     <AppFormField
                       name={"endTime"}
                       label="End Time"
-                      value={endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                      value={endTime.toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
                       isRequired={true}
                       icon={
                         <MaterialIcons
@@ -493,48 +563,55 @@ function CreateEventScreen({ props, route }) {
                         onChange={(event, selectedTime) => {
                           onChangeEndTime(event, selectedTime);
                           setValues({ ...values, endTime: selectedTime }); // Update Formik state
-                          setFormValues({ ...formValues, endTime: selectedTime });
-
+                          setFormValues({
+                            ...formValues,
+                            endTime: selectedTime,
+                          });
                         }}
                       />
                     )}
 
-                    <AppFormField name={"location"} label="Address" isRequired={true}
-                      onChangeText={handleChange('address')}
-                      onBlur={handleBlur('address')}
+                    <AppFormField
+                      name={"location"}
+                      label="Address"
+                      isRequired={true}
+                      onChangeText={handleChange("address")}
+                      onBlur={handleBlur("address")}
                       value={values.address}
                     />
                     <AppFormField
                       name={"company"}
                       label="Host/Company Name"
                       isRequired={true}
-                      onChangeText={handleChange('companyName')}
-                      onBlur={handleBlur('companyName')}
+                      onChangeText={handleChange("companyName")}
+                      onBlur={handleBlur("companyName")}
                       value={values.companyName}
                     />
 
                     <AppFormField
                       name={"contact"}
                       label="Contact Number"
-                      onChangeText={handleChange('contactNo')}
-                      onBlur={handleBlur('contactNo')}
+                      onChangeText={handleChange("contactNo")}
+                      onBlur={handleBlur("contactNo")}
                       value={values.contactNo}
                       keyboardType="numeric"
-
                     />
 
                     <Text style={styles.heading}>Subject</Text>
-                    <MultipleSelectList
-                      style={[styles.dropdown, isFocus && { borderColor: "black" }]}
-                      setSelected={(val) => setSelected(val)}
-                      data={labelsName}
-                      save="value"
-                      label="Categories"
-                      placeholder="Select Subjects"
-                      searchPlaceholder="Select Subjects"
-                      search={true}
-                      selected={selected}
-                    />
+                    <View style={styles.dropdown}>
+                      <Picker
+                        selectedValue={selected}
+                        onValueChange={(itemValue) => setSelected(itemValue)}
+                      >
+                        {subjectDropdownItems.map((item) => (
+                          <Picker.Item
+                            key={item.value}
+                            label={item.label}
+                            value={item.value}
+                          />
+                        ))}
+                      </Picker>
+                    </View>
 
                     {/* <AppFormField name={"grade"} label="Grade Level"
                   onChangeText={handleChange('gradeLevel')}
@@ -546,15 +623,19 @@ function CreateEventScreen({ props, route }) {
                       name={"gradeLevel"}
                       label="Grade Level"
                       isRequired={false}
-                      icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                      icon={
+                        <FontAwesome
+                          name="angle-down"
+                          color={"#999"}
+                          size={25}
+                        />
+                      }
                       onPress={() => setGradeLevelDropdownOpen(true)}
                       onDropdown={true}
-                      onChangeText={handleChange('gradeLevel')}
-                      onBlur={handleBlur('gradeLevel')}
+                      onChangeText={handleChange("gradeLevel")}
+                      onBlur={handleBlur("gradeLevel")}
                       value={values.gradeLevel}
-
                     />
-
 
                     {/* Elementary School, Middle School, High School, Undergraduate, Parent, Other */}
 
@@ -570,18 +651,14 @@ function CreateEventScreen({ props, route }) {
                   value={values.subject}
                 /> */}
 
-
-
-
                     <AppFormField
                       name={"eligibility"}
                       label="Eligibility / Other Notes"
                       multiline
                       numberOfLines={3}
-                      onChangeText={handleChange('eligibility')}
-                      onBlur={handleBlur('eligibility')}
+                      onChangeText={handleChange("eligibility")}
+                      onBlur={handleBlur("eligibility")}
                       value={values.eligibility}
-
                     />
                     {/* <AppFormField name={"ageGroup"} label="Age Group"
                   onChangeText={handleChange('ageGroup')}
@@ -593,30 +670,35 @@ function CreateEventScreen({ props, route }) {
                       name={"mealInclude"}
                       label="Meals Included"
                       isRequired={true}
-                      icon={<FontAwesome name="angle-down" color={"#999"} size={25} />}
+                      icon={
+                        <FontAwesome
+                          name="angle-down"
+                          color={"#999"}
+                          size={25}
+                        />
+                      }
                       onPress={() => setMealIncludeDropdownOpen(true)}
                       onDropdown={true}
-                      onChangeText={handleChange('mealInclude')}
-                      onBlur={handleBlur('mealInclude')}
+                      onChangeText={handleChange("mealInclude")}
+                      onBlur={handleBlur("mealInclude")}
                       value={values.mealInclude}
-
                     />
 
-                    <AppFormField name={"webURL"} label="Web URL"
-                      onChangeText={handleChange('webURL')}
-                      onBlur={handleBlur('webURL')}
+                    <AppFormField
+                      name={"webURL"}
+                      label="Web URL"
+                      onChangeText={handleChange("webURL")}
+                      onBlur={handleBlur("webURL")}
                       value={values.webURL}
-
                     />
-
 
                     <LinearGradient
-                      colors={['black', '#5A5A5A']}
+                      colors={["black", "#5A5A5A"]}
                       style={{
-                        alignItems: 'center',
-                        alignSelf: 'center',
-                        justifyContent: 'center',
-                        width: '95%',
+                        alignItems: "center",
+                        alignSelf: "center",
+                        justifyContent: "center",
+                        width: "95%",
                         height: 60,
                         borderRadius: 10,
                         marginVertical: 10,
@@ -634,22 +716,22 @@ function CreateEventScreen({ props, route }) {
                   /> */}
                       <TouchableOpacity
                         style={{
-                          alignItems: 'center',
-                          alignSelf: 'center',
-                          justifyContent: 'center',
-                          width: '95%',
+                          alignItems: "center",
+                          alignSelf: "center",
+                          justifyContent: "center",
+                          width: "95%",
                           height: 60,
                           borderRadius: 10,
                           marginVertical: 10,
-                          backgroundColor: 'black', // Set background color instead of using LinearGradient
+                          backgroundColor: "black", // Set background color instead of using LinearGradient
                         }}
-                        onPress={handleSubmit}
+                        onPress={formikSubmit} // Use Formik's handleSubmit
                       >
                         <Text
                           style={{
-                            color: 'white',
+                            color: "white",
                             fontSize: 25,
-                            fontWeight: 'bold',
+                            fontWeight: "bold",
                           }}
                         >
                           Submit For Approval
@@ -662,7 +744,6 @@ function CreateEventScreen({ props, route }) {
             </View>
           </>
         )}
-
       </KeyboardAwareScrollView>
     </Screen>
   );
