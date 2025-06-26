@@ -1,45 +1,77 @@
-import React from 'react';
-import Screen from './Screen';
-import PageHeader from './PageHeader';
-import Event from './Event';
-import CreateEventScreen from '../screens/CreateEventScreen';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { TouchableOpacity, View, Text, StyleSheet, Image, ScrollView, Pressable, ImageBackground, Dimensions, Linking, Share } from 'react-native';
-import Constants from 'expo-constants';
-import * as Location from 'expo-location';
+import React from "react";
+import Screen from "./Screen";
+import PageHeader from "./PageHeader";
+import Event from "./Event";
+import CreateEventScreen from "../screens/CreateEventScreen";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  Pressable,
+  ImageBackground,
+  Dimensions,
+  Linking,
+  Share,
+} from "react-native";
+import Constants from "expo-constants";
+import * as Location from "expo-location";
 
-const height = Dimensions.get('window').height
+const height = Dimensions.get("window").height;
 
 const EventDetails = (props) => {
-
   const { allDetails, distance } = props.route.params;
   const [userLocation, setUserLocation] = React.useState(null);
 
   React.useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setUserLocation({ error: 'Permission to access location was denied' });
+      if (status !== "granted") {
+        setUserLocation({ error: "Permission to access location was denied" });
         return;
       }
-  
+
       let location = await Location.getCurrentPositionAsync({});
       setUserLocation(location);
     })();
   }, []);
-  
+
   const renderImage = () => {
-    if (!allDetails.imageData) {
+    if (!allDetails.imageData && !allDetails.eventImage) {
       return (
         <ImageBackground
-          source={require('../assets/STEME.png')}
+          source={require("../assets/STEME.png")}
           style={styles.eventImgBackground}
         >
           <View style={styles.overlayView} />
-          <Image style={styles.eventImg} source={require('../assets/STEME.png')} />
+          <Image
+            style={styles.eventImg}
+            source={require("../assets/STEME.png")}
+          />
         </ImageBackground>
       );
-    } else {
+    } else if (
+      allDetails.eventImage &&
+      allDetails.eventImage.startsWith("http")
+    ) {
+      // Handle Eventbrite image URLs
+      return (
+        <ImageBackground
+          source={{ uri: allDetails.eventImage }}
+          style={styles.eventImgBackground}
+        >
+          <View style={styles.overlayView} />
+          <Image
+            style={styles.eventImg}
+            source={{ uri: allDetails.eventImage }}
+          />
+        </ImageBackground>
+      );
+    } else if (allDetails.imageData) {
+      // Handle base64 encoded images from MapSTEM
       return (
         <ImageBackground
           source={{ uri: `data:image/jpeg;base64,${allDetails.imageData}` }}
@@ -55,40 +87,41 @@ const EventDetails = (props) => {
     }
   };
 
-
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   const handleUrlPress = () => {
-    let url = allDetails.url;
+    // Handle both eventUrl (for Eventbrite) and url (for MapSTEM)
+    let url = allDetails.eventUrl || allDetails.url;
 
     // Ensure the URL has the correct protocol
-    if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
-      if (url.startsWith('www.')) {
-        url = 'http://' + url; // You can use 'https://' if you prefer
+    if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
+      if (url.startsWith("www.")) {
+        url = "https://" + url; // Prefer https for better security
       } else {
-        url = 'http://' + url; // You can use 'https://' if you prefer
+        url = "https://" + url;
       }
     }
 
     if (url) {
       Linking.openURL(url).catch((err) => {
-        console.error('Failed to open URL:', err);
+        console.error("Failed to open URL:", err);
       });
     } else {
-      console.error('Invalid URL:', url);
+      console.error("No URL available for this event");
     }
   };
 
-
-
   const handleShare = async () => {
     try {
+      const eventUrl = allDetails.eventUrl || allDetails.url;
       const result = await Share.share({
-        message: `Check out this event: ${allDetails.eventName} at ${allDetails.address}`,
-        url: allDetails.url,
+        message: `Check out this event: ${allDetails.eventName} at ${
+          allDetails.address || allDetails.eventLocation
+        }`,
+        url: eventUrl,
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -100,16 +133,25 @@ const EventDetails = (props) => {
         // Dismissed
       }
     } catch (error) {
-      console.error('Error sharing event:', error.message);
+      console.error("Error sharing event:", error.message);
     }
   };
 
-  console.log("check", userLocation? userLocation.coords.latitude : 'Waiting for location...');
+  console.log(
+    "check",
+    userLocation ? userLocation.coords.latitude : "Waiting for location..."
+  );
   const openGoogleMaps = () => {
-    const originAddress = `${userLocation? userLocation.coords.latitude : 'Waiting for location...'},${userLocation? userLocation.coords.longitude : 'Waiting for location...'}`; // Use the current location's latitude and longitude
+    const originAddress = `${
+      userLocation ? userLocation.coords.latitude : "Waiting for location..."
+    },${
+      userLocation ? userLocation.coords.longitude : "Waiting for location..."
+    }`; // Use the current location's latitude and longitude
     const destinationAddress = allDetails.address; // Get the address from the event data
 
-    const url = `https://google.com/maps?q=${encodeURIComponent(originAddress)}+to+${encodeURIComponent(destinationAddress)}`;
+    const url = `https://google.com/maps?q=${encodeURIComponent(
+      originAddress
+    )}+to+${encodeURIComponent(destinationAddress)}`;
     Linking.openURL(url);
   };
 
@@ -129,23 +171,34 @@ const EventDetails = (props) => {
           style={styles.eventImg} />
           </View> */}
           {allDetails.url && (
-            <TouchableOpacity onPress={handleUrlPress} style={[styles.iconButtons, { right: 7 }]}>
-              <Image source={require('../assets/earth.png')} style={{ width: 20, height: 20 }} />
+            <TouchableOpacity
+              onPress={handleUrlPress}
+              style={[styles.iconButtons, { right: 7 }]}
+            >
+              <Image
+                source={require("../assets/earth.png")}
+                style={{ width: 20, height: 20 }}
+              />
             </TouchableOpacity>
           )}
           <TouchableOpacity onPress={handleShare} style={styles.iconButtons}>
-            <Image source={require('../assets/share.png')} style={{ width: 20, height: 20 }} />
+            <Image
+              source={require("../assets/share.png")}
+              style={{ width: 20, height: 20 }}
+            />
           </TouchableOpacity>
         </View>
 
         <View style={styles.conduct}>
-          <Text style={{ fontWeight: 'bold', }}>Conducted By:</Text>
-          <Text style={{ fontWeight: 'bold', color: 'grey' }}>{allDetails.compmayName}</Text>
+          <Text style={{ fontWeight: "bold" }}>Conducted By:</Text>
+          <Text style={{ fontWeight: "bold", color: "grey" }}>
+            {allDetails.compmayName}
+          </Text>
         </View>
 
         {allDetails.url && (
           <Text style={styles.more}>
-            For more information and registration, visit the{' '}
+            For more information and registration, visit the{" "}
             <TouchableOpacity onPress={handleUrlPress}>
               <Text style={styles.underlineText}>Organizer's Website</Text>
             </TouchableOpacity>
@@ -153,69 +206,191 @@ const EventDetails = (props) => {
         )}
 
         <View style={styles.contentBackground}>
-          <View style={{ marginLeft: '2.5%', marginTop: 12 }}>
-            <Text style={{ fontWeight: 'bold', color: '#171766', fontSize: 16 }}>Event Details:</Text>
+          <View style={{ marginLeft: "2.5%", marginTop: 12 }}>
+            <Text
+              style={{ fontWeight: "bold", color: "#171766", fontSize: 16 }}
+            >
+              Event Details:
+            </Text>
 
             <View style={{ marginVertical: 17 }}>
               {/* <MaterialCommunityIcons name='map-marker-outline' size={20} style={{ paddingRight: 10 }} /> */}
-              <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Event Name: </Text>
-              <Text style={{ color: '#999999', maxWidth: '97%', textAlign: "justify", fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }} ellipsizeMode='tail'>{allDetails.eventName}</Text>
+              <Text style={{ fontWeight: "600", paddingRight: 2.5 }}>
+                Event Name:{" "}
+              </Text>
+              <Text
+                style={{
+                  color: "#999999",
+                  maxWidth: "97%",
+                  textAlign: "justify",
+                  fontSize: 12,
+                  marginTop: 7,
+                  lineHeight: 17,
+                  letterSpacing: 0.025,
+                }}
+                ellipsizeMode="tail"
+              >
+                {allDetails.eventName}
+              </Text>
             </View>
 
-
-            <View style={{ marginTop: 8, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <MaterialCommunityIcons name='calendar-month-outline' size={20} style={{ paddingRight: 10 }} />
-              <Text style={{ fontWeight: '600', paddingRight: 25 }}>Date: </Text>
-              <Text style={{ color: '#999999' }}>{formatDate(allDetails.startDate)} - {formatDate(allDetails.endDate)}</Text>
+            <View
+              style={{
+                marginTop: 8,
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <MaterialCommunityIcons
+                name="calendar-month-outline"
+                size={20}
+                style={{ paddingRight: 10 }}
+              />
+              <Text style={{ fontWeight: "600", paddingRight: 25 }}>
+                Date:{" "}
+              </Text>
+              <Text style={{ color: "#999999" }}>
+                {formatDate(allDetails.startDate)} -{" "}
+                {formatDate(allDetails.endDate)}
+              </Text>
             </View>
-            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-              <MaterialCommunityIcons name='calendar-month-outline' size={20} style={{ paddingRight: 10 }} />
-              <Text style={{ fontWeight: '600', paddingRight: 25 }}>Time: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.startTime} - {allDetails.endTime} </Text>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                marginTop: 4,
+              }}
+            >
+              <MaterialCommunityIcons
+                name="calendar-month-outline"
+                size={20}
+                style={{ paddingRight: 10 }}
+              />
+              <Text style={{ fontWeight: "600", paddingRight: 25 }}>
+                Time:{" "}
+              </Text>
+              <Text style={{ color: "#999999" }}>
+                {allDetails.startTime} - {allDetails.endTime}{" "}
+              </Text>
             </View>
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
-              <MaterialCommunityIcons name='map-marker-outline' size={20} style={{ paddingRight: 10 }} />
-              <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Location: </Text>
+            <View
+              style={{ marginTop: 6, display: "flex", flexDirection: "row" }}
+            >
+              <MaterialCommunityIcons
+                name="map-marker-outline"
+                size={20}
+                style={{ paddingRight: 10 }}
+              />
+              <Text style={{ fontWeight: "600", paddingRight: 2.5 }}>
+                Location:{" "}
+              </Text>
               <Pressable onPress={openGoogleMaps}>
-                <Text style={{ color: '#999999', maxWidth: '70%', textDecorationLine: "underline"}} numberOfLines={2} ellipsizeMode='tail'>{allDetails.address}</Text>
+                <Text
+                  style={{
+                    color: "#999999",
+                    maxWidth: "70%",
+                    textDecorationLine: "underline",
+                  }}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
+                  {allDetails.address}
+                </Text>
               </Pressable>
             </View>
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
-              <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 2.5 }}>Distance: </Text>
-              <Text style={{ color: '#999999' }}>{distance.toFixed(2)} mi</Text>
+            <View
+              style={{ marginTop: 6, display: "flex", flexDirection: "row" }}
+            >
+              <View style={{ width: "8%" }} />
+              <Text style={{ fontWeight: "600", paddingRight: 2.5 }}>
+                Distance:{" "}
+              </Text>
+              <Text style={{ color: "#999999" }}>{distance.toFixed(2)} mi</Text>
             </View>
 
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
-              <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Subject: </Text>
-              <Text style={{ color: '#999999', maxWidth: '70%' }} numberOfLines={2}>{allDetails.subject.join(', ')}</Text>
+            <View
+              style={{ marginTop: 6, display: "flex", flexDirection: "row" }}
+            >
+              <View style={{ width: "8%" }} />
+              <Text style={{ fontWeight: "600", paddingRight: 10 }}>
+                Subject:{" "}
+              </Text>
+              <Text
+                style={{ color: "#999999", maxWidth: "70%" }}
+                numberOfLines={2}
+              >
+                {allDetails.subject.join(", ")}
+              </Text>
             </View>
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
-              <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Event Type: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.eventType}</Text>
+            <View
+              style={{ marginTop: 6, display: "flex", flexDirection: "row" }}
+            >
+              <View style={{ width: "8%" }} />
+              <Text style={{ fontWeight: "600", paddingRight: 10 }}>
+                Event Type:{" "}
+              </Text>
+              <Text style={{ color: "#999999" }}>{allDetails.eventType}</Text>
             </View>
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
-              <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 28 }}>Average Cost: </Text>
-              <Text style={{ color: '#999999' }}>${allDetails.cost}</Text>
+            <View
+              style={{ marginTop: 6, display: "flex", flexDirection: "row" }}
+            >
+              <View style={{ width: "8%" }} />
+              <Text style={{ fontWeight: "600", paddingRight: 28 }}>
+                Average Cost:{" "}
+              </Text>
+              <Text style={{ color: "#999999" }}>${allDetails.cost}</Text>
             </View>
-            <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
-              <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Grade Level: </Text>
-              <Text style={{ color: '#999999' }}>{allDetails.gradeLevel}</Text>
+            <View
+              style={{ marginTop: 6, display: "flex", flexDirection: "row" }}
+            >
+              <View style={{ width: "8%" }} />
+              <Text style={{ fontWeight: "600", paddingRight: 10 }}>
+                Grade Level:{" "}
+              </Text>
+              <Text style={{ color: "#999999" }}>{allDetails.gradeLevel}</Text>
             </View>
             <View style={{ marginVertical: 17 }}>
-              <View style={{ width: '8%' }} />
-              <Text style={{ fontWeight: '600', paddingRight: 10 }}>Eligibility/Other: </Text>
-              <Text style={{ color: '#999999', maxWidth: '97%', textAlign: "justify", fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }} ellipsizeMode='tail'>{allDetails.eligibility}</Text>
+              <View style={{ width: "8%" }} />
+              <Text style={{ fontWeight: "600", paddingRight: 10 }}>
+                Eligibility/Other:{" "}
+              </Text>
+              <Text
+                style={{
+                  color: "#999999",
+                  maxWidth: "97%",
+                  textAlign: "justify",
+                  fontSize: 12,
+                  marginTop: 7,
+                  lineHeight: 17,
+                  letterSpacing: 0.025,
+                }}
+                ellipsizeMode="tail"
+              >
+                {allDetails.eligibility}
+              </Text>
             </View>
 
             <View style={{ marginVertical: 17 }}>
               {/* <View style={{ width: '8%' }} /> */}
-              <Text style={{ fontWeight: '600', paddingRight: 10, }}>Web URL: </Text>
-              <Text style={{ color: '#999999', maxWidth: '97%', textAlign: "justify", fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }} ellipsizeMode='tail'>{allDetails.url}</Text>
+              <Text style={{ fontWeight: "600", paddingRight: 10 }}>
+                Web URL:{" "}
+              </Text>
+              <Text
+                style={{
+                  color: "#999999",
+                  maxWidth: "97%",
+                  textAlign: "justify",
+                  fontSize: 12,
+                  marginTop: 7,
+                  lineHeight: 17,
+                  letterSpacing: 0.025,
+                }}
+                ellipsizeMode="tail"
+              >
+                {allDetails.url}
+              </Text>
             </View>
             {/* <View style={{ marginTop: 6, display: 'flex', flexDirection: 'row' }}>
               <View style={{ width: '8%' }} />
@@ -224,8 +399,23 @@ const EventDetails = (props) => {
             </View> */}
 
             <View style={{ marginVertical: 17 }}>
-              <Text style={{ fontWeight: '600', fontSize: 16 }}>Description: </Text>
-              <Text style={{ color: '#999999', maxWidth: '97%', textAlign: "justify", fontSize: 12, marginTop: 7, lineHeight: 17, letterSpacing: 0.025 }} ellipsizeMode='tail'>{allDetails.description}</Text>
+              <Text style={{ fontWeight: "600", fontSize: 16 }}>
+                Description:{" "}
+              </Text>
+              <Text
+                style={{
+                  color: "#999999",
+                  maxWidth: "97%",
+                  textAlign: "justify",
+                  fontSize: 12,
+                  marginTop: 7,
+                  lineHeight: 17,
+                  letterSpacing: 0.025,
+                }}
+                ellipsizeMode="tail"
+              >
+                {allDetails.description}
+              </Text>
             </View>
 
             {/* <View style={styles.line} />
@@ -270,9 +460,7 @@ const EventDetails = (props) => {
             </View>
 
             <Text style={{ marginBottom: 20 }}>See More Reviews</Text> */}
-
           </View>
-
         </View>
       </ScrollView>
     </>
@@ -281,15 +469,15 @@ const EventDetails = (props) => {
 
 const styles = StyleSheet.create({
   eventImg: {
-    width: '100%',
+    width: "100%",
     height: height / 3.75,
     zIndex: 0,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   iconRow: {
-    flexDirection: 'row',
-    display: 'flex',
-    position: 'absolute',
+    flexDirection: "row",
+    display: "flex",
+    position: "absolute",
     right: 10,
     top: 10,
   },
@@ -297,59 +485,60 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 40,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
   },
   conduct: {
-    width: '50%',
-    height: 'auto', // Set height to auto to accommodate varying text lengths
+    width: "50%",
+    height: "auto", // Set height to auto to accommodate varying text lengths
     borderRadius: 8,
-    backgroundColor: 'white',
-    position: 'absolute',
-    alignSelf: 'center',
-    top: '7%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    flexWrap: 'wrap', // Allow text to wrap to the next line
+    backgroundColor: "white",
+    position: "absolute",
+    alignSelf: "center",
+    top: "7%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+    flexWrap: "wrap", // Allow text to wrap to the next line
     paddingTop: 20,
     paddingRight: 10,
     paddingBottom: 20,
-    paddingLeft: 10
-
+    paddingLeft: 10,
   },
 
   more: {
     marginVertical: 20,
-    textAlign: 'center',
-    color: '#999999',
-    fontWeight: '600',
-    width: '70%',
-    alignSelf: 'center'
+    textAlign: "center",
+    color: "#999999",
+    fontWeight: "600",
+    width: "70%",
+    alignSelf: "center",
   },
   underlineText: {
-    color: '#555', fontWeight: '700', textDecorationLine: 'underline'
+    color: "#555",
+    fontWeight: "700",
+    textDecorationLine: "underline",
   },
   contentBackground: {
-    width: '95%',
-    backgroundColor: 'white',
-    alignSelf: 'center',
+    width: "95%",
+    backgroundColor: "white",
+    alignSelf: "center",
     borderRadius: 15,
   },
   line: {
-    width: '98%',
-    marginRight: '2%',
-    alignSelf: 'center',
-    borderBottomColor: 'grey',
+    width: "98%",
+    marginRight: "2%",
+    alignSelf: "center",
+    borderBottomColor: "grey",
     borderBottomWidth: 1,
     marginBottom: 10,
   },
   ratingtext: {
-    fontWeight: 'bold',
-    color: '#171766',
+    fontWeight: "bold",
+    color: "#171766",
     fontSize: 16,
-    marginTop: 5
+    marginTop: 5,
   },
   reviewpfpex: {
     width: 30,
@@ -359,20 +548,19 @@ const styles = StyleSheet.create({
   reviewstar: {
     width: 11,
     height: 11,
-    marginRight: 2
+    marginRight: 2,
   },
   reviewcomment: {
-    fontWeight: '300',
-    color: 'grey',
-    fontSize: 13
+    fontWeight: "300",
+    color: "grey",
+    fontSize: 13,
   },
   overlayView: {
     height: "100%",
     width: "100%",
-    position: 'absolute',
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-
-  }
+    position: "absolute",
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
+  },
 });
 
 export default EventDetails;
