@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import MapView, { Marker, PROVIDER_GOOGLE, Polyline, Circle } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE, Polyline, Circle, PROVIDER_DEFAULT } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { View, Text, StatusBar, SafeAreaView, Alert, Image, Dimensions, Pressable, TouchableWithoutFeedback, Keyboard, Linking } from 'react-native';
 import MapCard from '../components/MapCards';
 import SearchBar from '../components/SearchBar';
-import Carousel from 'react-native-snap-carousel';
+import Carousel from 'react-native-reanimated-carousel';
 import { decodePolyline } from '../utils/helpers';
 import TransportMode from '../components/TransportMode';
 import { MAP_API_KEY } from '@env'
@@ -19,6 +19,7 @@ import Logger from '../utils/logger';
 import fetchEvents from '../utils/data';
 import fetchLocation from '../utils/location';
 
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const MapScreen = () => {
     const mapRef = useRef(null);
@@ -258,7 +259,7 @@ const MapScreen = () => {
         createPolyline(ind, location);
 
         if (carouselRef.current) {
-            carouselRef.current.snapToItem(ind);
+            carouselRef.current.scrollTo({ index: ind, animated: true });
         }
     };
 
@@ -267,7 +268,7 @@ const MapScreen = () => {
         createPolyline(index, location);
 
         if (carouselRef.current) {
-            carouselRef.current.snapToItem(index);
+            carouselRef.current.scrollTo({ index: index, animated: true });
         }
     };
 
@@ -372,7 +373,7 @@ const MapScreen = () => {
                                     <MapView
                                         ref={mapRef}
                                         style={{ width: '100%', flex: 1, }}
-                                        provider={PROVIDER_GOOGLE}
+                                        provider={PROVIDER_DEFAULT}
 
                                     >
                                         {location && (
@@ -456,22 +457,22 @@ const MapScreen = () => {
                                     </View>
 
                                     {location && !route?.params?.eventId &&
-                                        <View style={{ position: 'absolute', bottom: 0, }}>
+                                        <View style={{ position: 'absolute', bottom: 0, width: '100%' }}>
 
                                             {visibleEvents.length > 0 ? (
                                                 <Carousel
                                                     ref={carouselRef}
                                                     data={visibleEvents}
                                                     renderItem={_renderItem}
-                                                    sliderWidth={Dimensions.get('screen').width}
-                                                    itemWidth={Dimensions.get('screen').width / 2.09}
-                                                    containerCustomStyle={{ flexGrow: 0, flex: 1, height: Dimensions.get('screen').height / 2.5, width: '100%', }}
-                                                    slideStyle={{ flex: 1, justifyContent: 'flex-end', marginHorizontal: 2.5 }}
-                                                    contentContainerCustomStyle={{ height: '100%', }}
-                                                    inactiveSlideOpacity={1}
-                                                    inactiveSlideShift={28}
-                                                    inactiveSlideScale={0.9}
-                                                    firstItem={selectedIndex}
+                                                    width={screenWidth / 2.09}
+                                                    height={screenHeight / 2.5}
+                                                    style={{ width: screenWidth }}
+                                                    mode="parallax"
+                                                    modeConfig={{
+                                                        parallaxScrollingScale: 0.9,
+                                                        parallaxScrollingOffset: 50,
+                                                    }}
+                                                    defaultIndex={selectedIndex}
                                                     onSnapToItem={onSnapFunc}
                                                 />
                                             ) : (

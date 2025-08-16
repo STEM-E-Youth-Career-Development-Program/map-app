@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import mapScreen from './app/screens/mapScreen';
 import CreateEventScreen from './app/screens/CreateEventScreen';

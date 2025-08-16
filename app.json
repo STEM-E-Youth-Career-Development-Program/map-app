@@ -1,5 +1,6 @@
 {
   "expo": {
+    "newArchEnabled": true,
     "name": "mapSTEM",
     "slug": "map-app",
     "version": "1.0.0",
@@ -9,10 +10,6 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "permissions": [
-      "ACCESS_FINE_LOCATION",
-      "ACCESS_COARSE_LOCATION"
-    ],
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -23,19 +20,14 @@
       "config": {
         "googleMapsApiKey": "AIzaSyABw1Zlew8uwDkqokOuy9d7JWo9k4Ykj80"
       },
-      "permissions": [
-        "locationWhenInUse",
-        "photoLibrary",
-        "camera",
-        "microphone",
-        "contacts"
-      ],
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Your location allows you to view STEM events while accessing the app.",
-        "NSLocationAlwaysUsageDescription": "Your location allows you to view STEM events while accessing the app.",
-        "NSLocationUsageDescription": "Your location allows you to view STEM events while accessing the app.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Your location allows you to view STEM events while accessing the app.",
+        "NSPhotoLibraryUsageDescription": "This app requires access to the photo library to enable you to upload your photos of STEM events",
         "NSPhotoLibraryAddUsageDescription": "This app requires access to the photo library to enable you to upload your photos of STEM events",
-        "NSPhotoLibraryUsageDescription": "This app requires access to the photo library to enable you to upload your photos of STEM events"
+        "NSCameraUsageDescription": "This app requires camera access to let you capture photos of STEM events",
+        "NSMicrophoneUsageDescription": "This app requires microphone access for recording audio during STEM events",
+        "NSContactsUsageDescription": "This app requires access to your contacts to share STEM events with friends"
       }
     },
     "android": {
@@ -44,11 +36,6 @@
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF"
       },
-      "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
-      ],
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyABw1Zlew8uwDkqokOuy9d7JWo9k4Ykj80"
@@ -64,12 +51,9 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Your location allows you to view STEM events while accessing the app.",
-          "NSPhotoLibraryUsageDescription": "This app requires access to the photo library to enable you to upload your photos of STEM events"
+          "locationAlwaysAndWhenInUsePermission": "Your location allows you to view STEM events while accessing the app."
         }
       ]
-    ],
-    "sdkVersion": "48.0.0"
-  },
-  "name": "map-app"
+    ]
+  }
 }
