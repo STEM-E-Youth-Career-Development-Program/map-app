@@ -9,10 +9,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "permissions": [
-      "ACCESS_FINE_LOCATION",
-      "ACCESS_COARSE_LOCATION"
-    ],
+ 
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -23,13 +20,6 @@
       "config": {
         "googleMapsApiKey": "AIzaSyABw1Zlew8uwDkqokOuy9d7JWo9k4Ykj80"
       },
-      "permissions": [
-        "locationWhenInUse",
-        "photoLibrary",
-        "camera",
-        "microphone",
-        "contacts"
-      ],
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Your location allows you to view STEM events while accessing the app.",
         "NSLocationAlwaysUsageDescription": "Your location allows you to view STEM events while accessing the app.",
@@ -68,8 +58,7 @@
           "NSPhotoLibraryUsageDescription": "This app requires access to the photo library to enable you to upload your photos of STEM events"
         }
       ]
-    ],
-    "sdkVersion": "48.0.0"
+    ]
   },
   "name": "map-app"
 }
