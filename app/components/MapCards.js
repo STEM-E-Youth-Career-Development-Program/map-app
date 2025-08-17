@@ -28,7 +28,7 @@ const MapCard = ({ item, navigation, isSelected, distance }) => {
   return (
     <TouchableOpacity activeOpacity={.9} onPress={() => navigation.navigate('Event Details', { allDetails: item, distance })} style={styles.cardItems}>
       <View style={styles.circleAvatar}>
-      {renderImage() }
+        {renderImage()}
         {/* <ImageBackground source={{ uri: base64Image }}
           style={styles.image}
         /> */}
@@ -42,10 +42,10 @@ const MapCard = ({ item, navigation, isSelected, distance }) => {
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingHorizontal: 15, marginTop: 5 }}>
         <Text style={styles.text1}>Cost: <Text style={{ fontSize: height * 0.014, color: 'grey' }}>${item.cost}</Text></Text>
-        <Text style={styles.text1}>Distance:  
-        {distance && (
-        <Text style={{ fontSize: height * 0.014, color: 'grey' }}> {distance.toFixed(2)} mi</Text>
-        )}
+        <Text style={styles.text1}>Distance:
+          {distance && (
+            <Text style={{ fontSize: height * 0.014, color: 'grey' }}> {distance.toFixed(2)} mi</Text>
+          )}
         </Text>
       </View>
       <View style={{ borderBottomColor: '#ddd', borderBottomWidth: 0.7, width: '80%', marginVertical: height * 0.018 }} />
@@ -56,7 +56,7 @@ const MapCard = ({ item, navigation, isSelected, distance }) => {
           <Text style={styles.text2}>Subject:</Text>
         </View>
         <View>
-        <Text style={styles.text3}>{calculateDuration(item.startDate, item.endDate)}</Text>
+          <Text style={styles.text3}>{calculateDuration(item.startDate, item.endDate)}</Text>
           <Text style={styles.text3}>{item.eventType}</Text>
           <Text style={[styles.text3, { maxWidth: '70%' }]} numberOfLines={1} ellipsizeMode='tail'>{item.subject.join(', ')}</Text>
         </View>
@@ -72,29 +72,26 @@ const MapCard = ({ item, navigation, isSelected, distance }) => {
 export default MapCard
 
 const styles = StyleSheet.create({
-  cardItems: {
-    width: width * 0.5,
-    height: '85%',
-    backgroundColor: 'white',
-    elevation: 5,
-    borderTopLeftRadius: width * 0.03,
-    borderTopRightRadius: width * 0.03,
-    // alignItems: 'flex-start',
-    paddingTop: height * 0.09,
-    // paddingHorizontal: width * 0.05,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  circleAvatar: {
-    borderColor: 'white',
-    elevation: 10,
-    borderWidth: 3,
-    borderRadius: 100,
-    overflow: 'hidden',
-    position: 'absolute',
-    alignSelf: 'center',
-    top: - width * 0.09
-  },
+ cardItems: {
+  width: width * 0.5,
+  height: height * 0.35,
+  backgroundColor: 'white',
+  elevation: 5,
+  borderRadius: width * 0.03,
+  justifyContent: 'flex-start',
+  alignItems: 'center',
+  paddingVertical: 10,
+},
+
+circleAvatar: {
+  borderColor: 'white',
+  elevation: 5,
+  borderWidth: 3,
+  borderRadius: 100,
+  overflow: 'hidden',
+  marginTop: -40,   // small lift, not cut outside
+},
+
   image: {
     width: width * 0.27,
     height: width * 0.27,

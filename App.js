@@ -14,7 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Device from 'expo-device';
 //if(__DEV__) {import("./ReactotronConfig");}
 
-
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 
 const Stack = createNativeStackNavigator();
@@ -50,7 +50,7 @@ function App() {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaProvider >
       <StatusBar style="auto" />
       <NavigationContainer>
         <Stack.Navigator initialRouteName='Home'>
@@ -86,7 +86,7 @@ function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
-    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

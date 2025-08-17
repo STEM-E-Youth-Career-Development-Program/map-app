@@ -18,10 +18,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Logger from '../utils/logger';
 import fetchEvents from '../utils/data';
 import fetchLocation from '../utils/location';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const MapScreen = () => {
+    
     const mapRef = useRef(null);
     const carouselRef = useRef(null);
     const route = useRoute();
@@ -79,6 +81,7 @@ const MapScreen = () => {
                 //console.log("check mao screen events", events)
                 onsiteEvents = events.filter((event) => event.eventType === 'Onsite' && event.eventStatus === 'Active');
                 seteventsData(onsiteEvents);
+                onsole.log("events fetched", onsiteEvents.length)
                 const eventCoordinates = onsiteEvents.map((event) => ({
                     latitude: parseFloat(event.latitude) || 29.759141,
                     longitude: parseFloat(event.longitude) || -95.370310,
@@ -103,12 +106,12 @@ const MapScreen = () => {
         fetchData();
     }, []);
 
-    
+
     // Filter and Sorting
     useEffect(() => {
         if (location && eventsData.length > 0) {
             let processedEvents = eventsData;
-    
+
             // Step 1: Filter based on search query
             if (searchQuery) {
                 processedEvents = processedEvents.filter((event) => {
@@ -119,7 +122,7 @@ const MapScreen = () => {
                     );
                 });
             }
-    
+
             // Step 2: Filter based on location and radius
             if (radius) {
                 processedEvents = processedEvents.filter((event) => {
@@ -131,14 +134,14 @@ const MapScreen = () => {
                     return false; // Exclude events with missing location data
                 });
             }
-    
+
             // Step 3: Sort events by proximity to location
             processedEvents.sort((a, b) => {
                 const distanceA = getDistance(location, { latitude: parseFloat(a.latitude), longitude: parseFloat(a.longitude) });
                 const distanceB = getDistance(location, { latitude: parseFloat(b.latitude), longitude: parseFloat(b.longitude) });
                 return distanceA - distanceB;
             });
-    
+
             // Update state with processed events
             setFilteredEvents(processedEvents);
             setVisibleEvents(processedEvents);
@@ -146,12 +149,12 @@ const MapScreen = () => {
                 latitude: parseFloat(event.latitude),
                 longitude: parseFloat(event.longitude)
             })));
-    
+
             fitMarkersOnMap();
         }
     }, [location, radius, searchQuery, eventsData]);
 
-    
+
 
 
     const getDistance = (coord1, coord2) => {
@@ -457,7 +460,9 @@ const MapScreen = () => {
                                     </View>
 
                                     {location && !route?.params?.eventId &&
-                                        <View style={{ position: 'absolute', bottom: 0, width: '100%' }}>
+                                        <View style={{
+                                            position: 'absolute',  bottom: -85, width: '100%',
+                                        }}>
 
                                             {visibleEvents.length > 0 ? (
                                                 <Carousel
@@ -470,10 +475,11 @@ const MapScreen = () => {
                                                     mode="parallax"
                                                     modeConfig={{
                                                         parallaxScrollingScale: 0.9,
-                                                        parallaxScrollingOffset: 50,
+                                                        parallaxScrollingOffset: 5,
                                                     }}
                                                     defaultIndex={selectedIndex}
                                                     onSnapToItem={onSnapFunc}
+                                                    loop={false}
                                                 />
                                             ) : (
                                                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
