@@ -1,6 +1,5 @@
 {
   "expo": {
-    "newArchEnabled": true,
     "name": "mapSTEM",
     "slug": "map-app",
     "version": "1.0.0",
