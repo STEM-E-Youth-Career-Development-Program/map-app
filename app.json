@@ -2,18 +2,16 @@
   "expo": {
     "name": "mapSTEM",
     "slug": "map-app",
-    "version": "1.0.0",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./app/assets/map_icon.png",
     "userInterfaceStyle": "light",
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "buildNumber": "2",
+      "buildNumber": "35",
       "supportsTablet": true,
       "bundleIdentifier": "com.demo.mapapp",
       "config": {

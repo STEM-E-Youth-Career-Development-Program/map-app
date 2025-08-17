@@ -1,24 +1,24 @@
 {
-    "cli": {
-        "appVersionSource": "remote"
+  "cli": {
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
     },
-    "build": {
-        "development": {
-            "developmentClient": true,
-            "distribution": "internal"
-        },
-        "preview": {
-            "distribution": "internal"
-        },
-        "production": {
-            "autoIncrement": true
-        }
+    "preview": {
+      "distribution": "internal"
     },
-    "submit": {
-        "production": {
-            "android": {
-                //"serviceAccountKeyPath": Provide path when releasing a new app update 
-            }
-        }
+    "production": {
+      "autoIncrement": true
     }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        //"serviceAccountKeyPath": Provide path when releasing a new app update
+      }
+    }
+  }
 }
